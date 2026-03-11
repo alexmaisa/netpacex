@@ -145,7 +145,15 @@ function renderHistoryChart() {
 
     chartContainer.style.display = 'block';
 
-    const labels = combinedData.map(d => d.test_date);
+    // Format date as DD/MM HH:MM
+    const labels = combinedData.map(d => {
+        const dt = new Date(d.raw_date);
+        const day = String(dt.getDate()).padStart(2, '0');
+        const month = String(dt.getMonth() + 1).padStart(2, '0');
+        const hours = String(dt.getHours()).padStart(2, '0');
+        const mins = String(dt.getMinutes()).padStart(2, '0');
+        return `${day}/${month} ${hours}:${mins}`;
+    });
     
     // We map out dataset values. If a datapoint doesn't exist for a type at that time, it returns null
     const wanDlData = combinedData.map(d => d.type === 'wan' ? d.download_mbps : null);
@@ -226,7 +234,12 @@ function renderHistoryChart() {
             },
             scales: {
                 x: {
-                    ticks: { color: '#9ca3af' },
+                    ticks: { 
+                        color: '#9ca3af',
+                        autoSkip: true,
+                        maxTicksLimit: 8,
+                        maxRotation: 0
+                    },
                     grid: { color: 'rgba(255, 255, 255, 0.05)' }
                 },
                 y: {
