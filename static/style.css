@@ -724,23 +724,39 @@ footer a:hover {
 }
 
 /* Averages Section Styling */
-.averages-card {
-	padding: 1.5rem !important;
-	border-left: 4px solid #10b981;
+.averages-container {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.5rem;
 }
+
+.averages-card {
+	padding: 1.25rem !important;
+}
+
+.averages-card.wan { border-left: 4px solid var(--accent-1); }
+.averages-card.lan { border-left: 4px solid var(--accent-2); }
+
+.averages-card .card-icon {
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--text-muted);
+}
+
+.averages-card.wan .card-icon { background: rgba(59, 130, 246, 0.1); color: var(--accent-1); }
+.averages-card.lan .card-icon { background: rgba(139, 92, 246, 0.1); color: var(--accent-2); }
 
 .averages-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 1.5rem;
+	gap: 1rem;
 	margin-top: 1rem;
 }
 
 .avg-item {
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
-	padding: 1rem;
+	gap: 0.25rem;
+	padding: 0.75rem;
 	background: rgba(255, 255, 255, 0.02);
 	border-radius: 12px;
 	border: 1px solid rgba(255, 255, 255, 0.04);
@@ -753,7 +769,7 @@ footer a:hover {
 }
 
 .avg-item .label {
-	font-size: 0.75rem;
+	font-size: 0.65rem;
 	color: var(--text-muted);
 	font-weight: 600;
 	text-transform: uppercase;
@@ -761,11 +777,11 @@ footer a:hover {
 }
 
 .avg-item .value {
-	font-size: 1.5rem;
+	font-size: 1.25rem;
 	font-weight: 800;
 	display: flex;
 	align-items: baseline;
-	gap: 4px;
+	gap: 3px;
 }
 
 .avg-item .value.dl { color: var(--accent-1); }
@@ -773,14 +789,21 @@ footer a:hover {
 .avg-item .value.ping { color: #10b981; }
 
 .avg-item .value small {
-	font-size: 0.8rem;
+	font-size: 0.75rem;
 	font-weight: 500;
 	opacity: 0.6;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+	.averages-container {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+}
+
+@media (max-width: 600px) {
 	.averages-grid {
 		grid-template-columns: 1fr;
-		gap: 0.75rem;
+		gap: 0.5rem;
 	}
 }

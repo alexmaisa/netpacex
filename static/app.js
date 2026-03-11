@@ -264,22 +264,27 @@ function updateAverages() {
 
     const wan24 = filterLast24h(wanHistoryData);
     const lan24 = filterLast24h(lanHistoryData);
-    const all24 = [...wan24, ...lan24];
 
-    if (all24.length === 0) {
-        document.getElementById('avg-download').textContent = '--';
-        document.getElementById('avg-upload').textContent = '--';
-        document.getElementById('avg-ping').textContent = '--';
-        return;
-    }
+    const calcAvg = (data) => {
+        if (data.length === 0) return { dl: '--', ul: '--', ping: '--' };
+        const dl = data.reduce((sum, d) => sum + d.download_mbps, 0) / data.length;
+        const ul = data.reduce((sum, d) => sum + d.upload_mbps, 0) / data.length;
+        const ping = data.reduce((sum, d) => sum + d.ping_ms, 0) / data.length;
+        return { dl: dl.toFixed(1), ul: ul.toFixed(1), ping: ping.toFixed(1) };
+    };
 
-    const avgDl = all24.reduce((sum, d) => sum + d.download_mbps, 0) / all24.length;
-    const avgUl = all24.reduce((sum, d) => sum + d.upload_mbps, 0) / all24.length;
-    const avgPing = all24.reduce((sum, d) => sum + d.ping_ms, 0) / all24.length;
+    const wanStats = calcAvg(wan24);
+    const lanStats = calcAvg(lan24);
 
-    document.getElementById('avg-download').textContent = avgDl.toFixed(1);
-    document.getElementById('avg-upload').textContent = avgUl.toFixed(1);
-    document.getElementById('avg-ping').textContent = avgPing.toFixed(1);
+    // Update WAN DOM
+    document.getElementById('avg-wan-download').textContent = wanStats.dl;
+    document.getElementById('avg-wan-upload').textContent = wanStats.ul;
+    document.getElementById('avg-wan-ping').textContent = wanStats.ping;
+
+    // Update LAN DOM
+    document.getElementById('avg-lan-download').textContent = lanStats.dl;
+    document.getElementById('avg-lan-upload').textContent = lanStats.ul;
+    document.getElementById('avg-lan-ping').textContent = lanStats.ping;
 }
 
 function renderHistoryTable() {
