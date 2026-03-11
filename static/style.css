@@ -894,6 +894,11 @@ footer a:hover {
 .averages-card.wan { border-left: 4px solid var(--accent-1); }
 .averages-card.lan { border-left: 4px solid var(--accent-2); }
 
+.averages-card .card-header {
+	justify-content: flex-start;
+	gap: 1rem;
+}
+
 .averages-card .card-icon {
 	background: rgba(255, 255, 255, 0.05);
 	color: var(--text-muted);
