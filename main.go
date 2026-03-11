@@ -80,6 +80,10 @@ func loadEnv() {
 	}
 }
 
+func floatPtr(v float64) *float64 {
+	return &v
+}
+
 func initDB() {
 	// Ensure data directory exists
 	if _, err := os.Stat("data"); os.IsNotExist(err) {
@@ -498,13 +502,13 @@ func getMACAddress(ip string) string {
 }
 
 type LANSaveRequest struct {
-	Ping         float64 `json:"ping"`
-	Jitter       float64 `json:"jitter"`
-	MinPing      float64 `json:"min_ping"`
-	MaxPing      float64 `json:"max_ping"`
-	DownloadMbps float64 `json:"download"`
-	UploadMbps   float64 `json:"upload"`
-	ConnType     string  `json:"conn_type"`
+	Ping         *float64 `json:"ping"`
+	Jitter       *float64 `json:"jitter"`
+	MinPing      *float64 `json:"min_ping"`
+	MaxPing      *float64 `json:"max_ping"`
+	DownloadMbps *float64 `json:"download"`
+	UploadMbps   *float64 `json:"upload"`
+	ConnType     string   `json:"conn_type"`
 }
 
 func handleLANSave(w http.ResponseWriter, r *http.Request) {
@@ -569,18 +573,18 @@ func formatLocalTime(rawDate string) string {
 }
 
 type LANHistory struct {
-	ID           int     `json:"id"`
-	IPAddress    string  `json:"ip_address"`
-	MACAddress   string  `json:"mac_address"`
-	PingMs       float64 `json:"ping_ms"`
-	JitterMs     float64 `json:"jitter_ms"`
-	MinPingMs    float64 `json:"min_ping_ms"`
-	MaxPingMs    float64 `json:"max_ping_ms"`
-	DownloadMbps float64 `json:"download_mbps"`
-	UploadMbps   float64 `json:"upload_mbps"`
-	ConnType     string  `json:"conn_type"`
-	TestDate     string  `json:"test_date"`
-	RawDate      string  `json:"raw_date"`
+	ID           int      `json:"id"`
+	IPAddress    string   `json:"ip_address"`
+	MACAddress   string   `json:"mac_address"`
+	PingMs       *float64 `json:"ping_ms"`
+	JitterMs     *float64 `json:"jitter_ms"`
+	MinPingMs    *float64 `json:"min_ping_ms"`
+	MaxPingMs    *float64 `json:"max_ping_ms"`
+	DownloadMbps *float64 `json:"download_mbps"`
+	UploadMbps   *float64 `json:"upload_mbps"`
+	ConnType     string   `json:"conn_type"`
+	TestDate     string   `json:"test_date"`
+	RawDate      string   `json:"raw_date"`
 }
 
 func handleLANHistory(w http.ResponseWriter, r *http.Request) {
@@ -617,16 +621,16 @@ func handleLANHistory(w http.ResponseWriter, r *http.Request) {
 // ---------------------------------------------------------
 
 type WANHistory struct {
-	ID           int     `json:"id"`
-	ServerName   string  `json:"server_name"`
-	PingMs       float64 `json:"ping_ms"`
-	JitterMs     float64 `json:"jitter_ms"`
-	MinPingMs    float64 `json:"min_ping_ms"`
-	MaxPingMs    float64 `json:"max_ping_ms"`
-	DownloadMbps float64 `json:"download_mbps"`
-	UploadMbps   float64 `json:"upload_mbps"`
-	TestDate     string  `json:"test_date"`
-	RawDate      string  `json:"raw_date"`
+	ID           int      `json:"id"`
+	ServerName   string   `json:"server_name"`
+	PingMs       *float64 `json:"ping_ms"`
+	JitterMs     *float64 `json:"jitter_ms"`
+	MinPingMs    *float64 `json:"min_ping_ms"`
+	MaxPingMs    *float64 `json:"max_ping_ms"`
+	DownloadMbps *float64 `json:"download_mbps"`
+	UploadMbps   *float64 `json:"upload_mbps"`
+	TestDate     string   `json:"test_date"`
+	RawDate      string   `json:"raw_date"`
 }
 
 func handleWANHistory(w http.ResponseWriter, r *http.Request) {
@@ -751,9 +755,18 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 
 	record := &WANHistory{
 		ServerName:   displayServer,
-		PingMs:       float64(minRTT) / 1000.0,
-		DownloadMbps: finalDl,
-		UploadMbps:   finalUl,
+		PingMs:       floatPtr(float64(minRTT) / 1000.0),
+		DownloadMbps: floatPtr(finalDl),
+		UploadMbps:   floatPtr(finalUl),
+	}
+	if minRTT == 0 {
+		record.PingMs = nil
+	}
+	if finalDl == 0 {
+		record.DownloadMbps = nil
+	}
+	if finalUl == 0 {
+		record.UploadMbps = nil
 	}
 	return record, nil
 }
@@ -833,12 +846,12 @@ func performWANTest() (*WANHistory, error) {
 	serverName := fmt.Sprintf("%s (%s)", server.Name, server.Country)
 	record := &WANHistory{
 		ServerName:   serverName,
-		PingMs:       float64(server.Latency.Milliseconds()),
-		JitterMs:     float64(server.Jitter.Milliseconds()),
-		MinPingMs:    float64(server.MinLatency.Milliseconds()),
-		MaxPingMs:    float64(server.MaxLatency.Milliseconds()),
-		DownloadMbps: dlMbps,
-		UploadMbps:   ulMbps,
+		PingMs:       floatPtr(float64(server.Latency.Milliseconds())),
+		JitterMs:     floatPtr(float64(server.Jitter.Milliseconds())),
+		MinPingMs:    floatPtr(float64(server.MinLatency.Milliseconds())),
+		MaxPingMs:    floatPtr(float64(server.MaxLatency.Milliseconds())),
+		DownloadMbps: floatPtr(dlMbps),
+		UploadMbps:   floatPtr(ulMbps),
 	}
 
 	_, dbErr := db.Exec(`

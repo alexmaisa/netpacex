@@ -426,7 +426,7 @@ function renderHistoryTable() {
         if (isWan) {
             tr.innerHTML = `
                 <td>${item.server_name}</td>
-                <td class="text-center">${item.ping_ms.toFixed(1)}</td>
+                <td class="text-center">${item.ping_ms !== null ? item.ping_ms.toFixed(1) : '--'}</td>
                 <td class="text-center">${formatSpeed(item.download_mbps, wanUnit)}</td>
                 <td class="text-center">${formatSpeed(item.upload_mbps, wanUnit)}</td>
                 <td class="text-center">${dateStr}</td>
@@ -439,7 +439,7 @@ function renderHistoryTable() {
                 <td>${item.ip_address}</td>
                 <td class="mac-cell">${displayMAC}</td>
                 <td class="text-center" title="${item.conn_type}">${connIcon}</td>
-                <td class="text-center">${item.ping_ms.toFixed(1)}</td>
+                <td class="text-center">${item.ping_ms !== null ? item.ping_ms.toFixed(1) : '--'}</td>
                 <td class="text-center">${formatSpeed(item.download_mbps, lanUnit)}</td>
                 <td class="text-center">${formatSpeed(item.upload_mbps, lanUnit)}</td>
                 <td class="text-center">${dateStr}</td>
@@ -794,19 +794,19 @@ function startWANTest() {
                 }
                 break;
             case 'ping':
-                wanPing.textContent = data.value.toFixed(1);
+                wanPing.textContent = data.value !== null ? data.value.toFixed(1) : '--';
                 wanPing.classList.remove('testing-active');
                 wanDl.classList.add('testing-active'); // Move active to next
                 wanProgress.style.width = '40%';
                 break;
             case 'download':
-                wanDl.textContent = data.value.toFixed(1);
+                wanDl.textContent = data.value !== null ? data.value.toFixed(1) : '--';
                 wanDl.classList.remove('testing-active');
                 wanUl.classList.add('testing-active'); // Move active to next
                 wanProgress.style.width = '70%';
                 break;
             case 'upload':
-                wanUl.textContent = data.value.toFixed(1);
+                wanUl.textContent = data.value !== null ? data.value.toFixed(1) : '--';
                 wanUl.classList.remove('testing-active');
                 wanProgress.style.width = '100%';
                 break;
@@ -874,13 +874,13 @@ function openDetailsModal(item, isWan) {
         badge.className = 'modal-badge lan';
     }
     
-    document.getElementById('modal-download').textContent = item.download_mbps ? item.download_mbps.toFixed(1) : '0.0';
-    document.getElementById('modal-upload').textContent = item.upload_mbps ? item.upload_mbps.toFixed(1) : '0.0';
+    document.getElementById('modal-download').textContent = (item.download_mbps !== null && item.download_mbps !== undefined) ? item.download_mbps.toFixed(1) : '--';
+    document.getElementById('modal-upload').textContent = (item.upload_mbps !== null && item.upload_mbps !== undefined) ? item.upload_mbps.toFixed(1) : '--';
     
-    document.getElementById('modal-ping-avg').textContent = item.ping_ms ? item.ping_ms.toFixed(1) : '0.0';
-    document.getElementById('modal-ping-jitter').textContent = item.jitter_ms ? item.jitter_ms.toFixed(1) : '0.0';
-    document.getElementById('modal-ping-min').textContent = item.min_ping_ms ? item.min_ping_ms.toFixed(1) : '0.0';
-    document.getElementById('modal-ping-max').textContent = item.max_ping_ms ? item.max_ping_ms.toFixed(1) : '0.0';
+    document.getElementById('modal-ping-avg').textContent = (item.ping_ms !== null && item.ping_ms !== undefined) ? item.ping_ms.toFixed(1) : '--';
+    document.getElementById('modal-ping-jitter').textContent = (item.jitter_ms !== null && item.jitter_ms !== undefined) ? item.jitter_ms.toFixed(1) : '--';
+    document.getElementById('modal-ping-min').textContent = (item.min_ping_ms !== null && item.min_ping_ms !== undefined) ? item.min_ping_ms.toFixed(1) : '--';
+    document.getElementById('modal-ping-max').textContent = (item.max_ping_ms !== null && item.max_ping_ms !== undefined) ? item.max_ping_ms.toFixed(1) : '--';
     
     modal.style.display = 'flex';
 }
@@ -1174,6 +1174,7 @@ function updateUnitLabels() {
 }
 
 function formatSpeed(mbps, unit) {
+    if (mbps === null || mbps === undefined) return '--';
     if (unit === 'Gbps') {
         return (mbps / 1000).toFixed(3);
     }
