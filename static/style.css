@@ -1000,9 +1000,9 @@ footer a:hover {
 }
 
 .settings-content {
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
 .settings-desc {
@@ -1031,9 +1031,12 @@ footer a:hover {
 .unit-group, .toggle-group {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     gap: 1.5rem;
 }
+
 .toggle-group:last-child {
 	border-bottom: none;
 }
@@ -1093,10 +1096,12 @@ footer a:hover {
 
 /* Toggle Switch */
 .switch {
-	position: relative;
-	display: inline-block;
-	width: 48px;
-	height: 24px;
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
 }
 
 .switch input {
