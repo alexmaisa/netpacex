@@ -13,9 +13,18 @@
   "lbl_download": "Unduh",
   "lbl_upload": "Unggah",
   "history_title": "Riwayat Uji WAN",
+  "history_wan_title": "Riwayat Uji WAN",
+  "history_lan_title": "Riwayat Uji LAN",
   "th_server": "Server",
+  "th_ip": "Alamat IP",
+  "th_mac": "Alamat MAC",
   "th_ping": "Ping (ms)",
   "th_download": "Unduh (Mbps)",
   "th_upload": "Unggah (Mbps)",
-  "th_date": "Tanggal"
+  "th_date": "Tanggal",
+  "nav_test": "Uji Kecepatan",
+  "nav_history": "Riwayat",
+  "btn_prev": "Sebelumnya",
+  "btn_next": "Selanjutnya",
+  "lbl_page": "Halaman"
 }

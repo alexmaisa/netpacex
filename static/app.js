@@ -22,7 +22,7 @@ const LAN_DL_SIZE_MB = 20; // Size of payload for LAN Download test
 const LAN_UL_SIZE_MB = 10; // Size of payload for LAN Upload test
 
 // -----------------------------------------------------------------
-// Localization & History Init
+// Localization Init
 // -----------------------------------------------------------------
 
 let currentLang = localStorage.getItem('lang') || 'en';
@@ -41,6 +41,7 @@ async function changeLanguage(lang) {
             const key = el.getAttribute('data-i18n');
             if (translations[key]) {
                 el.textContent = translations[key];
+                // Also update placeholders or values if needed, but innerText is usually enough
             }
         });
     } catch (e) {
@@ -48,21 +49,86 @@ async function changeLanguage(lang) {
     }
 }
 
+// Initialize Localization on page load
+changeLanguage(currentLang);
+
+// -----------------------------------------------------------------
+// Navigation & Views
+// -----------------------------------------------------------------
+function switchMainView(viewId) {
+    // Update Tabs
+    document.querySelectorAll('.main-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    // Toggle Views
+    document.getElementById('view-test').style.display = viewId === 'test' ? 'block' : 'none';
+    document.getElementById('view-history').style.display = viewId === 'history' ? 'block' : 'none';
+
+    if (viewId === 'history') {
+        fetchHistory();
+    }
+}
+
+function switchHistoryTab(tabId) {
+    document.querySelectorAll('.history-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    currentHistoryTab = tabId;
+    currentPage = 1;
+    renderHistoryTable();
+}
+
+// -----------------------------------------------------------------
+// History & Pagination Logic
+// -----------------------------------------------------------------
+let wanHistoryData = [];
+let lanHistoryData = [];
+let currentHistoryTab = 'wan';
+let currentPage = 1;
+const ITEMS_PER_PAGE = 10;
+
 async function fetchHistory() {
     try {
-        const response = await fetch('/api/wan/history');
-        if (!response.ok) return;
-        const data = await response.json();
+        const [wanRes, lanRes] = await Promise.all([
+            fetch('/api/wan/history'),
+            fetch('/api/lan/history')
+        ]);
         
-        const tbody = document.getElementById('history-body');
-        if (!tbody) return;
-        tbody.innerHTML = '';
+        if (wanRes.ok) wanHistoryData = await wanRes.json();
+        if (lanRes.ok) lanHistoryData = await lanRes.json();
         
-        data.forEach(item => {
-            const tr = document.createElement('tr');
-            const dateObj = new Date(item.test_date + 'Z'); // Convert SQLite UTC timestamp
-            const dateStr = isNaN(dateObj.getTime()) ? item.test_date : dateObj.toLocaleString();
+        renderHistoryTable();
+    } catch (e) {
+        console.error('Failed to fetch history:', e);
+    }
+}
 
+function renderHistoryTable() {
+    const isWan = currentHistoryTab === 'wan';
+    const data = isWan ? wanHistoryData : lanHistoryData;
+    
+    // Toggle Table Containers
+    document.getElementById('history-table-wan-container').style.display = isWan ? 'block' : 'none';
+    document.getElementById('history-table-lan-container').style.display = !isWan ? 'block' : 'none';
+    
+    const tbodyId = isWan ? 'history-body-wan' : 'history-body-lan';
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    const totalPages = Math.max(1, Math.ceil(data.length / ITEMS_PER_PAGE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    
+    const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedData = data.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+    
+    paginatedData.forEach(item => {
+        const tr = document.createElement('tr');
+        const dateObj = new Date(item.test_date + 'Z'); 
+        const dateStr = isNaN(dateObj.getTime()) ? item.test_date : dateObj.toLocaleString();
+
+        if (isWan) {
             tr.innerHTML = `
                 <td>${item.server_name}</td>
                 <td>${item.ping_ms.toFixed(1)}</td>
@@ -70,16 +136,43 @@ async function fetchHistory() {
                 <td>${item.upload_mbps.toFixed(1)}</td>
                 <td>${dateStr}</td>
             `;
-            tbody.appendChild(tr);
-        });
-    } catch (e) {
-        console.error('Failed to fetch history:', e);
+        } else {
+            tr.innerHTML = `
+                <td>${item.ip_address}</td>
+                <td>${item.mac_address}</td>
+                <td>${item.ping_ms.toFixed(1)}</td>
+                <td>${item.download_mbps.toFixed(1)}</td>
+                <td>${item.upload_mbps.toFixed(1)}</td>
+                <td>${dateStr}</td>
+            `;
+        }
+        tbody.appendChild(tr);
+    });
+
+    // Update Pagination UI
+    document.getElementById('page-current').textContent = currentPage;
+    document.getElementById('page-total').textContent = totalPages;
+    document.getElementById('btn-prev').disabled = currentPage === 1;
+    document.getElementById('btn-next').disabled = currentPage === totalPages;
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderHistoryTable();
     }
 }
 
-// Initialize on page load
-changeLanguage(currentLang);
-fetchHistory();
+function nextPage() {
+    const isWan = currentHistoryTab === 'wan';
+    const data = isWan ? wanHistoryData : lanHistoryData;
+    const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+    
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderHistoryTable();
+    }
+}
 
 // Utility: Sleep
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -130,6 +223,22 @@ async function startLANTest() {
 
         lanStatus.className = 'status-badge done';
         lanStatus.textContent = 'Completed';
+
+        // Save LAN results to backend
+        try {
+            await fetch('/api/lan/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ping: parseFloat(lanPing.textContent) || 0,
+                    download: parseFloat(lanDl.textContent) || 0,
+                    upload: parseFloat(lanUl.textContent) || 0
+                })
+            });
+        } catch (saveErr) {
+            console.error('Failed to save LAN results:', saveErr);
+        }
+
     } catch (e) {
         console.error(e);
         lanStatus.className = 'status-badge error';
@@ -277,9 +386,8 @@ function startWANTest() {
                 wanStatus.textContent = 'Completed';
                 eventSource.close();
                 btnLan.disabled = false;
-                btnWan.disabled = false;
+                btnWa.disabled = false;
                 setTimeout(() => wanProgress.style.width = '0%', 2000);
-                setTimeout(fetchHistory, 500); // Fetch updated history
                 break;
             case 'error':
                 console.error("WAN Error:", data);

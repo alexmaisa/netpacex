@@ -94,6 +94,10 @@ body {
 /* Header */
 header {
 	text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
 }
 
 .logo {
@@ -382,6 +386,64 @@ footer a:hover {
 	background: rgba(255, 255, 255, 0.05);
 }
 
-#history-table td {
+#history-table-wan td, #history-table-lan td {
 	color: var(--text-main);
+}
+
+/* Tabs Navigation */
+.main-tabs, .history-tabs {
+	display: flex;
+	gap: 0.5rem;
+	background: rgba(255, 255, 255, 0.05);
+	padding: 0.25rem;
+	border-radius: 12px;
+	margin-top: 1rem;
+}
+
+.history-tabs {
+	margin-top: 0;
+	margin-bottom: 1rem;
+}
+
+.tab-btn {
+	background: transparent;
+	color: var(--text-muted);
+	border: none;
+	padding: 0.5rem 1.5rem;
+	border-radius: 8px;
+	font-family: inherit;
+	font-weight: 600;
+	font-size: 0.9rem;
+	cursor: pointer;
+	transition: var(--transition);
+}
+
+.tab-btn:hover {
+	color: var(--text-main);
+}
+
+.tab-btn.active {
+	background: var(--glass-bg);
+	color: var(--text-main);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Pagination */
+.pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	margin-top: 1.5rem;
+}
+
+.pagination-btn {
+	padding: 0.5rem 1rem;
+	font-size: 0.85rem;
+}
+
+.page-info {
+	font-size: 0.9rem;
+	color: var(--text-muted);
+	font-weight: 600;
 }

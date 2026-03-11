@@ -26,14 +26,21 @@
 						<option value="id">Bahasa Indonesia</option>
 					</select>
 				</div>
+
+				<div class="main-tabs">
+					<button class="tab-btn active" onclick="switchMainView('test')" data-i18n="nav_test">Speed Test</button>
+					<button class="tab-btn" onclick="switchMainView('history')" data-i18n="nav_history">History</button>
+				</div>
 			</header>
 
-			<div class="test-controls">
-				<button id="btn-lan" class="btn primary" onclick="startLANTest()" data-i18n="btn_lan">Test LAN Speed (Client -> Server)</button>
-				<button id="btn-wan" class="btn secondary" onclick="startWANTest()" data-i18n="btn_wan">Test WAN Speed (Server -> Internet)</button>
-			</div>
+			<!-- TEST VIEW -->
+			<div id="view-test">
+				<div class="test-controls">
+					<button id="btn-lan" class="btn primary" onclick="startLANTest()" data-i18n="btn_lan">Test LAN Speed (Client -> Server)</button>
+					<button id="btn-wan" class="btn secondary" onclick="startWANTest()" data-i18n="btn_wan">Test WAN Speed (Server -> Internet)</button>
+				</div>
 
-			<div class="results-grid">
+				<div class="results-grid">
 				<!-- LAN Results Card -->
 				<div class="card lan-card glass">
 					<div class="card-header">
@@ -86,26 +93,59 @@
 				</div>
 			</div>
 
-			<!-- WAN History Section -->
-			<div class="history-section glass" style="margin-top: 1.5rem;">
-				<div class="card-header">
-					<h2 data-i18n="history_title">WAN Test History</h2>
-				</div>
-				<div class="table-container">
-					<table id="history-table">
-						<thead>
-							<tr>
-								<th data-i18n="th_server">Server</th>
-								<th data-i18n="th_ping">Ping (ms)</th>
-								<th data-i18n="th_download">DL (Mbps)</th>
-								<th data-i18n="th_upload">UL (Mbps)</th>
-								<th data-i18n="th_date">Date</th>
-							</tr>
-						</thead>
-						<tbody id="history-body">
-							<!-- Populated by JS -->
-						</tbody>
-					</table>
+			<!-- HISTORY VIEW -->
+			<div id="view-history" style="display: none;">
+				<div class="history-section glass">
+					<div class="card-header history-header">
+						<div class="history-tabs">
+							<button class="tab-btn active" onclick="switchHistoryTab('wan')" data-i18n="history_wan_title">WAN Test History</button>
+							<button class="tab-btn" onclick="switchHistoryTab('lan')" data-i18n="history_lan_title">LAN Test History</button>
+						</div>
+					</div>
+
+					<!-- WAN History Table -->
+					<div id="history-table-wan-container" class="table-container">
+						<table id="history-table-wan">
+							<thead>
+								<tr>
+									<th data-i18n="th_server">Server</th>
+									<th data-i18n="th_ping">Ping (ms)</th>
+									<th data-i18n="th_download">DL (Mbps)</th>
+									<th data-i18n="th_upload">UL (Mbps)</th>
+									<th data-i18n="th_date">Date</th>
+								</tr>
+							</thead>
+							<tbody id="history-body-wan">
+								<!-- Populated by JS -->
+							</tbody>
+						</table>
+					</div>
+
+					<!-- LAN History Table -->
+					<div id="history-table-lan-container" class="table-container" style="display: none;">
+						<table id="history-table-lan">
+							<thead>
+								<tr>
+									<th data-i18n="th_ip">IP Address</th>
+									<th data-i18n="th_mac">MAC Address</th>
+									<th data-i18n="th_ping">Ping (ms)</th>
+									<th data-i18n="th_download">DL (Mbps)</th>
+									<th data-i18n="th_upload">UL (Mbps)</th>
+									<th data-i18n="th_date">Date</th>
+								</tr>
+							</thead>
+							<tbody id="history-body-lan">
+								<!-- Populated by JS -->
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Pagination Controls -->
+					<div class="pagination">
+						<button id="btn-prev" class="btn secondary pagination-btn" onclick="prevPage()" disabled data-i18n="btn_prev">Previous</button>
+						<span class="page-info"><span data-i18n="lbl_page">Page</span> <span id="page-current">1</span> / <span id="page-total">1</span></span>
+						<button id="btn-next" class="btn secondary pagination-btn" onclick="nextPage()" disabled data-i18n="btn_next">Next</button>
+					</div>
 				</div>
 			</div>
 		</main>

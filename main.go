@@ -7,8 +7,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
+	"os/exec"
+	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/showwin/speedtest-go/speedtest"
 	_ "modernc.org/sqlite"
@@ -27,6 +31,15 @@ func initDB() {
 	CREATE TABLE IF NOT EXISTS wan_history (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		server_name TEXT,
+		ping_ms REAL,
+		download_mbps REAL,
+		upload_mbps REAL,
+		test_date DATETIME DEFAULT CURRENT_TIMESTAMP
+	);
+	CREATE TABLE IF NOT EXISTS lan_history (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		ip_address TEXT,
+		mac_address TEXT,
 		ping_ms REAL,
 		download_mbps REAL,
 		upload_mbps REAL,
@@ -50,6 +63,8 @@ func main() {
 	http.HandleFunc("/api/lan/ping", handleLANPing)
 	http.HandleFunc("/api/lan/download", handleLANDownload)
 	http.HandleFunc("/api/lan/upload", handleLANUpload)
+	http.HandleFunc("/api/lan/save", handleLANSave)
+	http.HandleFunc("/api/lan/history", handleLANHistory)
 
 	// WAN Testing Endpoints
 	http.HandleFunc("/api/wan/test", handleWANTest)
@@ -119,6 +134,117 @@ func handleLANUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 // ---------------------------------------------------------
+// LAN HISTORY HANDLERS & HELPERS
+// ---------------------------------------------------------
+
+// getClientIP extracts IP from X-Real-IP, X-Forwarded-For, or RemoteAddr
+func getClientIP(r *http.Request) string {
+	ip := r.Header.Get("X-Real-IP")
+	if ip == "" {
+		ip = r.Header.Get("X-Forwarded-For")
+	}
+	if ip == "" {
+		ip, _, _ = net.SplitHostPort(r.RemoteAddr)
+	}
+	if ip == "::1" || ip == "" {
+		ip = "127.0.0.1" // Default local
+	}
+	return ip
+}
+
+// getMACAddress attempts to find MAC from ARP table using the IP
+func getMACAddress(ip string) string {
+	if ip == "127.0.0.1" || ip == "localhost" {
+		return "Localhost / Unbound"
+	}
+	out, err := exec.Command("arp", "-n", ip).Output()
+	if err != nil {
+		return "Unknown MAC"
+	}
+	
+	// Example arp output: "? (192.168.1.5) at a1:b2:c3:d4:e5:f6 on en0 ifscope [ethernet]"
+	// Extract MAC using regex
+	re := regexp.MustCompile(`([0-9a-fA-F]{1,2}[:-]){5}([0-9a-fA-F]{1,2})`)
+	match := re.FindString(string(out))
+	
+	if match != "" {
+		return strings.ToLower(match)
+	}
+	return "Unknown MAC"
+}
+
+type LANSaveRequest struct {
+	Ping           float64 `json:"ping"`
+	DownloadMbps   float64 `json:"download"`
+	UploadMbps     float64 `json:"upload"`
+}
+
+func handleLANSave(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req LANSaveRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	ip := getClientIP(r)
+	mac := getMACAddress(ip)
+
+	_, err := db.Exec(`
+		INSERT INTO lan_history (ip_address, mac_address, ping_ms, download_mbps, upload_mbps) 
+		VALUES (?, ?, ?, ?, ?)
+	`, ip, mac, req.Ping, req.DownloadMbps, req.UploadMbps)
+	
+	if err != nil {
+		log.Printf("Failed to save LAN history: %v", err)
+		http.Error(w, "DB Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+type LANHistory struct {
+	ID           int     `json:"id"`
+	IPAddress    string  `json:"ip_address"`
+	MACAddress   string  `json:"mac_address"`
+	PingMs       float64 `json:"ping_ms"`
+	DownloadMbps float64 `json:"download_mbps"`
+	UploadMbps   float64 `json:"upload_mbps"`
+	TestDate     string  `json:"test_date"`
+}
+
+func handleLANHistory(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query("SELECT id, ip_address, mac_address, ping_ms, download_mbps, upload_mbps, test_date FROM lan_history ORDER BY id DESC")
+	if err != nil {
+		http.Error(w, "Failed to fetch LAN history: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var history []LANHistory
+	for rows.Next() {
+		var record LANHistory
+		if err := rows.Scan(&record.ID, &record.IPAddress, &record.MACAddress, &record.PingMs, &record.DownloadMbps, &record.UploadMbps, &record.TestDate); err != nil {
+			log.Printf("Error scanning lan row: %v", err)
+			continue
+		}
+		history = append(history, record)
+	}
+
+	if history == nil {
+		history = []LANHistory{}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(history)
+}
+
+// ---------------------------------------------------------
 // WAN TEST HANDLERS (Server to Internet)
 // ---------------------------------------------------------
 
@@ -132,7 +258,7 @@ type WANHistory struct {
 }
 
 func handleWANHistory(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT id, server_name, ping_ms, download_mbps, upload_mbps, test_date FROM wan_history ORDER BY id DESC LIMIT 20")
+	rows, err := db.Query("SELECT id, server_name, ping_ms, download_mbps, upload_mbps, test_date FROM wan_history ORDER BY id DESC")
 	if err != nil {
 		http.Error(w, "Failed to fetch history: "+err.Error(), http.StatusInternalServerError)
 		return

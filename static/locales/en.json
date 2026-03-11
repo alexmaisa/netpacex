@@ -13,9 +13,18 @@
   "lbl_download": "Download",
   "lbl_upload": "Upload",
   "history_title": "WAN Test History",
+  "history_wan_title": "WAN Test History",
+  "history_lan_title": "LAN Test History",
   "th_server": "Server",
+  "th_ip": "IP Address",
+  "th_mac": "MAC Address",
   "th_ping": "Ping (ms)",
   "th_download": "DL (Mbps)",
   "th_upload": "UL (Mbps)",
-  "th_date": "Date"
+  "th_date": "Date",
+  "nav_test": "Speed Test",
+  "nav_history": "History",
+  "btn_prev": "Previous",
+  "btn_next": "Next",
+  "lbl_page": "Page"
 }
