@@ -22,6 +22,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/showwin/speedtest-go/speedtest"
+	"github.com/m-lab/ndt7-client-go"
 	_ "modernc.org/sqlite"
 )
 
@@ -138,6 +139,7 @@ func initDB() {
 		"cron_lan_enable": "false",
 		"cron_lan_expr": "30 * * * *",
 		"cron_lan_target": "",
+		"wan_engine": "ookla",
 	}
 	for k, v := range defaults {
 		db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?);`, k, v)
@@ -663,6 +665,75 @@ type WANEvent struct {
 	Info  string      `json:"info"`  // Extra info like server name
 }
 
+// getWanEngine returns the currently selected WAN engine from settings
+func getWanEngine() string {
+	var engine string
+	err := db.QueryRow("SELECT value FROM settings WHERE key = 'wan_engine'").Scan(&engine)
+	if err != nil {
+		return "ookla"
+	}
+	return engine
+}
+
+// runMLabTest performs a speed test using the M-Lab NDT7 protocol.
+func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, error) {
+	c := ndt7.NewClient("netpacex", "1.0.0")
+	
+	send := func(e WANEvent) {
+		if sseHandler != nil {
+			sseHandler(e)
+		}
+	}
+
+	send(WANEvent{Type: "info", Info: "Locating M-Lab server..."})
+	
+	// Download
+	send(WANEvent{Type: "info", Info: "Starting M-Lab Download test..."})
+	dlResults, err := c.StartDownload(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("mlab download failed: %v", err)
+	}
+	
+	var finalDl float64
+	for m := range dlResults {
+		if m.AppInfo != nil {
+			elapsed := float64(m.AppInfo.ElapsedTime) / 1000000.0 // seconds
+			if elapsed > 0 {
+				mbps := (float64(m.AppInfo.NumBytes) * 8 / 1000000.0) / elapsed
+				finalDl = mbps
+				send(WANEvent{Type: "download", Value: mbps})
+			}
+		}
+	}
+
+	// Upload
+	send(WANEvent{Type: "info", Info: "Starting M-Lab Upload test..."})
+	ulResults, err := c.StartUpload(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("mlab upload failed: %v", err)
+	}
+
+	var finalUl float64
+	for m := range ulResults {
+		if m.AppInfo != nil {
+			elapsed := float64(m.AppInfo.ElapsedTime) / 1000000.0
+			if elapsed > 0 {
+				mbps := (float64(m.AppInfo.NumBytes) * 8 / 1000000.0) / elapsed
+				finalUl = mbps
+				send(WANEvent{Type: "upload", Value: mbps})
+			}
+		}
+	}
+
+	record := &WANHistory{
+		ServerName:   "M-Lab NDT7 Server",
+		PingMs:       0, // NDT7 RTT placeholder
+		DownloadMbps: finalDl,
+		UploadMbps:   finalUl,
+	}
+	return record, nil
+}
+
 // performWANTest executes a speedtest and returns results. Does NOT use flusher/SSE.
 func performWANTest() (*WANHistory, error) {
 	if !testMutex.TryLock() {
@@ -670,8 +741,24 @@ func performWANTest() (*WANHistory, error) {
 	}
 	defer testMutex.Unlock()
 
+	engine := getWanEngine()
+	if engine == "mlab" {
+		record, err := runMLabTest(context.Background(), nil)
+		if err != nil {
+			return nil, err
+		}
+		_, dbErr := db.Exec(`
+			INSERT INTO wan_history (server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps) 
+			VALUES (?, ?, ?, ?, ?, ?, ?)
+		`, record.ServerName, record.PingMs, record.JitterMs, record.MinPingMs, record.MaxPingMs, record.DownloadMbps, record.UploadMbps)
+		if dbErr != nil {
+			log.Printf("Failed to insert scheduled M-Lab WAN history: %v", dbErr)
+		}
+		return record, nil
+	}
+
 	startTest := time.Now()
-	log.Println("Cron: Starting WAN speed test...")
+	log.Println("Cron: Starting WAN speed test (Ookla)...")
 	// 1. Fetch user info
 	_, err := speedtest.FetchUserInfo()
 	if err != nil {
@@ -757,11 +844,37 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 	}
 
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	flusher.Flush()
+
 	if !testMutex.TryLock() {
 		sendEvent("error", "Test in progress", "Another speed test is currently in progress. Please wait for it to finish.")
 		return
 	}
 	defer testMutex.Unlock()
+
+	engine := getWanEngine()
+	if engine == "mlab" {
+		record, err := runMLabTest(r.Context(), func(e WANEvent) {
+			sendEvent(e.Type, e.Value, e.Info)
+		})
+		if err != nil {
+			sendEvent("error", err.Error(), "M-Lab test failed")
+			return
+		}
+		// Save M-Lab record to history manually since runMLabTest doesn't do it yet
+		_, dbErr := db.Exec(`
+			INSERT INTO wan_history (server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps) 
+			VALUES (?, ?, ?, ?, ?, ?, ?)
+		`, record.ServerName, record.PingMs, record.JitterMs, record.MinPingMs, record.MaxPingMs, record.DownloadMbps, record.UploadMbps)
+		if dbErr != nil {
+			log.Printf("Failed to insert M-Lab WAN history: %v", dbErr)
+		}
+		sendEvent("done", nil, "Test completed")
+		return
+	}
 
 	// 1. Fetch user info
 	user, err := speedtest.FetchUserInfo()

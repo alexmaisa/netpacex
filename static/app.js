@@ -38,7 +38,8 @@ let appSettings = {
     cron_wan_expr: '0 * * * *',
     cron_lan_enable: 'false',
     cron_lan_expr: '30 * * * *',
-    cron_lan_target: ''
+    cron_lan_target: '',
+    wan_engine: 'ookla'
 };
 
 let isPasswordProtected = false;
@@ -968,6 +969,10 @@ function renderSettings() {
     
     wanRadios.forEach(r => r.checked = r.value === appSettings.wan_unit);
     lanRadios.forEach(r => r.checked = r.value === appSettings.lan_unit);
+
+    // Engine Section
+    const engineSelect = document.getElementById('set-wan-engine');
+    if (engineSelect) engineSelect.value = appSettings.wan_engine || 'ookla';
 
     // Conditional Security Settings
     const deleteToggle = document.getElementById('set-allow-delete');

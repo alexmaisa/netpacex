@@ -383,6 +383,16 @@
 									<span class="slider round"></span>
 								</label>
 							</div>
+							<div class="toggle-group">
+								<div class="toggle-info">
+									<span data-i18n="set_wan_engine">Speed Test Engine</span>
+									<p class="settings-desc" data-i18n="set_wan_engine_desc">Choose the service used for Internet tests.</p>
+								</div>
+								<select id="set-wan-engine" class="settings-control" style="width: 120px;" onchange="updateSetting('wan_engine', this.value)">
+									<option value="ookla">Ookla</option>
+									<option value="mlab">M-Lab</option>
+								</select>
+							</div>
 						</div>
 					</div>
 
