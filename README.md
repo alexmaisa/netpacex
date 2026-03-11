@@ -61,4 +61,6 @@ We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for 
 
 ## License
 
-This project is open-source and available under the terms of the MIT License.
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)** License.
+You are free to share and adapt the material for non-commercial purposes, provided you give appropriate credit.
+See the [LICENSE](LICENSE) file for more information.
