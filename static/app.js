@@ -198,14 +198,14 @@ function renderHistoryChart() {
                     {
                         label: 'Download (Mbps)',
                         data: sortedLan.map(d => d.download_mbps),
-                        borderColor: '#8b5cf6', // violet
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderColor: '#10b981', // emerald
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
                         label: 'Upload (Mbps)',
                         data: sortedLan.map(d => d.upload_mbps),
-                        borderColor: '#8b5cf6',
+                        borderColor: '#10b981',
                         borderDash: [5, 5],
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
@@ -217,7 +217,7 @@ function renderHistoryChart() {
                     }
                 ]
             },
-            options: getChartOptions('LAN Speed (Mbps)', '#8b5cf6')
+            options: getChartOptions('LAN Speed (Mbps)', '#10b981')
         });
     } else {
         lanChartWrapper.style.display = 'none';

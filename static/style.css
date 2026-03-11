@@ -9,7 +9,7 @@
 	--text-muted: #94a3b8;   /* Slate 400 */
 	
 	--accent-1: #3b82f6;     /* Blue 500 */
-	--accent-2: #8b5cf6;     /* Violet 500 */
+	--accent-2: #10b981;     /* Emerald 500 */
 	--accent-success: #10b981; /* Emerald 500 */
 	--glass-bg: rgba(30, 41, 59, 0.7); /* Slate 800 with opacity */
 	--glass-border: rgba(255, 255, 255, 0.1);
@@ -63,7 +63,7 @@ body {
 	left: -10%;
 	width: 50vw;
 	height: 50vw;
-	background: radial-gradient(circle, var(--accent-2) 0%, transparent 70%);
+	background: radial-gradient(circle, var(--accent-1) 0%, transparent 70%);
 }
 
 .blob-2 {
@@ -71,7 +71,7 @@ body {
 	right: -10%;
 	width: 60vw;
 	height: 60vw;
-	background: radial-gradient(circle, var(--accent-1) 0%, transparent 70%);
+	background: radial-gradient(circle, var(--accent-2) 0%, transparent 70%);
 	animation-delay: -10s;
 }
 
