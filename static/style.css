@@ -99,6 +99,32 @@ body {
 	padding: 1rem 2rem;
 	margin-bottom: 1rem;
 	gap: 1.5rem;
+	position: relative;
+	z-index: 1001;
+	overflow: visible !important;
+}
+
+.nav-menu {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+}
+
+.menu-toggle {
+	display: none;
+	background: transparent;
+	border: 1px solid var(--glass-border);
+	color: var(--text-main);
+	padding: 0.5rem;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: var(--transition);
+	z-index: 1002;
+	flex-shrink: 0;
+}
+
+.menu-toggle:hover {
+	background: rgba(255, 255, 255, 0.05);
 }
 
 .header-brand {
@@ -443,7 +469,89 @@ footer a:hover {
 }
 
 /* Responsive */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+	.app-header {
+		padding: 1rem 1.5rem;
+		gap: 1rem;
+	}
+
+	.header-brand {
+		max-width: calc(100% - 60px);
+	}
+
+	.logo {
+		font-size: 1.8rem;
+	}
+
+	.subtitle {
+		font-size: 0.85rem;
+	}
+
+	.menu-toggle {
+		display: block;
+	}
+
+	.nav-menu {
+		position: fixed;
+		top: 5.5rem;
+		right: 1.25rem;
+		height: auto;
+		max-height: calc(100vh - 7rem);
+		width: 260px;
+		background: rgba(15, 23, 42, 0.85);
+		backdrop-filter: blur(24px);
+		-webkit-backdrop-filter: blur(24px);
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: stretch;
+		padding: 1.25rem;
+		gap: 1.5rem;
+		border-radius: 24px;
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+		
+		/* Animation: Scale & Fade */
+		opacity: 0;
+		visibility: hidden;
+		transform: scale(0.95) translateY(-10px);
+		transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+		z-index: 2000;
+		overflow-y: auto;
+	}
+
+	.nav-menu.active {
+		opacity: 1;
+		visibility: visible;
+		transform: scale(1) translateY(0);
+		right: 1.25rem; /* Ensure it stays floating */
+	}
+
+	.main-tabs {
+		flex-direction: column;
+		background: rgba(255, 255, 255, 0.03);
+		padding: 0.5rem;
+		border-radius: 16px;
+		gap: 0.25rem;
+	}
+
+	.main-tabs .tab-btn {
+		width: 100%;
+		text-align: left;
+		padding: 0.85rem 1.25rem;
+		border-radius: 12px;
+		font-size: 0.95rem;
+	}
+
+	.lang-switcher {
+		margin-top: 0.5rem;
+		width: 100%;
+		padding: 0 0.5rem;
+	}
+
+	#lang-select {
+		width: 100%;
+	}
+
 	.container {
 		padding: 1rem 0.5rem;
 	}

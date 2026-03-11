@@ -16,6 +16,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -28,6 +29,7 @@ var (
 	db           *sql.DB
 	appPassword  string
 	rateLimitMap = make(map[string]time.Time)
+	testMutex    sync.Mutex
 )
 
 func init() {
@@ -320,7 +322,13 @@ func updateCron() {
 
 // performLANTest executes a full LAN test suite to a target IP
 func performLANTest(targetIP string) {
-	// For background tests, we need to simulate the multi-step LAN test (Ping, DL, UL)
+	if !testMutex.TryLock() {
+		log.Printf("Cron: Skipping LAN test to %s because another test is already in progress", targetIP)
+		return
+	}
+	defer testMutex.Unlock()
+
+	startTest := time.Now()
 	// This is a simplified version since we can't stream to a real client browser
 	// However, we can measure from server to target IP if target IP is another NetPaceX instance
 	// or simple ping/throughput if possible.
@@ -377,6 +385,7 @@ func performLANTest(targetIP string) {
 	if err != nil {
 		log.Printf("Cron: Failed to save scheduled LAN history: %v", err)
 	}
+	log.Printf("Cron: LAN test to %s completed in %v", targetIP, time.Since(startTest))
 }
 
 // ---------------------------------------------------------
@@ -393,7 +402,12 @@ func handleLANPing(w http.ResponseWriter, r *http.Request) {
 
 // handleLANDownload streams random binary data to the client to measure download speed
 func handleLANDownload(w http.ResponseWriter, r *http.Request) {
-	// Get size in megabytes from query param, default to 10MB
+	if !testMutex.TryLock() {
+		http.Error(w, "Another speed test is currently in progress. Please wait for it to finish.", http.StatusConflict)
+		return
+	}
+	defer testMutex.Unlock()
+
 	sizeStr := r.URL.Query().Get("size")
 	sizeMB := 10 // Default 10 MB
 	if sizeStr != "" {
@@ -419,6 +433,12 @@ func handleLANUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	if !testMutex.TryLock() {
+		http.Error(w, "Another speed test is currently in progress. Please wait for it to finish.", http.StatusConflict)
+		return
+	}
+	defer testMutex.Unlock()
 
 	// Discard the entire body
 	written, err := io.Copy(io.Discard, r.Body)
@@ -645,6 +665,13 @@ type WANEvent struct {
 
 // performWANTest executes a speedtest and returns results. Does NOT use flusher/SSE.
 func performWANTest() (*WANHistory, error) {
+	if !testMutex.TryLock() {
+		return nil, fmt.Errorf("another test is already in progress")
+	}
+	defer testMutex.Unlock()
+
+	startTest := time.Now()
+	log.Println("Cron: Starting WAN speed test...")
 	// 1. Fetch user info
 	_, err := speedtest.FetchUserInfo()
 	if err != nil {
@@ -663,26 +690,33 @@ func performWANTest() (*WANHistory, error) {
 	}
 
 	server := targets[0]
+	log.Printf("Cron: Selected Server: %s - %s (%s) Distance: %.2f km", server.ID, server.Name, server.Country, server.Distance)
 
 	// 3. Ping Test
+	log.Println("Cron: Starting Ping test...")
 	err = server.PingTest(nil)
 	if err != nil {
 		return nil, fmt.Errorf("ping test failed: %v", err)
 	}
+	log.Printf("Cron: Ping result: %v ms (Jitter: %v ms)", server.Latency.Milliseconds(), server.Jitter.Milliseconds())
 
 	// 4. Download Test
+	log.Println("Cron: Starting Download test...")
 	err = server.DownloadTest()
 	if err != nil {
 		return nil, fmt.Errorf("download test failed: %v", err)
 	}
 	dlMbps := server.DLSpeed.Mbps()
+	log.Printf("Cron: Download result: %.2f Mbps", dlMbps)
 
 	// 5. Upload Test
+	log.Println("Cron: Starting Upload test...")
 	err = server.UploadTest()
 	if err != nil {
 		return nil, fmt.Errorf("upload test failed: %v", err)
 	}
 	ulMbps := server.ULSpeed.Mbps()
+	log.Printf("Cron: Upload result: %.2f Mbps", ulMbps)
 
 	// 6. Save to History
 	serverName := fmt.Sprintf("%s (%s)", server.Name, server.Country)
@@ -704,16 +738,12 @@ func performWANTest() (*WANHistory, error) {
 		log.Printf("Failed to insert scheduled WAN history: %v", dbErr)
 	}
 
+	log.Printf("Cron: WAN test completed in %v", time.Since(startTest))
 	return record, nil
 }
 
 // handleWANTest performs an Ookla speed test from the server and streams results via SSE
 func handleWANTest(w http.ResponseWriter, r *http.Request) {
-	// Set headers for Server-Sent Events (SSE)
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
@@ -726,6 +756,12 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "data: %s\n\n", data)
 		flusher.Flush()
 	}
+
+	if !testMutex.TryLock() {
+		sendEvent("error", "Test in progress", "Another speed test is currently in progress. Please wait for it to finish.")
+		return
+	}
+	defer testMutex.Unlock()
 
 	// 1. Fetch user info
 	user, err := speedtest.FetchUserInfo()

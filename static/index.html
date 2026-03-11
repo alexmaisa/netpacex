@@ -29,18 +29,28 @@
 				<p class="subtitle" data-i18n="subtitle">Lightweight Network Speedtest</p>
 			</div>
 
-			<div class="main-tabs">
-				<button class="tab-btn active" onclick="switchMainView('test')" data-i18n="nav_test">Speed Test</button>
-				<button class="tab-btn" onclick="switchMainView('history')" data-i18n="nav_history">History</button>
-				<button class="tab-btn" onclick="switchMainView('settings')" data-i18n="nav_settings">Settings</button>
-			</div>
+			<button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="3" y1="12" x2="21" y2="12"></line>
+					<line x1="3" y1="6" x2="21" y2="6"></line>
+					<line x1="3" y1="18" x2="21" y2="18"></line>
+				</svg>
+			</button>
 
-			<div class="lang-switcher">
-				<select id="lang-select" onchange="changeLanguage(this.value)">
-					<option value="en">English</option>
-					<option value="id">Bahasa Indonesia</option>
-				</select>
-			</div>
+			<nav id="nav-menu" class="nav-menu">
+				<div class="main-tabs">
+					<button class="tab-btn active" onclick="switchMainView('test')" data-i18n="nav_test">Speed Test</button>
+					<button class="tab-btn" onclick="switchMainView('history')" data-i18n="nav_history">History</button>
+					<button class="tab-btn" onclick="switchMainView('settings')" data-i18n="nav_settings">Settings</button>
+				</div>
+
+				<div class="lang-switcher">
+					<select id="lang-select" onchange="changeLanguage(this.value)">
+						<option value="en">English</option>
+						<option value="id">Bahasa Indonesia</option>
+					</select>
+				</div>
+			</nav>
 		</header>
 
 		<!-- TEST VIEW -->

@@ -114,7 +114,31 @@ function switchMainView(viewId) {
     } else if (viewId === 'settings') {
         renderSettings();
     }
+
+    // Close mobile menu if open
+    const navMenu = document.getElementById('nav-menu');
+    if (navMenu) navMenu.classList.remove('active');
 }
+
+// Hamburger Menu Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.getElementById('nav-menu');
+
+    if (menuToggle && navMenu) {
+        menuToggle.onclick = (e) => {
+            e.stopPropagation();
+            navMenu.classList.toggle('active');
+        };
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (navMenu.classList.contains('active') && !navMenu.contains(e.target) && e.target !== menuToggle) {
+                navMenu.classList.remove('active');
+            }
+        });
+    }
+});
 
 function closeTestCard(type) {
     const launcher = document.getElementById('test-launcher');
@@ -583,6 +607,12 @@ async function startLANTest() {
         console.error(e);
         lanStatus.className = 'status-badge error';
         lanStatus.textContent = currentTranslations['status_error'] || 'Error';
+        
+        // Show specific error if it's a concurrency conflict
+        if (e.message.includes('progress')) {
+            showToast(e.message, 'error');
+        }
+        
         finishLANTestUI();
     }
 }
@@ -651,6 +681,10 @@ async function measureLANDownload() {
     const start = performance.now();
     const response = await fetch(`/api/lan/download?size=${LAN_DL_SIZE_MB}`, { cache: 'no-store' });
     
+    if (response.status === 409) {
+        const text = await response.text();
+        throw new Error(text);
+    }
     if (!response.ok) throw new Error('Download failed');
     
     // Read the stream totally into memory to calculate speed
@@ -689,6 +723,10 @@ async function measureLANUpload() {
         body: payload
     });
 
+    if (response.status === 409) {
+        const text = await response.text();
+        throw new Error(text);
+    }
     if (!response.ok) throw new Error('Upload failed');
     
     const result = await response.json();
