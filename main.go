@@ -695,7 +695,20 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 	}
 	
 	var finalDl float64
+	var minRTT uint32 = 0
+	var serverIP string
+
 	for m := range dlResults {
+		if m.ConnectionInfo != nil && m.ConnectionInfo.Server != "" {
+			serverIP = m.ConnectionInfo.Server
+		}
+		if m.TCPInfo != nil && m.TCPInfo.MinRTT > 0 {
+			if minRTT == 0 || m.TCPInfo.MinRTT < minRTT {
+				minRTT = m.TCPInfo.MinRTT
+			}
+			// Send interim ping update if possible (in ms)
+			send(WANEvent{Type: "ping", Value: float64(minRTT) / 1000.0, Info: ""})
+		}
 		if m.AppInfo != nil {
 			elapsed := float64(m.AppInfo.ElapsedTime) / 1000000.0 // seconds
 			if elapsed > 0 {
@@ -715,6 +728,12 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 
 	var finalUl float64
 	for m := range ulResults {
+		if m.TCPInfo != nil && m.TCPInfo.MinRTT > 0 {
+			if minRTT == 0 || m.TCPInfo.MinRTT < minRTT {
+				minRTT = m.TCPInfo.MinRTT
+			}
+			send(WANEvent{Type: "ping", Value: float64(minRTT) / 1000.0, Info: ""})
+		}
 		if m.AppInfo != nil {
 			elapsed := float64(m.AppInfo.ElapsedTime) / 1000000.0
 			if elapsed > 0 {
@@ -725,9 +744,14 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 		}
 	}
 
+	displayServer := "M-Lab NDT7 Server"
+	if serverIP != "" {
+		displayServer = fmt.Sprintf("%s (M-Lab NDT7)", serverIP)
+	}
+
 	record := &WANHistory{
-		ServerName:   "M-Lab NDT7 Server",
-		PingMs:       0, // NDT7 RTT placeholder
+		ServerName:   displayServer,
+		PingMs:       float64(minRTT) / 1000.0,
 		DownloadMbps: finalDl,
 		UploadMbps:   finalUl,
 	}

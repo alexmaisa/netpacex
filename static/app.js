@@ -1145,11 +1145,32 @@ async function performSave() {
 }
 
 function updateUnitLabels() {
-    const wanUnits = document.querySelectorAll('#wan-card .unit, #avg-wan-download + small, #avg-wan-upload + small, .unit-wan');
-    const lanUnits = document.querySelectorAll('#lan-card .unit, #avg-lan-download + small, #avg-lan-upload + small, .unit-lan');
-    
-    wanUnits.forEach(el => el.textContent = appSettings.wan_unit);
-    lanUnits.forEach(el => el.textContent = appSettings.lan_unit);
+    // 1. Update all spans using data-i18n="unit_mbps" (main dashboard results cards)
+    document.querySelectorAll('#wan-card [data-i18n="unit_mbps"]').forEach(el => {
+        el.textContent = appSettings.wan_unit;
+    });
+    document.querySelectorAll('#lan-card [data-i18n="unit_mbps"]').forEach(el => {
+        el.textContent = appSettings.lan_unit;
+    });
+
+    // 2. Update small tags in Average cards (Download/Upload only)
+    const wanAvgDlUnit = document.querySelector('#avg-wan-download + small');
+    const wanAvgUlUnit = document.querySelector('#avg-wan-upload + small');
+    if (wanAvgDlUnit) wanAvgDlUnit.textContent = appSettings.wan_unit;
+    if (wanAvgUlUnit) wanAvgUlUnit.textContent = appSettings.wan_unit;
+
+    const lanAvgDlUnit = document.querySelector('#avg-lan-download + small');
+    const lanAvgUlUnit = document.querySelector('#avg-lan-upload + small');
+    if (lanAvgDlUnit) lanAvgDlUnit.textContent = appSettings.lan_unit;
+    if (lanAvgUlUnit) lanAvgUlUnit.textContent = appSettings.lan_unit;
+
+    // 3. Update units in history table headers
+    document.querySelectorAll('.unit-wan').forEach(el => {
+        el.textContent = appSettings.wan_unit;
+    });
+    document.querySelectorAll('.unit-lan').forEach(el => {
+        el.textContent = appSettings.lan_unit;
+    });
 }
 
 function formatSpeed(mbps, unit) {
