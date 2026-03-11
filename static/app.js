@@ -95,7 +95,7 @@ let wanHistoryData = [];
 let lanHistoryData = [];
 let currentHistoryTab = 'wan';
 let currentPage = 1;
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 5;
 
 async function fetchHistory() {
     try {
