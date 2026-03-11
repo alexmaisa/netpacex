@@ -26,7 +26,7 @@ func main() {
 	http.HandleFunc("/api/wan/test", handleWANTest)
 
 	port := "8080"
-	fmt.Printf("NetPace server started on port %s...\n", port)
+	fmt.Printf("NetPaceX server started on port %s...\n", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}

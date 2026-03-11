@@ -1,6 +1,6 @@
-# Contributing to NetPace
+# Contributing to NetPaceX
 
-Thank you for your interest in contributing to NetPace! NetPace is a lightweight network speed testing application optimized for home servers, designed to measure both LAN and WAN speeds.
+Thank you for your interest in contributing to NetPaceX! NetPaceX is a lightweight network speed testing application optimized for home servers, designed to measure both LAN and WAN speeds.
 
 ## Language Requirement
 **IMPORTANT:** All contributions must be in **English**. This applies to:
@@ -42,7 +42,7 @@ Please use one of the following prefixes based on the nature of your change:
 4. Push to the branch (`git push origin feature/amazing-feature`).
 5. Open a Pull Request.
 ## Development Setup
-NetPace consists of a Go backend and a Vanilla JS frontend.
+NetPaceX consists of a Go backend and a Vanilla JS frontend.
 1. `go run main.go` to start the backend during development.
 2. The UI is served statically by the backend. modifying files in the `static/` directory will require a page refresh in the browser.
 

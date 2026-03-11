@@ -1,4 +1,4 @@
-// NetPace Frontend Logic
+// NetPaceX Frontend Logic
 
 // UI Elements: LAN
 const btnLan = document.getElementById('btn-lan');

@@ -1,5 +1,5 @@
 /* 
- * NetPace - Premium Dark Mode Glassmorphism Theme
+ * NetPaceX - Premium Dark Mode Glassmorphism Theme
  */
 
  :root {
@@ -100,6 +100,7 @@ header {
 	font-size: 3.5rem;
 	font-weight: 800;
 	background: linear-gradient(135deg, #fff, var(--text-muted));
+	background-clip: text;
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	margin-bottom: 0.5rem;

@@ -1,12 +1,12 @@
-# NetPace ⚡️
+# NetPaceX ⚡️
 
-NetPace is a lightweight, zero-telemetry network speed testing application optimized for home servers. It is specifically designed to bypass network-wide adblockers and firewalls (such as Pi-hole or OPNsense) that frequently block commercial speed test trackers.
+NetPaceX is a lightweight, zero-telemetry network speed testing application optimized for home servers. It is specifically designed to bypass network-wide adblockers and firewalls (such as Pi-hole or OPNsense) that frequently block commercial speed test trackers.
 
-NetPace measures two distinct types of network speeds:
-1. **LAN Speed (Client -> Server):** Measures the speed and latency between your web browser (client) and the local home server hosting NetPace. This is completely self-hosted and generates dummy payload data on the fly.
+NetPaceX measures two distinct types of network speeds:
+1. **LAN Speed (Client -> Server):** Measures the speed and latency between your web browser (client) and the local home server hosting NetPaceX. This is completely self-hosted and generates dummy payload data on the fly.
 2. **WAN Speed (Server -> Internet):** Measures the internet speed from the home server to the outside world. This test runs directly from the Go backend to Ookla servers, ensuring it is immune to frontend DNS blocking.
 
-![NetPace UI Preview](#) *(Feel free to add a screenshot of the UI here)*
+![NetPaceX UI Preview](#) *(Feel free to add a screenshot of the UI here)*
 
 ## Features
 - **Dual Testing**: Check both internal WiFi/LAN performance and external ISP internet performance from one dashboard.
@@ -22,12 +22,12 @@ NetPace measures two distinct types of network speeds:
 
 ## Installation & Running
 
-The easiest way to run NetPace is using Docker Compose.
+The easiest way to run NetPaceX is using Docker Compose.
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/alexmaisa/netpace.git
-   cd netpace
+   git clone https://github.com/alexmaisa/netpacex.git
+   cd netpacex
    ```
 
 2. Start the container:
