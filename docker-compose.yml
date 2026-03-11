@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  netpace:
+    build: .
+    container_name: netpace
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    # Use network_mode host if you want to test exact WAN speed from the host interface
+    # without Docker NAT overhead, but bridging (default) is usually fine.

@@ -1,0 +1,90 @@
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>NetPace</title>
+		<!-- Google Fonts for modern typography -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div class="background-blobs">
+			<div class="blob blob-1"></div>
+			<div class="blob blob-2"></div>
+		</div>
+
+		<main class="container">
+			<header>
+				<h1 class="logo">NetPace</h1>
+				<p class="subtitle">Lightweight Network Speedtest</p>
+			</header>
+
+			<div class="test-controls">
+				<button id="btn-lan" class="btn primary" onclick="startLANTest()">Test LAN Speed (Client -> Server)</button>
+				<button id="btn-wan" class="btn secondary" onclick="startWANTest()">Test WAN Speed (Server -> Internet)</button>
+			</div>
+
+			<div class="results-grid">
+				<!-- LAN Results Card -->
+				<div class="card lan-card glass">
+					<div class="card-header">
+						<h2>LAN Speed</h2>
+						<span id="lan-status" class="status-badge idle">Idle</span>
+					</div>
+					<div class="metrics">
+						<div class="metric">
+							<span class="label">Ping</span>
+							<div class="value"><span id="lan-ping">--</span> <span class="unit">ms</span></div>
+						</div>
+						<div class="metric">
+							<span class="label">Download</span>
+							<div class="value"><span id="lan-dl">--</span> <span class="unit">Mbps</span></div>
+						</div>
+						<div class="metric">
+							<span class="label">Upload</span>
+							<div class="value"><span id="lan-ul">--</span> <span class="unit">Mbps</span></div>
+						</div>
+					</div>
+					<div class="progress-bar-container">
+						<div id="lan-progress" class="progress-bar"></div>
+					</div>
+				</div>
+
+				<!-- WAN Results Card -->
+				<div class="card wan-card glass">
+					<div class="card-header">
+						<h2>WAN Speed</h2>
+						<span id="wan-status" class="status-badge idle">Idle</span>
+					</div>
+					<div id="wan-server-info" class="server-info"></div>
+					<div class="metrics">
+						<div class="metric">
+							<span class="label">Ping</span>
+							<div class="value"><span id="wan-ping">--</span> <span class="unit">ms</span></div>
+						</div>
+						<div class="metric">
+							<span class="label">Download</span>
+							<div class="value"><span id="wan-dl">--</span> <span class="unit">Mbps</span></div>
+						</div>
+						<div class="metric">
+							<span class="label">Upload</span>
+							<div class="value"><span id="wan-ul">--</span> <span class="unit">Mbps</span></div>
+						</div>
+					</div>
+					<div class="progress-bar-container">
+						<div id="wan-progress" class="progress-bar"></div>
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<footer>
+			<p>Powered by <a href="https://github.com/alexmaisa/netpace" target="_blank">NetPace Go Backend</a></p>
+		</footer>
+
+		<script src="app.js"></script>
+	</body>
+	</html>
