@@ -175,20 +175,19 @@ body {
 }
 
 .btn.primary {
-	background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+	background: linear-gradient(135deg, var(--accent-2), #059669);
 	color: white;
-	box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+	box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
 }
 
 .btn.secondary {
-	background: var(--glass-bg);
-	color: var(--text-main);
-	border: 1px solid var(--glass-border);
-	backdrop-filter: blur(10px);
+	background: linear-gradient(135deg, var(--accent-1), #2563eb);
+	color: white;
+	box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
 }
 
 .btn.secondary:hover {
-	border-color: var(--accent-1);
+	transform: translateY(-2px);
 }
 
 /* Grid & Cards */
