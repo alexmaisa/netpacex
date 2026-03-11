@@ -60,6 +60,14 @@ async function changeLanguage(lang) {
         });
 
         currentTranslations = translations;
+
+        // Re-render components that depend on currentTranslations
+        if (typeof renderHistoryChart === 'function' && (wanHistoryData.length > 0 || lanHistoryData.length > 0)) {
+            renderHistoryChart();
+        }
+        if (typeof renderHistoryTable === 'function' && (wanHistoryData.length > 0 || lanHistoryData.length > 0)) {
+            renderHistoryTable();
+        }
     } catch (e) {
         console.error('Failed to load translations:', e);
     }
@@ -267,6 +275,7 @@ function renderHistoryChart() {
 }
 
 function getChartOptions(yTitle, yColor) {
+    const pingLabel = (currentTranslations['lbl_ping'] || 'Ping') + ' (ms)';
     return {
         responsive: true,
         maintainAspectRatio: false,
@@ -288,7 +297,7 @@ function getChartOptions(yTitle, yColor) {
             },
             y1: {
                 type: 'linear', display: true, position: 'right', beginAtZero: true,
-                title: { display: true, text: 'Ping (ms)', color: '#fbbf24' },
+                title: { display: true, text: pingLabel, color: '#fbbf24' },
                 ticks: { color: '#9ca3af' },
                 grid: { drawOnChartArea: false }
             }
