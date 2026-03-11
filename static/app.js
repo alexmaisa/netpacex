@@ -590,13 +590,18 @@ function openDetailsModal(item, isWan) {
     if (!modal) return;
     
     document.getElementById('modal-date').textContent = item.test_date || '--';
+    const badge = document.getElementById('modal-badge');
     
     if (isWan) {
         document.getElementById('modal-title-target').textContent = 'Internet Test Details';
         document.getElementById('modal-target').textContent = item.server_name || '--';
+        badge.textContent = 'Internet';
+        badge.className = 'modal-badge';
     } else {
         document.getElementById('modal-title-target').textContent = 'LAN Test Details';
-        document.getElementById('modal-target').textContent = item.ip_address + ' (' + item.mac_address + ')';
+        document.getElementById('modal-target').textContent = item.ip_address + (item.mac_address ? ' (' + item.mac_address + ')' : '');
+        badge.textContent = 'Local Network';
+        badge.className = 'modal-badge lan';
     }
     
     document.getElementById('modal-download').textContent = item.download_mbps ? item.download_mbps.toFixed(1) : '0.0';
