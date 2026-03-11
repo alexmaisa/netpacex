@@ -275,19 +275,19 @@ function renderHistoryTable() {
         if (isWan) {
             tr.innerHTML = `
                 <td>${item.server_name}</td>
-                <td>${item.ping_ms.toFixed(1)}</td>
-                <td>${item.download_mbps.toFixed(1)}</td>
-                <td>${item.upload_mbps.toFixed(1)}</td>
-                <td>${dateStr}</td>
+                <td class="text-center">${item.ping_ms.toFixed(1)}</td>
+                <td class="text-center">${item.download_mbps.toFixed(1)}</td>
+                <td class="text-center">${item.upload_mbps.toFixed(1)}</td>
+                <td class="text-center">${dateStr}</td>
             `;
         } else {
             tr.innerHTML = `
                 <td>${item.ip_address}</td>
                 <td>${item.mac_address}</td>
-                <td>${item.ping_ms.toFixed(1)}</td>
-                <td>${item.download_mbps.toFixed(1)}</td>
-                <td>${item.upload_mbps.toFixed(1)}</td>
-                <td>${dateStr}</td>
+                <td class="text-center">${item.ping_ms.toFixed(1)}</td>
+                <td class="text-center">${item.download_mbps.toFixed(1)}</td>
+                <td class="text-center">${item.upload_mbps.toFixed(1)}</td>
+                <td class="text-center">${dateStr}</td>
             `;
         }
         tbody.appendChild(tr);

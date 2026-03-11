@@ -436,6 +436,14 @@ footer a:hover {
 	margin-bottom: 1rem;
 }
 
+.history-header {
+	justify-content: center;
+}
+
+.text-center {
+	text-align: center !important;
+}
+
 .tab-btn {
 	background: transparent;
 	color: var(--text-muted);
