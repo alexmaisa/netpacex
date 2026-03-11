@@ -36,5 +36,9 @@
   "lbl_min": "Minimum",
   "lbl_max": "Maximum",
   "badge_wan": "Internet",
-  "badge_lan": "Local Network"
+  "badge_lan": "Local Network",
+  "lbl_avg_performance": "Last 24h Average Performance",
+  "lbl_avg_dl": "Avg Download",
+  "lbl_avg_ul": "Avg Upload",
+  "lbl_avg_ping": "Avg Ping"
 }

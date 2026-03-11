@@ -121,6 +121,7 @@ async function fetchHistory() {
             lanHistoryData = Array.isArray(data) ? data : [];
         }
         
+        updateAverages();
         renderHistoryChart();
         renderHistoryTable();
     } catch (e) {
@@ -251,6 +252,34 @@ function getChartOptions(yTitle, yColor) {
             }
         }
     };
+}
+
+function updateAverages() {
+    const now = new Date();
+    const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
+
+    const filterLast24h = (data) => {
+        return data.filter(d => new Date(d.raw_date).getTime() >= twentyFourHoursAgo);
+    };
+
+    const wan24 = filterLast24h(wanHistoryData);
+    const lan24 = filterLast24h(lanHistoryData);
+    const all24 = [...wan24, ...lan24];
+
+    if (all24.length === 0) {
+        document.getElementById('avg-download').textContent = '--';
+        document.getElementById('avg-upload').textContent = '--';
+        document.getElementById('avg-ping').textContent = '--';
+        return;
+    }
+
+    const avgDl = all24.reduce((sum, d) => sum + d.download_mbps, 0) / all24.length;
+    const avgUl = all24.reduce((sum, d) => sum + d.upload_mbps, 0) / all24.length;
+    const avgPing = all24.reduce((sum, d) => sum + d.ping_ms, 0) / all24.length;
+
+    document.getElementById('avg-download').textContent = avgDl.toFixed(1);
+    document.getElementById('avg-upload').textContent = avgUl.toFixed(1);
+    document.getElementById('avg-ping').textContent = avgPing.toFixed(1);
 }
 
 function renderHistoryTable() {

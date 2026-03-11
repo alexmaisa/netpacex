@@ -42,6 +42,30 @@
 
 		<!-- TEST VIEW -->
 		<div id="view-test">
+			<!-- Average Stats Section (Last 24h) -->
+			<div id="averages-section" class="glass averages-card" style="margin-bottom: 2rem;">
+				<div class="card-header">
+					<div class="card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+					</div>
+					<h2 data-i18n="lbl_avg_performance">Last 24h Average Performance</h2>
+				</div>
+				<div class="averages-grid">
+					<div class="avg-item">
+						<span class="label" data-i18n="lbl_avg_dl">Avg Download</span>
+						<span class="value dl"><span id="avg-download">--</span> <small>Mbps</small></span>
+					</div>
+					<div class="avg-item">
+						<span class="label" data-i18n="lbl_avg_ul">Avg Upload</span>
+						<span class="value ul"><span id="avg-upload">--</span> <small>Mbps</small></span>
+					</div>
+					<div class="avg-item">
+						<span class="label" data-i18n="lbl_avg_ping">Avg Ping</span>
+						<span class="value ping"><span id="avg-ping">--</span> <small>ms</small></span>
+					</div>
+				</div>
+			</div>
+
 			<div class="results-grid">
 				<!-- LAN Results Card -->
 				<div class="card lan-card glass">

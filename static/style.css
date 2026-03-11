@@ -722,3 +722,65 @@ footer a:hover {
 .highlight-ping .label {
 	margin-bottom: 0.4rem;
 }
+
+/* Averages Section Styling */
+.averages-card {
+	padding: 1.5rem !important;
+	border-left: 4px solid #10b981;
+}
+
+.averages-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1.5rem;
+	margin-top: 1rem;
+}
+
+.avg-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 1rem;
+	background: rgba(255, 255, 255, 0.02);
+	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.04);
+	transition: transform 0.2s ease;
+}
+
+.avg-item:hover {
+	transform: translateY(-2px);
+	background: rgba(255, 255, 255, 0.03);
+}
+
+.avg-item .label {
+	font-size: 0.75rem;
+	color: var(--text-muted);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.avg-item .value {
+	font-size: 1.5rem;
+	font-weight: 800;
+	display: flex;
+	align-items: baseline;
+	gap: 4px;
+}
+
+.avg-item .value.dl { color: var(--accent-1); }
+.avg-item .value.ul { color: var(--accent-2); }
+.avg-item .value.ping { color: #10b981; }
+
+.avg-item .value small {
+	font-size: 0.8rem;
+	font-weight: 500;
+	opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+	.averages-grid {
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+	}
+}

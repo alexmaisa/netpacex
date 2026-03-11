@@ -36,5 +36,9 @@
   "lbl_min": "Minimum",
   "lbl_max": "Maksimum",
   "badge_wan": "Internet",
-  "badge_lan": "Jaringan Lokal"
+  "badge_lan": "Jaringan Lokal",
+  "lbl_avg_performance": "Rata-rata Performa 24 Jam Terakhir",
+  "lbl_avg_dl": "Rerata Unduh",
+  "lbl_avg_ul": "Rerata Unggah",
+  "lbl_avg_ping": "Rerata Ping"
 }
