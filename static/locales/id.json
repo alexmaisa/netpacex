@@ -50,6 +50,8 @@
   "nav_settings": "Pengaturan",
   "set_timezone_title": "Zona Waktu",
   "set_timezone_desc": "Atur zona waktu tampilan untuk riwayat pengujian Anda.",
+  "set_sec_general": "Konfigurasi Umum",
+  "set_sec_security": "Keamanan & Manajemen Data",
   "set_units_title": "Satuan Kecepatan",
   "unit_wan": "Internet (WAN)",
   "unit_lan": "Lokal (LAN)",

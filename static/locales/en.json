@@ -50,6 +50,8 @@
   "nav_settings": "Settings",
   "set_timezone_title": "Timezone",
   "set_timezone_desc": "Configure the display timezone for your test history.",
+  "set_sec_general": "General Configuration",
+  "set_sec_security": "Security & Data Management",
   "set_units_title": "Speed Units",
   "unit_wan": "Internet (WAN)",
   "unit_lan": "Local (LAN)",
