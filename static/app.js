@@ -177,27 +177,33 @@ function renderHistoryChart() {
         
         if (wanChartInstance) wanChartInstance.destroy();
         
+        const wanUnit = appSettings.wan_unit;
+        const wanDiv = wanUnit === 'Gbps' ? 1000 : 1;
+        const dlLabel = (currentTranslations['lbl_download'] || 'Download') + ` (${wanUnit})`;
+        const ulLabel = (currentTranslations['lbl_upload'] || 'Upload') + ` (${wanUnit})`;
+        const pingLabel = (currentTranslations['lbl_ping'] || 'Ping') + ' (ms)';
+
         wanChartInstance = new Chart(wanCtx, {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Download (Mbps)',
-                        data: sortedWan.map(d => d.download_mbps),
+                        label: dlLabel,
+                        data: sortedWan.map(d => d.download_mbps / wanDiv),
                         borderColor: '#3b82f6', // Blue
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
-                        label: 'Upload (Mbps)',
-                        data: sortedWan.map(d => d.upload_mbps),
+                        label: ulLabel,
+                        data: sortedWan.map(d => d.upload_mbps / wanDiv),
                         borderColor: '#10b981', // Emerald
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
-                        label: 'Ping (ms)',
+                        label: pingLabel,
                         data: sortedWan.map(d => d.ping_ms),
                         borderColor: '#fbbf24', // Yellow
                         backgroundColor: 'rgba(251, 191, 36, 0.1)',
@@ -219,27 +225,33 @@ function renderHistoryChart() {
 
         if (lanChartInstance) lanChartInstance.destroy();
 
+        const lanUnit = appSettings.lan_unit;
+        const lanDiv = lanUnit === 'Gbps' ? 1000 : 1;
+        const dlLabelLan = (currentTranslations['lbl_download'] || 'Download') + ` (${lanUnit})`;
+        const ulLabelLan = (currentTranslations['lbl_upload'] || 'Upload') + ` (${lanUnit})`;
+        const pingLabelLan = (currentTranslations['lbl_ping'] || 'Ping') + ' (ms)';
+
         lanChartInstance = new Chart(lanCtx, {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Download (Mbps)',
-                        data: sortedLan.map(d => d.download_mbps),
+                        label: dlLabelLan,
+                        data: sortedLan.map(d => d.download_mbps / lanDiv),
                         borderColor: '#3b82f6', // Blue
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
-                        label: 'Upload (Mbps)',
-                        data: sortedLan.map(d => d.upload_mbps),
+                        label: ulLabelLan,
+                        data: sortedLan.map(d => d.upload_mbps / lanDiv),
                         borderColor: '#10b981', // Emerald
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
-                        label: 'Ping (ms)',
+                        label: pingLabelLan,
                         data: sortedLan.map(d => d.ping_ms),
                         borderColor: '#fbbf24', // Yellow
                         backgroundColor: 'rgba(251, 191, 36, 0.1)',
