@@ -817,6 +817,11 @@ function updateSetting(key, value) {
 }
 
 async function saveAllSettings() {
+    const btn = document.querySelector('#view-settings .btn.primary');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = currentTranslations['btn_saving'] || 'Saving...';
+
     try {
         const res = await fetch('/api/settings', {
             method: 'POST',
@@ -826,11 +831,17 @@ async function saveAllSettings() {
         if (res.ok) {
             showToast(currentTranslations['msg_settings_saved'] || 'Settings saved successfully');
             updateUnitLabels();
-            // If timezone changed, we might want to refresh history
-            fetchHistory();
+            // Refresh history to apply mask/timezone changes
+            await fetchHistory();
+        } else {
+            showToast('Error saving settings', 'error');
         }
     } catch (e) {
         console.error('Failed to save settings:', e);
+        showToast('Connection error', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
     }
 }
 
@@ -911,23 +922,30 @@ function handleUnmaskMAC(fullMAC, cellEl) {
     });
 }
 
-function showToast(msg) {
+function showToast(msg, type = 'success') {
     const toaster = document.getElementById('toaster');
     if (!toaster) return;
 
     const toast = document.createElement('div');
-    toast.className = 'toast glass';
+    toast.className = `toast glass ${type}`;
+    
+    let icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+    if (type === 'error') {
+        icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    }
+
     toast.innerHTML = `
-        <div class="toast-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <div class="toast-icon" style="color: ${type === 'error' ? '#ef4444' : 'var(--accent-success)'}">
+            ${icon}
         </div>
         <span>${msg}</span>
     `;
 
     toaster.appendChild(toast);
     
-    // Auto remove after 3 seconds
+    // Auto remove after 3.5 seconds
     setTimeout(() => {
-        toast.remove();
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 500);
     }, 3000);
 }

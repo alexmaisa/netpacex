@@ -62,5 +62,6 @@
   "btn_cancel": "Cancel",
   "btn_confirm": "Confirm",
   "msg_settings_saved": "Settings saved successfully",
+  "btn_saving": "Saving...",
   "tip_unmask_mac": "Click to unmask"
 }
