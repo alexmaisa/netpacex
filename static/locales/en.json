@@ -1,8 +1,8 @@
 {
   "title": "NetPaceX",
   "subtitle": "Lightweight Network Speedtest",
-  "btn_lan": "Test LAN Speed (Client -> Server)",
-  "btn_wan": "Test WAN Speed (Server -> Internet)",
+  "btn_lan": "Test LAN Speed",
+  "btn_wan": "Test Internet Speed",
   "card_lan_title": "LAN Speed",
   "card_wan_title": "WAN Speed",
   "status_idle": "Idle",

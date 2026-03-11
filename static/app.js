@@ -141,8 +141,7 @@ function renderHistoryTable() {
     
     paginatedData.forEach(item => {
         const tr = document.createElement('tr');
-        const dateObj = new Date(item.test_date + 'Z'); 
-        const dateStr = isNaN(dateObj.getTime()) ? item.test_date : dateObj.toLocaleString();
+        const dateStr = item.test_date; 
 
         if (isWan) {
             tr.innerHTML = `

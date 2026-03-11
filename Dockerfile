@@ -19,6 +19,9 @@ FROM alpine:latest
 
 WORKDIR /app
 
+# Install timezone data so the TZ environment variable is supported
+RUN apk add --no-cache tzdata
+
 # Copy the binary from the builder stage
 COPY --from=builder /app/netpacex .
 

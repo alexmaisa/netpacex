@@ -1,41 +1,43 @@
-	<!DOCTYPE html>
-	<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>NetPaceX</title>
-		<!-- Google Fonts for modern typography -->
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-		<link rel="stylesheet" href="style.css">
-	</head>
-	<body>
-		<div class="background-blobs">
-			<div class="blob blob-1"></div>
-			<div class="blob blob-2"></div>
-		</div>
+<!DOCTYPE html>
+<html lang="en">
 
-		<main class="container">
-			<header>
-				<h1 class="logo" data-i18n="title">NetPaceX</h1>
-				<p class="subtitle" data-i18n="subtitle">Lightweight Network Speedtest</p>
-				<div class="lang-switcher">
-					<select id="lang-select" onchange="changeLanguage(this.value)">
-						<option value="en">English</option>
-						<option value="id">Bahasa Indonesia</option>
-					</select>
-				</div>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>NetPaceX</title>
+	<!-- Google Fonts for modern typography -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+</head>
 
-				<div class="main-tabs">
-					<button class="tab-btn active" onclick="switchMainView('test')" data-i18n="nav_test">Speed Test</button>
-					<button class="tab-btn" onclick="switchMainView('history')" data-i18n="nav_history">History</button>
-				</div>
-			</header>
+<body>
+	<div class="background-blobs">
+		<div class="blob blob-1"></div>
+		<div class="blob blob-2"></div>
+	</div>
 
-			<!-- TEST VIEW -->
-			<div id="view-test">
-				<div class="results-grid">
+	<main class="container">
+		<header>
+			<h1 class="logo" data-i18n="title">NetPaceX</h1>
+			<p class="subtitle" data-i18n="subtitle">Lightweight Network Speedtest</p>
+			<div class="lang-switcher">
+				<select id="lang-select" onchange="changeLanguage(this.value)">
+					<option value="en">English</option>
+					<option value="id">Bahasa Indonesia</option>
+				</select>
+			</div>
+
+			<div class="main-tabs">
+				<button class="tab-btn active" onclick="switchMainView('test')" data-i18n="nav_test">Speed Test</button>
+				<button class="tab-btn" onclick="switchMainView('history')" data-i18n="nav_history">History</button>
+			</div>
+		</header>
+
+		<!-- TEST VIEW -->
+		<div id="view-test">
+			<div class="results-grid">
 				<!-- LAN Results Card -->
 				<div class="card lan-card glass">
 					<div class="card-header">
@@ -60,7 +62,8 @@
 						<div id="lan-progress" class="progress-bar"></div>
 					</div>
 					<div class="card-action">
-						<button id="btn-lan" class="btn primary full-width" onclick="startLANTest()" data-i18n="btn_lan">Test LAN Speed (Client -> Server)</button>
+						<button id="btn-lan" class="btn primary full-width" onclick="startLANTest()"
+							data-i18n="btn_lan">Test LAN Speed</button>
 					</div>
 				</div>
 
@@ -89,73 +92,80 @@
 						<div id="wan-progress" class="progress-bar"></div>
 					</div>
 					<div class="card-action">
-						<button id="btn-wan" class="btn secondary full-width" onclick="startWANTest()" data-i18n="btn_wan">Test WAN Speed (Server -> Internet)</button>
+						<button id="btn-wan" class="btn secondary full-width" onclick="startWANTest()"
+							data-i18n="btn_wan">Test Internet Speed</button>
 					</div>
 				</div>
-				</div> <!-- End results-grid -->
-			</div> <!-- End view-test -->
+			</div> <!-- End results-grid -->
+		</div> <!-- End view-test -->
 
-			<!-- HISTORY VIEW -->
-			<div id="view-history" style="display: none;">
-				<div class="history-section glass">
-					<div class="card-header history-header">
-						<div class="history-tabs">
-							<button class="tab-btn active" onclick="switchHistoryTab('wan')" data-i18n="history_wan_title">WAN Test History</button>
-							<button class="tab-btn" onclick="switchHistoryTab('lan')" data-i18n="history_lan_title">LAN Test History</button>
-						</div>
+		<!-- HISTORY VIEW -->
+		<div id="view-history" style="display: none;">
+			<div class="history-section glass">
+				<div class="card-header history-header">
+					<div class="history-tabs">
+						<button class="tab-btn active" onclick="switchHistoryTab('wan')"
+							data-i18n="history_wan_title">WAN Test History</button>
+						<button class="tab-btn" onclick="switchHistoryTab('lan')" data-i18n="history_lan_title">LAN Test
+							History</button>
 					</div>
+				</div>
 
-					<!-- WAN History Table -->
-					<div id="history-table-wan-container" class="table-container">
-						<table id="history-table-wan">
-							<thead>
-								<tr>
-									<th data-i18n="th_server">Server</th>
-									<th data-i18n="th_ping">Ping (ms)</th>
-									<th data-i18n="th_download">DL (Mbps)</th>
-									<th data-i18n="th_upload">UL (Mbps)</th>
-									<th data-i18n="th_date">Date</th>
-								</tr>
-							</thead>
-							<tbody id="history-body-wan">
-								<!-- Populated by JS -->
-							</tbody>
-						</table>
-					</div>
+				<!-- WAN History Table -->
+				<div id="history-table-wan-container" class="table-container">
+					<table id="history-table-wan">
+						<thead>
+							<tr>
+								<th data-i18n="th_server">Server</th>
+								<th data-i18n="th_ping">Ping (ms)</th>
+								<th data-i18n="th_download">DL (Mbps)</th>
+								<th data-i18n="th_upload">UL (Mbps)</th>
+								<th data-i18n="th_date">Date</th>
+							</tr>
+						</thead>
+						<tbody id="history-body-wan">
+							<!-- Populated by JS -->
+						</tbody>
+					</table>
+				</div>
 
-					<!-- LAN History Table -->
-					<div id="history-table-lan-container" class="table-container" style="display: none;">
-						<table id="history-table-lan">
-							<thead>
-								<tr>
-									<th data-i18n="th_ip">IP Address</th>
-									<th data-i18n="th_mac">MAC Address</th>
-									<th data-i18n="th_ping">Ping (ms)</th>
-									<th data-i18n="th_download">DL (Mbps)</th>
-									<th data-i18n="th_upload">UL (Mbps)</th>
-									<th data-i18n="th_date">Date</th>
-								</tr>
-							</thead>
-							<tbody id="history-body-lan">
-								<!-- Populated by JS -->
-							</tbody>
-						</table>
-					</div>
+				<!-- LAN History Table -->
+				<div id="history-table-lan-container" class="table-container" style="display: none;">
+					<table id="history-table-lan">
+						<thead>
+							<tr>
+								<th data-i18n="th_ip">IP Address</th>
+								<th data-i18n="th_mac">MAC Address</th>
+								<th data-i18n="th_ping">Ping (ms)</th>
+								<th data-i18n="th_download">DL (Mbps)</th>
+								<th data-i18n="th_upload">UL (Mbps)</th>
+								<th data-i18n="th_date">Date</th>
+							</tr>
+						</thead>
+						<tbody id="history-body-lan">
+							<!-- Populated by JS -->
+						</tbody>
+					</table>
+				</div>
 
-					<!-- Pagination Controls -->
-					<div class="pagination">
-						<button id="btn-prev" class="btn secondary pagination-btn" onclick="prevPage()" disabled data-i18n="btn_prev">Previous</button>
-						<span class="page-info"><span data-i18n="lbl_page">Page</span> <span id="page-current">1</span> / <span id="page-total">1</span></span>
-						<button id="btn-next" class="btn secondary pagination-btn" onclick="nextPage()" disabled data-i18n="btn_next">Next</button>
-					</div>
+				<!-- Pagination Controls -->
+				<div class="pagination">
+					<button id="btn-prev" class="btn secondary pagination-btn" onclick="prevPage()" disabled
+						data-i18n="btn_prev">Previous</button>
+					<span class="page-info"><span data-i18n="lbl_page">Page</span> <span id="page-current">1</span> /
+						<span id="page-total">1</span></span>
+					<button id="btn-next" class="btn secondary pagination-btn" onclick="nextPage()" disabled
+						data-i18n="btn_next">Next</button>
 				</div>
 			</div>
-		</main>
+		</div>
+	</main>
 
-		<footer>
-			<p>Powered by <a href="https://github.com/alexmaisa/netpacex" target="_blank">NetPaceX Go Backend</a></p>
-		</footer>
+	<footer>
+		<p>Powered by <a href="https://github.com/alexmaisa/netpacex" target="_blank">NetPaceX Go Backend</a></p>
+	</footer>
 
-		<script src="app.js"></script>
-	</body>
-	</html>
+	<script src="app.js"></script>
+</body>
+
+</html>

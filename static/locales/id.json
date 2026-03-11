@@ -1,8 +1,8 @@
 {
   "title": "NetPaceX",
   "subtitle": "Penguji Kecepatan Jaringan Ringan",
-  "btn_lan": "Uji Kecepatan LAN (Klien -> Server)",
-  "btn_wan": "Uji Kecepatan WAN (Server -> Internet)",
+  "btn_lan": "Uji Kecepatan LAN",
+  "btn_wan": "Uji Kecepatan Internet",
   "card_lan_title": "Kecepatan LAN",
   "card_wan_title": "Kecepatan WAN",
   "status_idle": "Siaga",

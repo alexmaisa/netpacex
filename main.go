@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/showwin/speedtest-go/speedtest"
 	_ "modernc.org/sqlite"
@@ -208,6 +209,20 @@ func handleLANSave(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// formatLocalTime converts a UTC timestamp string to a formatted local time string
+func formatLocalTime(rawDate string) string {
+	// Attempt RFC3339 which may be returned by sqlite drivers
+	if t, err := time.Parse(time.RFC3339, rawDate); err == nil {
+		return t.Local().Format("02 Jan 2006, 15:04:05")
+	}
+	// Fallback to SQLite CURRENT_TIMESTAMP raw text format (YYYY-MM-DD HH:MM:SS) which is UTC
+	if t, err := time.Parse("2006-01-02 15:04:05", rawDate); err == nil {
+		tzUTC := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
+		return tzUTC.Local().Format("02 Jan 2006, 15:04:05")
+	}
+	return rawDate
+}
+
 type LANHistory struct {
 	ID           int     `json:"id"`
 	IPAddress    string  `json:"ip_address"`
@@ -229,10 +244,12 @@ func handleLANHistory(w http.ResponseWriter, r *http.Request) {
 	var history []LANHistory
 	for rows.Next() {
 		var record LANHistory
-		if err := rows.Scan(&record.ID, &record.IPAddress, &record.MACAddress, &record.PingMs, &record.DownloadMbps, &record.UploadMbps, &record.TestDate); err != nil {
+		var rawDate string
+		if err := rows.Scan(&record.ID, &record.IPAddress, &record.MACAddress, &record.PingMs, &record.DownloadMbps, &record.UploadMbps, &rawDate); err != nil {
 			log.Printf("Error scanning lan row: %v", err)
 			continue
 		}
+		record.TestDate = formatLocalTime(rawDate)
 		history = append(history, record)
 	}
 
@@ -268,10 +285,12 @@ func handleWANHistory(w http.ResponseWriter, r *http.Request) {
 	var history []WANHistory
 	for rows.Next() {
 		var record WANHistory
-		if err := rows.Scan(&record.ID, &record.ServerName, &record.PingMs, &record.DownloadMbps, &record.UploadMbps, &record.TestDate); err != nil {
+		var rawDate string
+		if err := rows.Scan(&record.ID, &record.ServerName, &record.PingMs, &record.DownloadMbps, &record.UploadMbps, &rawDate); err != nil {
 			log.Printf("Error scanning row: %v", err)
 			continue
 		}
+		record.TestDate = formatLocalTime(rawDate)
 		history = append(history, record)
 	}
 

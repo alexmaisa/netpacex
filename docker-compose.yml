@@ -6,6 +6,8 @@ services:
     container_name: netpacex
     ports:
       - "8080:8080"
+    environment:
+      - TZ=Asia/Jakarta # Change to your preferred timezone
     restart: unless-stopped
     # Use network_mode host if you want to test exact WAN speed from the host interface
     # without Docker NAT overhead, but bridging (default) is usually fine.
