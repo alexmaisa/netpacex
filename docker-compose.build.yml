@@ -1,6 +1,6 @@
 services:
   netpacex:
-    image: ghcr.io/alexmaisa/netpacex:latest
+    build: .
     container_name: netpacex
     ports:
       - "8080:8080"

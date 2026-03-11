@@ -50,28 +50,41 @@ TZ=Asia/Jakarta
 
 ## 📦 Installation & Running
 
-### Using Docker Compose (Recommended)
+### 1. Using Pre-built Image (Recommended)
+
+The easiest way to run NetPaceX is by using our official image from the GitHub Container Registry (GHCR).
+
+1. Download the `docker-compose.yml` file or clone this repo.
+2. Create your `.env` file from the example:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your preferred password and timezone
+   ```
+3. Start the application:
+   ```bash
+   docker-compose up -d
+   ```
+4. Access the UI at `http://<your-server-ip>:8080`.
+
+### 2. Building from Source
+
+If you want to modify the code or build your own image locally:
 
 1. Clone this repository:
    ```bash
    git clone https://github.com/alexmaisa/NetPaceX.git
    cd NetPaceX
    ```
-
 2. Create your `.env` file:
    ```bash
    cp .env.example .env
-   # Edit .env with your preferred password and timezone
    ```
-
-3. Start the container:
+3. Start using the build-focused compose file:
    ```bash
-   docker-compose up -d
+   docker-compose -f docker-compose.build.yml up -d --build
    ```
 
-4. Open your web browser and navigate to `http://<your-server-ip>:8080`.
-
-*(Note: For the most accurate WAN results without Docker NAT overhead, use `network_mode: host`.)*
+*(Note: For the most accurate WAN results without Docker NAT overhead, add `network_mode: host` to your compose file.)*
 
 ### Manual Development Setup
 
