@@ -451,7 +451,7 @@ async function startLANTest() {
         await measureLANUpload();
         lanProgress.style.width = '100%';
 
-        lanStatus.className = 'status-badge done';
+        lanStatus.className = 'status-badge completed';
         lanStatus.textContent = currentTranslations['status_completed'] || 'Completed';
 
         // Save LAN results to backend
@@ -646,7 +646,7 @@ function startWANTest() {
                 wanProgress.style.width = '100%';
                 break;
             case 'done':
-                wanStatus.className = 'status-badge done';
+                wanStatus.className = 'status-badge completed';
                 wanStatus.textContent = currentTranslations['status_completed'] || 'Completed';
                 eventSource.close();
                 btnLan.disabled = false;
