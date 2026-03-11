@@ -1,0 +1,21 @@
+{
+  "title": "NetPaceX",
+  "subtitle": "Penguji Kecepatan Jaringan Ringan",
+  "btn_lan": "Uji Kecepatan LAN (Klien -> Server)",
+  "btn_wan": "Uji Kecepatan WAN (Server -> Internet)",
+  "card_lan_title": "Kecepatan LAN",
+  "card_wan_title": "Kecepatan WAN",
+  "status_idle": "Siaga",
+  "status_testing": "Menguji",
+  "status_done": "Selesai",
+  "status_error": "Galat",
+  "lbl_ping": "Ping",
+  "lbl_download": "Unduh",
+  "lbl_upload": "Unggah",
+  "history_title": "Riwayat Uji WAN",
+  "th_server": "Server",
+  "th_ping": "Ping (ms)",
+  "th_download": "Unduh (Mbps)",
+  "th_upload": "Unggah (Mbps)",
+  "th_date": "Tanggal"
+}

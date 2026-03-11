@@ -18,33 +18,39 @@
 
 		<main class="container">
 			<header>
-				<h1 class="logo">NetPaceX</h1>
-				<p class="subtitle">Lightweight Network Speedtest</p>
+				<h1 class="logo" data-i18n="title">NetPaceX</h1>
+				<p class="subtitle" data-i18n="subtitle">Lightweight Network Speedtest</p>
+				<div class="lang-switcher">
+					<select id="lang-select" onchange="changeLanguage(this.value)">
+						<option value="en">English</option>
+						<option value="id">Bahasa Indonesia</option>
+					</select>
+				</div>
 			</header>
 
 			<div class="test-controls">
-				<button id="btn-lan" class="btn primary" onclick="startLANTest()">Test LAN Speed (Client -> Server)</button>
-				<button id="btn-wan" class="btn secondary" onclick="startWANTest()">Test WAN Speed (Server -> Internet)</button>
+				<button id="btn-lan" class="btn primary" onclick="startLANTest()" data-i18n="btn_lan">Test LAN Speed (Client -> Server)</button>
+				<button id="btn-wan" class="btn secondary" onclick="startWANTest()" data-i18n="btn_wan">Test WAN Speed (Server -> Internet)</button>
 			</div>
 
 			<div class="results-grid">
 				<!-- LAN Results Card -->
 				<div class="card lan-card glass">
 					<div class="card-header">
-						<h2>LAN Speed</h2>
-						<span id="lan-status" class="status-badge idle">Idle</span>
+						<h2 data-i18n="card_lan_title">LAN Speed</h2>
+						<span id="lan-status" class="status-badge idle" data-i18n="status_idle">Idle</span>
 					</div>
 					<div class="metrics">
 						<div class="metric">
-							<span class="label">Ping</span>
+							<span class="label" data-i18n="lbl_ping">Ping</span>
 							<div class="value"><span id="lan-ping">--</span> <span class="unit">ms</span></div>
 						</div>
 						<div class="metric">
-							<span class="label">Download</span>
+							<span class="label" data-i18n="lbl_download">Download</span>
 							<div class="value"><span id="lan-dl">--</span> <span class="unit">Mbps</span></div>
 						</div>
 						<div class="metric">
-							<span class="label">Upload</span>
+							<span class="label" data-i18n="lbl_upload">Upload</span>
 							<div class="value"><span id="lan-ul">--</span> <span class="unit">Mbps</span></div>
 						</div>
 					</div>
@@ -56,27 +62,50 @@
 				<!-- WAN Results Card -->
 				<div class="card wan-card glass">
 					<div class="card-header">
-						<h2>WAN Speed</h2>
-						<span id="wan-status" class="status-badge idle">Idle</span>
+						<h2 data-i18n="card_wan_title">WAN Speed</h2>
+						<span id="wan-status" class="status-badge idle" data-i18n="status_idle">Idle</span>
 					</div>
 					<div id="wan-server-info" class="server-info"></div>
 					<div class="metrics">
 						<div class="metric">
-							<span class="label">Ping</span>
+							<span class="label" data-i18n="lbl_ping">Ping</span>
 							<div class="value"><span id="wan-ping">--</span> <span class="unit">ms</span></div>
 						</div>
 						<div class="metric">
-							<span class="label">Download</span>
+							<span class="label" data-i18n="lbl_download">Download</span>
 							<div class="value"><span id="wan-dl">--</span> <span class="unit">Mbps</span></div>
 						</div>
 						<div class="metric">
-							<span class="label">Upload</span>
+							<span class="label" data-i18n="lbl_upload">Upload</span>
 							<div class="value"><span id="wan-ul">--</span> <span class="unit">Mbps</span></div>
 						</div>
 					</div>
 					<div class="progress-bar-container">
 						<div id="wan-progress" class="progress-bar"></div>
 					</div>
+				</div>
+			</div>
+
+			<!-- WAN History Section -->
+			<div class="history-section glass" style="margin-top: 1.5rem;">
+				<div class="card-header">
+					<h2 data-i18n="history_title">WAN Test History</h2>
+				</div>
+				<div class="table-container">
+					<table id="history-table">
+						<thead>
+							<tr>
+								<th data-i18n="th_server">Server</th>
+								<th data-i18n="th_ping">Ping (ms)</th>
+								<th data-i18n="th_download">DL (Mbps)</th>
+								<th data-i18n="th_upload">UL (Mbps)</th>
+								<th data-i18n="th_date">Date</th>
+							</tr>
+						</thead>
+						<tbody id="history-body">
+							<!-- Populated by JS -->
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</main>

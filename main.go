@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,9 +11,37 @@ import (
 	"strconv"
 
 	"github.com/showwin/speedtest-go/speedtest"
+	_ "modernc.org/sqlite"
 )
 
+var db *sql.DB
+
+func initDB() {
+	var err error
+	db, err = sql.Open("sqlite", "history.db")
+	if err != nil {
+		log.Fatal("Failed to open database:", err)
+	}
+
+	createTableQuery := `
+	CREATE TABLE IF NOT EXISTS wan_history (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		server_name TEXT,
+		ping_ms REAL,
+		download_mbps REAL,
+		upload_mbps REAL,
+		test_date DATETIME DEFAULT CURRENT_TIMESTAMP
+	);`
+
+	_, err = db.Exec(createTableQuery)
+	if err != nil {
+		log.Fatal("Failed to create table:", err)
+	}
+}
+
 func main() {
+	initDB()
+
 	// Serve static files from the "static" directory
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/", fs)
@@ -24,6 +53,7 @@ func main() {
 
 	// WAN Testing Endpoints
 	http.HandleFunc("/api/wan/test", handleWANTest)
+	http.HandleFunc("/api/wan/history", handleWANHistory)
 
 	port := "8080"
 	fmt.Printf("NetPaceX server started on port %s...\n", port)
@@ -91,6 +121,41 @@ func handleLANUpload(w http.ResponseWriter, r *http.Request) {
 // ---------------------------------------------------------
 // WAN TEST HANDLERS (Server to Internet)
 // ---------------------------------------------------------
+
+type WANHistory struct {
+	ID           int     `json:"id"`
+	ServerName   string  `json:"server_name"`
+	PingMs       float64 `json:"ping_ms"`
+	DownloadMbps float64 `json:"download_mbps"`
+	UploadMbps   float64 `json:"upload_mbps"`
+	TestDate     string  `json:"test_date"`
+}
+
+func handleWANHistory(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query("SELECT id, server_name, ping_ms, download_mbps, upload_mbps, test_date FROM wan_history ORDER BY id DESC LIMIT 20")
+	if err != nil {
+		http.Error(w, "Failed to fetch history: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var history []WANHistory
+	for rows.Next() {
+		var record WANHistory
+		if err := rows.Scan(&record.ID, &record.ServerName, &record.PingMs, &record.DownloadMbps, &record.UploadMbps, &record.TestDate); err != nil {
+			log.Printf("Error scanning row: %v", err)
+			continue
+		}
+		history = append(history, record)
+	}
+
+	if history == nil {
+		history = []WANHistory{}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(history)
+}
 
 // Response structure for WAN SSE events
 type WANEvent struct {
@@ -170,6 +235,16 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 	// Convert speed to Mbps
 	ulMbps := server.ULSpeed.Mbps()
 	sendEvent("upload", ulMbps, "")
+
+	// 6. Save to History
+	serverName := fmt.Sprintf("%s (%s)", server.Name, server.Country)
+	_, dbErr := db.Exec(`
+		INSERT INTO wan_history (server_name, ping_ms, download_mbps, upload_mbps) 
+		VALUES (?, ?, ?, ?)
+	`, serverName, float64(server.Latency.Milliseconds()), dlMbps, ulMbps)
+	if dbErr != nil {
+		log.Printf("Failed to insert history record: %v", dbErr)
+	}
 
 	// Finish
 	sendEvent("done", nil, "Test completed")

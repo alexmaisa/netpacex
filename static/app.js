@@ -21,6 +21,66 @@ const wanProgress = document.getElementById('wan-progress');
 const LAN_DL_SIZE_MB = 20; // Size of payload for LAN Download test
 const LAN_UL_SIZE_MB = 10; // Size of payload for LAN Upload test
 
+// -----------------------------------------------------------------
+// Localization & History Init
+// -----------------------------------------------------------------
+
+let currentLang = localStorage.getItem('lang') || 'en';
+const langSelectBtn = document.getElementById('lang-select');
+if(langSelectBtn) langSelectBtn.value = currentLang;
+
+async function changeLanguage(lang) {
+    try {
+        const response = await fetch(`/locales/${lang}.json`);
+        const translations = await response.json();
+        
+        localStorage.setItem('lang', lang);
+        currentLang = lang;
+        
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[key]) {
+                el.textContent = translations[key];
+            }
+        });
+    } catch (e) {
+        console.error('Failed to load translations:', e);
+    }
+}
+
+async function fetchHistory() {
+    try {
+        const response = await fetch('/api/wan/history');
+        if (!response.ok) return;
+        const data = await response.json();
+        
+        const tbody = document.getElementById('history-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            const dateObj = new Date(item.test_date + 'Z'); // Convert SQLite UTC timestamp
+            const dateStr = isNaN(dateObj.getTime()) ? item.test_date : dateObj.toLocaleString();
+
+            tr.innerHTML = `
+                <td>${item.server_name}</td>
+                <td>${item.ping_ms.toFixed(1)}</td>
+                <td>${item.download_mbps.toFixed(1)}</td>
+                <td>${item.upload_mbps.toFixed(1)}</td>
+                <td>${dateStr}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (e) {
+        console.error('Failed to fetch history:', e);
+    }
+}
+
+// Initialize on page load
+changeLanguage(currentLang);
+fetchHistory();
+
 // Utility: Sleep
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -219,6 +279,7 @@ function startWANTest() {
                 btnLan.disabled = false;
                 btnWan.disabled = false;
                 setTimeout(() => wanProgress.style.width = '0%', 2000);
+                setTimeout(fetchHistory, 500); // Fetch updated history
                 break;
             case 'error':
                 console.error("WAN Error:", data);
