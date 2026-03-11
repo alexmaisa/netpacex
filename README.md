@@ -3,7 +3,7 @@
 NetPaceX is a lightweight, zero-telemetry network speed testing application optimized for home servers. It is specifically designed to bypass network-wide adblockers and firewalls (such as Pi-hole or OPNsense) that frequently block commercial speed test trackers.
 
 NetPaceX measures two distinct types of network speeds:
-1. **Internet (WAN):** Measures the internet speed from the home server to the outside world. This test runs directly from the Go backend to Ookla servers, ensuring it is immune to frontend DNS blocking.
+1. **Internet (WAN):** Measures the internet speed from the home server to the outside world. This test runs directly from the Go backend to either **Ookla** or **M-Lab (NDT7)** servers, ensuring it is immune to frontend DNS blocking.
 2. **Local (LAN):** Measures the speed and latency between your web browser (client) and the local home server hosting NetPaceX. This is completely self-hosted and generates dummy payload data on the fly.
 
 ![NetPaceX UI Preview](#) *(Feel free to add a screenshot of the UI here)*
@@ -11,6 +11,7 @@ NetPaceX measures two distinct types of network speeds:
 ## 🚀 Key Features
 
 - **Dual Testing**: Check both internal WiFi/LAN performance and external ISP internet performance from one dashboard.
+- **Multiple Engines**: Choose between **Ookla** and **M-Lab (NDT7)** for your internet speed tests.
 - **Scheduled Speed Tests (CRON)**: Automate your speed tests! Set custom schedules using standard Cron expressions for both Internet and LAN tests.
 - **Advanced Metrics**: Track not just Speed, but also **Jitter**, **Min Ping**, and **Max Ping** for a deeper understanding of network stability.
 - **History & Data Management**: 
@@ -28,6 +29,7 @@ NetPaceX measures two distinct types of network speeds:
     - Dependency-free Vanilla JS/CSS frontend with a premium **Glassmorphism** design.
     - **Custom Confirmation Modals**: Beautiful, non-blocking UI dialogs instead of browser default alerts.
 - **Go Powered Backend**: High-performance, low-latency execution with SQLite persistence.
+- **Ultra-small Footprint**: The generated Docker image is **less than 30MB**, making it incredibly lightweight to deploy and maintain.
 
 ## 🛠 Tech Stack
 * **Backend:** Go (Golang)
@@ -44,6 +46,7 @@ NetPaceX can be configured via environment variables. The easiest way is to crea
 | `APP_PASSWORD` | Password for sensitive actions (Mask MAC, Delete History) | (Empty) |
 | `TZ` | System timezone (e.g., `Asia/Jakarta`) | `UTC` |
 | `PORT` | Port the application runs on inside the container | `8080` |
+| `WAN_ENGINE` | Speed test engine to use (`ookla` or `mlab`) | `ookla` |
 
 ### Example `.env` file:
 ```bash

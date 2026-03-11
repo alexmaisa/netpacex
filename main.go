@@ -173,6 +173,19 @@ func main() {
 			log.Printf("Config: Timezone synced to %s", envTZ)
 		}
 	}
+	
+	envEngine := os.Getenv("WAN_ENGINE")
+	if envEngine != "" {
+		envEngine = strings.ToLower(envEngine)
+		if envEngine == "ookla" || envEngine == "mlab" {
+			_, err := db.Exec(`UPDATE settings SET value = ? WHERE key = 'wan_engine'`, envEngine)
+			if err != nil {
+				log.Printf("Config: Failed to sync WAN_ENGINE to database: %v", err)
+			} else {
+				log.Printf("Config: WAN engine synced to %s", envEngine)
+			}
+		}
+	}
 
 	mux := http.NewServeMux()
 
