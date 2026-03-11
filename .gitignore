@@ -1,3 +1,6 @@
 history.db
+data/
 main
 .env
+*.db
+*.out
