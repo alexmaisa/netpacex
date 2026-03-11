@@ -925,9 +925,9 @@ function renderSettings() {
 
     // Conditional Security Settings
     const deleteToggle = document.getElementById('set-allow-delete');
-    const deleteGroup = document.getElementById('switch-allow-delete').closest('.toggle-group');
+    const deleteGroup = deleteToggle.closest('.toggle-group');
     const maskToggle = document.getElementById('set-mask-mac');
-    const maskGroup = document.getElementById('switch-mask-mac').closest('.toggle-group');
+    const maskGroup = maskToggle.closest('.toggle-group');
     
     if (!isPasswordProtected) {
         // Disable Delete
