@@ -71,6 +71,8 @@ func initDB() {
 		"lan_unit": "Mbps",
 		"mask_mac": "true",
 		"allow_delete": "false",
+		"default_lang": "en",
+		"lock_lang": "false",
 	}
 	for k, v := range defaults {
 		db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?);`, k, v)

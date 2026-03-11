@@ -344,6 +344,36 @@
 							</div>
 						</div>
 					</div>
+
+					<!-- Localization Card -->
+					<div class="glass settings-card">
+						<div class="card-header">
+							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></div>
+							<h2 data-i18n="set_loc_title">Localization</h2>
+						</div>
+						<div class="settings-content">
+							<div class="toggle-group" style="margin-bottom: 1.5rem;">
+								<div class="toggle-info">
+									<span data-i18n="set_default_lang">Default Language</span>
+									<p class="settings-desc" data-i18n="set_default_lang_desc">Preferred language for the system.</p>
+								</div>
+								<select id="set-default-lang" class="settings-control" style="width: 120px;" onchange="updateSetting('default_lang', this.value)">
+									<option value="en">English</option>
+									<option value="id">Indonesia</option>
+								</select>
+							</div>
+							<div class="toggle-group">
+								<div class="toggle-info">
+									<span data-i18n="set_lock_lang">Lock Language Switcher</span>
+									<p class="settings-desc" data-i18n="set_lock_lang_desc">Disable language selection in the header.</p>
+								</div>
+								<label class="switch">
+									<input type="checkbox" id="set-lock-lang" onchange="updateSetting('lock_lang', this.checked)">
+									<span class="slider round"></span>
+								</label>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -366,7 +396,7 @@
 								<div class="toggle-info">
 									<span data-i18n="set_mask_mac">Mask MAC Address</span>
 									<p class="settings-desc" data-i18n="set_mask_mac_desc">Hide MAC addresses in history
-										by default.</p>
+										by default. Requires APP_PASSWORD to be configured during installation.</p>
 								</div>
 								<label class="switch" id="switch-mask-mac">
 									<input type="checkbox" id="set-mask-mac"
@@ -397,7 +427,7 @@
 									<span data-i18n="set_allow_delete">Allow History Deletion</span>
 									<p class="settings-desc" data-i18n="set_allow_delete_desc">Enable the option to
 										delete individual test results from history. Requires APP_PASSWORD to be
-										configured.</p>
+										configured during installation.</p>
 								</div>
 								<label class="switch" id="switch-allow-delete">
 									<input type="checkbox" id="set-allow-delete"

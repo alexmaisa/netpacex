@@ -31,7 +31,9 @@ let appSettings = {
     wan_unit: 'Mbps',
     lan_unit: 'Mbps',
     mask_mac: 'true',
-    allow_delete: 'false'
+    allow_delete: 'false',
+    default_lang: 'en',
+    lock_lang: 'false'
 };
 
 let isPasswordProtected = false;
@@ -804,9 +806,23 @@ function closeDetailsModal() {
 
 // Initial App setup
 async function initApp() {
-    await changeLanguage(currentLang);
     await loadSettings();
     await checkAuthStatus();
+
+    // Determine which language to use
+    let langToUse = currentLang;
+    if (appSettings.lock_lang === 'true') {
+        langToUse = appSettings.default_lang || 'en';
+    }
+    
+    await changeLanguage(langToUse);
+
+    // Hide switcher if locked
+    const langHeaderSwitcher = document.getElementById('lang-select');
+    if (langHeaderSwitcher && appSettings.lock_lang === 'true') {
+        langHeaderSwitcher.style.display = 'none';
+    }
+
     // Fetch history ONLY after settings are loaded to ensure masks/units are correct
     fetchHistory();
 }
@@ -897,6 +913,27 @@ function renderSettings() {
         maskToggle.checked = appSettings.mask_mac === 'true';
         maskGroup.style.opacity = '1';
         maskGroup.title = '';
+    }
+
+    // Localization Settings
+    const defaultLangSelect = document.getElementById('set-default-lang');
+    const lockLangToggle = document.getElementById('set-lock-lang');
+    const langHeaderSwitcher = document.getElementById('lang-select');
+
+    if (defaultLangSelect) defaultLangSelect.value = appSettings.default_lang || 'en';
+    if (lockLangToggle) lockLangToggle.checked = appSettings.lock_lang === 'true';
+
+    // Apply switcher visibility
+    if (langHeaderSwitcher) {
+        if (appSettings.lock_lang === 'true') {
+            langHeaderSwitcher.style.display = 'none';
+            // Also force current language to default if locked
+            if (currentLang !== appSettings.default_lang) {
+                changeLanguage(appSettings.default_lang);
+            }
+        } else {
+            langHeaderSwitcher.style.display = 'block';
+        }
     }
 }
 
