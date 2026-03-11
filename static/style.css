@@ -444,12 +444,21 @@ footer a:hover {
 
 /* Responsive */
 @media (max-width: 600px) {
+	.container {
+		padding: 1rem 0.5rem;
+	}
 	.metrics {
 		grid-template-columns: 1fr;
 		gap: 1.5rem;
 	}
 	.btn {
 		width: 100%;
+	}
+	.modal-actions {
+		flex-direction: column;
+	}
+	.security-modal-content {
+		padding: 1.5rem !important;
 	}
 }
 
