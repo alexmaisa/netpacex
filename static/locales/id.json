@@ -58,7 +58,7 @@
   "set_privacy_title": "Privasi & Keamanan",
   "set_mask_mac": "Samarkan Alamat MAC",
   "set_mask_mac_desc": "Sembunyikan alamat MAC di riwayat secara default.",
-  "btn_save_settings": "Simpan Semua Perubahan",
+  "btn_save_settings": "Simpan",
   "sec_title": "Konfirmasi Keamanan",
   "sec_desc": "Tindakan ini memerlukan verifikasi. Silakan konfirmasi untuk melanjutkan.",
   "btn_cancel": "Batal",

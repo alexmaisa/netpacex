@@ -58,7 +58,7 @@
   "set_privacy_title": "Privacy & Security",
   "set_mask_mac": "Mask MAC Address",
   "set_mask_mac_desc": "Hide MAC addresses in history by default.",
-  "btn_save_settings": "Save All Changes",
+  "btn_save_settings": "Save",
   "sec_title": "Security Confirmation",
   "sec_desc": "This action requires verification. Please confirm to proceed.",
   "btn_cancel": "Cancel",

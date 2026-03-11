@@ -865,22 +865,38 @@ function renderSettings() {
     wanRadios.forEach(r => r.checked = r.value === appSettings.wan_unit);
     lanRadios.forEach(r => r.checked = r.value === appSettings.lan_unit);
 
-    maskMacToggle.checked = appSettings.mask_mac === 'true';
-
-    // Allow Delete Toggle (Conditional)
+    // Conditional Security Settings
     const deleteToggle = document.getElementById('set-allow-delete');
     const deleteGroup = document.getElementById('switch-allow-delete').closest('.toggle-group');
+    const maskToggle = document.getElementById('set-mask-mac');
+    const maskGroup = document.getElementById('switch-mask-mac').closest('.toggle-group');
     
     if (!isPasswordProtected) {
+        // Disable Delete
         deleteToggle.disabled = true;
         deleteToggle.checked = false;
         deleteGroup.style.opacity = '0.5';
         deleteGroup.title = 'Requires APP_PASSWORD set in Docker';
+
+        // Disable Mask MAC
+        maskToggle.disabled = true;
+        maskToggle.checked = false;
+        maskGroup.style.opacity = '0.5';
+        maskGroup.title = 'Requires APP_PASSWORD set in Docker';
+        
+        // Ensure values are synced if they were true
+        appSettings.allow_delete = 'false';
+        appSettings.mask_mac = 'false';
     } else {
         deleteToggle.disabled = false;
         deleteToggle.checked = appSettings.allow_delete === 'true';
         deleteGroup.style.opacity = '1';
         deleteGroup.title = '';
+
+        maskToggle.disabled = false;
+        maskToggle.checked = appSettings.mask_mac === 'true';
+        maskGroup.style.opacity = '1';
+        maskGroup.title = '';
     }
 }
 
