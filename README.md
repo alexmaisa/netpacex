@@ -3,63 +3,85 @@
 NetPaceX is a lightweight, zero-telemetry network speed testing application optimized for home servers. It is specifically designed to bypass network-wide adblockers and firewalls (such as Pi-hole or OPNsense) that frequently block commercial speed test trackers.
 
 NetPaceX measures two distinct types of network speeds:
-1. **LAN Speed (Client -> Server):** Measures the speed and latency between your web browser (client) and the local home server hosting NetPaceX. This is completely self-hosted and generates dummy payload data on the fly.
-2. **WAN Speed (Server -> Internet):** Measures the internet speed from the home server to the outside world. This test runs directly from the Go backend to Ookla servers, ensuring it is immune to frontend DNS blocking.
+1. **Internet (WAN):** Measures the internet speed from the home server to the outside world. This test runs directly from the Go backend to Ookla servers, ensuring it is immune to frontend DNS blocking.
+2. **Local (LAN):** Measures the speed and latency between your web browser (client) and the local home server hosting NetPaceX. This is completely self-hosted and generates dummy payload data on the fly.
 
 ![NetPaceX UI Preview](#) *(Feel free to add a screenshot of the UI here)*
 
-## Features
-- **Dual Testing**: Check both internal WiFi/LAN performance and external ISP internet performance from one dashboard.
-- **Ultra Lightweight**: Built with a Go backend and a dependency-free Vanilla JS/CSS frontend.
-- **Pi-hole / OPNsense Friendly**: Zero third-party frontend trackers. WAN tests are executed securely on the server side.
-- **Modern UI**: Dark mode, glassmorphism design with smooth animations.
-- **Tiny Footprint**: The provided Docker image is built from scratch/alpine and uses very little memory.
+## 🚀 Key Features
 
-## Tech Stack
+- **Dual Testing**: Check both internal WiFi/LAN performance and external ISP internet performance from one dashboard.
+- **Scheduled Speed Tests (CRON)**: Automate your speed tests! Set custom schedules using standard Cron expressions for both Internet and LAN tests.
+- **Advanced Metrics**: Track not just Speed, but also **Jitter**, **Min Ping**, and **Max Ping** for a deeper understanding of network stability.
+- **History & Data Management**: 
+    - Full test history with interactive charts.
+    - **Allow History Deletion**: Option to remove individual test results (requires `APP_PASSWORD`).
+- **Privacy & Security**:
+    - **Mask MAC Address**: Protect device identity in logs (requires `APP_PASSWORD`).
+    - **APP_PASSWORD Protection**: Sensitive actions and configurations are protected by a secure backend verification flow.
+- **Localization & Customization**:
+    - Multi-language support (English & Indonesian).
+    - **Language Lock**: Administrators can enforce a default language and hide the header language switcher.
+    - Comprehensive **Timezone Support** (IANA list).
+    - Toggle between **Mbps** and **Gbps** for all metrics.
+- **Ultra Lightweight & Modern UI**: Built with a Go backend and a dependency-free Vanilla JS/CSS frontend using a premium **Glassmorphism** design.
+
+## 🛠 Tech Stack
 * **Backend:** Go (Golang)
-* **Frontend:** Vanilla HTML, CSS, JavaScript (No build tools required)
+* **Frontend:** Vanilla HTML, CSS, JavaScript
+* **Database:** SQLite
 * **Deployment:** Docker
 
-## Installation & Running
+## 📦 Installation & Running
 
-The easiest way to run NetPaceX is using Docker Compose.
+### Using Docker Compose (Recommended)
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/alexmaisa/netpacex.git
-   cd netpacex
+   git clone https://github.com/alexmaisa/NetPaceX.git
+   cd NetPaceX
    ```
 
-2. Start the container:
+2. Configure environment variables in `docker-compose.yml` or a `.env` file:
+   ```yaml
+   services:
+     netpacex:
+       image: alexmaisa/netpacex:latest
+       ports:
+         - "8080:8080"
+       environment:
+         - APP_PASSWORD=your_secure_password # Optional but highly recommended for security features
+   ```
+
+3. Start the container:
    ```bash
    docker-compose up -d
    ```
 
-3. Open your web browser and navigate to:
-   ```
-   http://<your-server-ip>:8080
-   ```
+4. Open your web browser and navigate to `http://<your-server-ip>:8080`.
 
-*(Note: If you want the WAN speedtest to measure your exact host interface speed without Docker's NAT overhead, you can add `network_mode: host` to your `docker-compose.yml`.)*
+*(Note: For the most accurate WAN results without Docker NAT overhead, use `network_mode: host`.)*
 
-## Manual Development Setup
+### Manual Development Setup
 
-If you wish to run the project locally without Docker:
-
-1. Ensure you have Go 1.24+ installed.
+1. Ensure you have Go 1.25+ installed.
 2. Clone the repository and navigate to the directory.
-3. Run the Go server:
+3. Install dependencies:
+   ```bash
+   go mod tidy
+   ```
+4. Run the Go server:
    ```bash
    go run main.go
    ```
-4. Access the UI at `http://localhost:8080`.
+5. Access the UI at `http://localhost:8080`.
 
-## Contributing
+## 🤝 Contributing
 
 We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. 
 **Please note that all project communications, issues, pull requests, commit messages, and code comments must be written in English.**
 
-## License
+## 📜 License
 
 This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)** License.
 You are free to share and adapt the material for non-commercial purposes, provided you give appropriate credit.
