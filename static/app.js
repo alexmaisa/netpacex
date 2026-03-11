@@ -33,7 +33,12 @@ let appSettings = {
     mask_mac: 'true',
     allow_delete: 'false',
     default_lang: 'en',
-    lock_lang: 'false'
+    lock_lang: 'false',
+    cron_wan_enable: 'false',
+    cron_wan_expr: '0 * * * *',
+    cron_lan_enable: 'false',
+    cron_lan_expr: '30 * * * *',
+    cron_lan_target: ''
 };
 
 let isPasswordProtected = false;
@@ -935,6 +940,19 @@ function renderSettings() {
             langHeaderSwitcher.style.display = 'block';
         }
     }
+
+    // Cron Settings
+    const cronWanEnable = document.getElementById('set-cron-wan-enable');
+    const cronWanExpr = document.getElementById('set-cron-wan-expr');
+    const cronLanEnable = document.getElementById('set-cron-lan-enable');
+    const cronLanExpr = document.getElementById('set-cron-lan-expr');
+    const cronLanTarget = document.getElementById('set-cron-lan-target');
+
+    if (cronWanEnable) cronWanEnable.checked = appSettings.cron_wan_enable === 'true';
+    if (cronWanExpr) cronWanExpr.value = appSettings.cron_wan_expr || '';
+    if (cronLanEnable) cronLanEnable.checked = appSettings.cron_lan_enable === 'true';
+    if (cronLanExpr) cronLanExpr.value = appSettings.cron_lan_expr || '';
+    if (cronLanTarget) cronLanTarget.value = appSettings.cron_lan_target || '';
 }
 
 function updateSetting(key, value) {

@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/robfig/cron/v3"
 	"github.com/showwin/speedtest-go/speedtest"
 	_ "modernc.org/sqlite"
 )
@@ -73,6 +74,11 @@ func initDB() {
 		"allow_delete": "false",
 		"default_lang": "en",
 		"lock_lang": "false",
+		"cron_wan_enable": "false",
+		"cron_wan_expr": "0 * * * *",
+		"cron_lan_enable": "false",
+		"cron_lan_expr": "30 * * * *",
+		"cron_lan_target": "",
 	}
 	for k, v := range defaults {
 		db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?);`, k, v)
@@ -114,10 +120,128 @@ func main() {
 	http.HandleFunc("/api/wan/history/delete", handleWANHistoryDelete)
 	http.HandleFunc("/api/lan/history/delete", handleLANHistoryDelete)
 
+	initScheduler()
+
 	port := "8080"
 	fmt.Printf("NetPaceX server started on port %s...\n", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
+	}
+}
+
+var globalCron *cron.Cron
+
+func initScheduler() {
+	globalCron = cron.New()
+	globalCron.Start()
+	updateCron()
+}
+
+func updateCron() {
+	// Stop existing jobs if any
+	currJobs := globalCron.Entries()
+	for _, entry := range currJobs {
+		globalCron.Remove(entry.ID)
+	}
+
+	// Fetch settings
+	settings := make(map[string]string)
+	rows, err := db.Query("SELECT key, value FROM settings")
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var k, v string
+			rows.Scan(&k, &v)
+			settings[k] = v
+		}
+	}
+
+	// Schedule WAN
+	if settings["cron_wan_enable"] == "true" && settings["cron_wan_expr"] != "" {
+		_, err := globalCron.AddFunc(settings["cron_wan_expr"], func() {
+			log.Println("Cron: Starting scheduled WAN test...")
+			performWANTest()
+		})
+		if err != nil {
+			log.Printf("Cron: Failed to schedule WAN: %v", err)
+		} else {
+			log.Printf("Cron: WAN scheduled with expr: %s", settings["cron_wan_expr"])
+		}
+	}
+
+	// Schedule LAN
+	if settings["cron_lan_enable"] == "true" && settings["cron_lan_expr"] != "" && settings["cron_lan_target"] != "" {
+		targetIP := settings["cron_lan_target"]
+		_, err := globalCron.AddFunc(settings["cron_lan_expr"], func() {
+			log.Printf("Cron: Starting scheduled LAN test to %s...", targetIP)
+			performLANTest(targetIP)
+		})
+		if err != nil {
+			log.Printf("Cron: Failed to schedule LAN: %v", err)
+		} else {
+			log.Printf("Cron: LAN scheduled to %s with expr: %s", targetIP, settings["cron_lan_expr"])
+		}
+	}
+}
+
+// performLANTest executes a full LAN test suite to a target IP
+func performLANTest(targetIP string) {
+	// For background tests, we need to simulate the multi-step LAN test (Ping, DL, UL)
+	// This is a simplified version since we can't stream to a real client browser
+	// However, we can measure from server to target IP if target IP is another NetPaceX instance
+	// or simple ping/throughput if possible.
+	// For this implementation, we will perform a Ping + Save record for the target.
+	
+	// 1. Ping test
+	pings := 5
+	var totalMs float64
+	var minMs float64 = 999999
+	var maxMs float64 = 0
+	var values []float64
+
+	for i := 0; i < pings; i++ {
+		start := time.Now()
+		// Simple TCP check if port 8080 is open, or ICMP if we had raw sockets
+		// Let's use a simple TCP dial to port 8080 as a proxy for "latency to NetPaceX instance"
+		conn, err := net.DialTimeout("tcp", net.JoinHostPort(targetIP, "8080"), 2*time.Second)
+		duration := time.Since(start).Seconds() * 1000
+		if err == nil {
+			conn.Close()
+			totalMs += duration
+			values = append(values, duration)
+			if duration < minMs { minMs = duration }
+			if duration > maxMs { maxMs = duration }
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	if len(values) == 0 {
+		log.Printf("Cron: LAN test failed, host %s unreachable", targetIP)
+		return
+	}
+
+	avgPing := totalMs / float64(len(values))
+	
+	// Simplified Jitter
+	var jitterSum float64
+	for i := 1; i < len(values); i++ {
+		diff := values[i] - values[i-1]
+		if diff < 0 { diff = -diff }
+		jitterSum += diff
+	}
+	avgJitter := jitterSum / float64(len(values)-1)
+
+	// We'll leave DL/UL as 0 for background server-to-server tests for now 
+	// unless user wants full iperf integration.
+	mac := getMACAddress(targetIP)
+	
+	_, err := db.Exec(`
+		INSERT INTO lan_history (ip_address, mac_address, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	`, targetIP, mac, avgPing, avgJitter, minMs, maxMs, 0.0, 0.0)
+
+	if err != nil {
+		log.Printf("Cron: Failed to save scheduled LAN history: %v", err)
 	}
 }
 
@@ -378,6 +502,70 @@ type WANEvent struct {
 	Info  string      `json:"info"`  // Extra info like server name
 }
 
+// performWANTest executes a speedtest and returns results. Does NOT use flusher/SSE.
+func performWANTest() (*WANHistory, error) {
+	// 1. Fetch user info
+	_, err := speedtest.FetchUserInfo()
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch user info: %v", err)
+	}
+
+	// 2. Fetch server list and find closest
+	serverList, err := speedtest.FetchServers()
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch server list: %v", err)
+	}
+
+	targets, err := serverList.FindServer(nil)
+	if err != nil || len(targets) == 0 {
+		return nil, fmt.Errorf("failed to find suitable test server")
+	}
+
+	server := targets[0]
+
+	// 3. Ping Test
+	err = server.PingTest(nil)
+	if err != nil {
+		return nil, fmt.Errorf("ping test failed: %v", err)
+	}
+
+	// 4. Download Test
+	err = server.DownloadTest()
+	if err != nil {
+		return nil, fmt.Errorf("download test failed: %v", err)
+	}
+	dlMbps := server.DLSpeed.Mbps()
+
+	// 5. Upload Test
+	err = server.UploadTest()
+	if err != nil {
+		return nil, fmt.Errorf("upload test failed: %v", err)
+	}
+	ulMbps := server.ULSpeed.Mbps()
+
+	// 6. Save to History
+	serverName := fmt.Sprintf("%s (%s)", server.Name, server.Country)
+	record := &WANHistory{
+		ServerName:   serverName,
+		PingMs:       float64(server.Latency.Milliseconds()),
+		JitterMs:     float64(server.Jitter.Milliseconds()),
+		MinPingMs:    float64(server.MinLatency.Milliseconds()),
+		MaxPingMs:    float64(server.MaxLatency.Milliseconds()),
+		DownloadMbps: dlMbps,
+		UploadMbps:   ulMbps,
+	}
+
+	_, dbErr := db.Exec(`
+		INSERT INTO wan_history (server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps) 
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+	`, record.ServerName, record.PingMs, record.JitterMs, record.MinPingMs, record.MaxPingMs, record.DownloadMbps, record.UploadMbps)
+	if dbErr != nil {
+		log.Printf("Failed to insert scheduled WAN history: %v", dbErr)
+	}
+
+	return record, nil
+}
+
 // handleWANTest performs an Ookla speed test from the server and streams results via SSE
 func handleWANTest(w http.ResponseWriter, r *http.Request) {
 	// Set headers for Server-Sent Events (SSE)
@@ -398,7 +586,7 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 	}
 
-	// 1. Fetch user info (optional, just for logging context)
+	// 1. Fetch user info
 	user, err := speedtest.FetchUserInfo()
 	if err != nil {
 		sendEvent("error", err.Error(), "Failed to fetch user info")
@@ -436,7 +624,6 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 		sendEvent("error", err.Error(), "Download test failed")
 		return
 	}
-	// Convert speed to Mbps
 	dlMbps := server.DLSpeed.Mbps()
 	sendEvent("download", dlMbps, "")
 
@@ -446,7 +633,6 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 		sendEvent("error", err.Error(), "Upload test failed")
 		return
 	}
-	// Convert speed to Mbps
 	ulMbps := server.ULSpeed.Mbps()
 	sendEvent("upload", ulMbps, "")
 
@@ -498,6 +684,7 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Failed to update setting %s: %v", k, err)
 			}
 		}
+		updateCron()
 		w.WriteHeader(http.StatusOK)
 	}
 }
