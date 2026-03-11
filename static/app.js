@@ -42,6 +42,7 @@ let appSettings = {
 };
 
 let isPasswordProtected = false;
+let originalSettings = {};
 
 // -----------------------------------------------------------------
 // Localization Init
@@ -878,6 +879,7 @@ async function loadSettings() {
         const res = await fetch('/api/settings');
         if (res.ok) {
             appSettings = await res.json();
+            originalSettings = { ...appSettings };
             updateUnitLabels();
         }
     } catch (e) {
@@ -1050,24 +1052,20 @@ function updateSetting(key, value) {
     appSettings[key] = String(value);
 }
 
-function toggleSensitiveSetting(key, checkbox) {
-    if (!isPasswordProtected) {
-        checkbox.checked = false;
-        return;
+async function saveAllSettings() {
+    const maskChanged = appSettings.mask_mac !== originalSettings.mask_mac;
+    const deleteChanged = appSettings.allow_delete !== originalSettings.allow_delete;
+
+    if (isPasswordProtected && (maskChanged || deleteChanged)) {
+        openSecurityModal(() => {
+            performSave();
+        });
+    } else {
+        await performSave();
     }
-
-    // Capture target state and temporarily revert checkbox
-    const targetState = checkbox.checked;
-    checkbox.checked = !targetState;
-
-    // Open security modal. Verification is handled inside openSecurityModal.
-    openSecurityModal(() => {
-        appSettings[key] = String(targetState);
-        checkbox.checked = targetState;
-    });
 }
 
-async function saveAllSettings() {
+async function performSave() {
     const btn = document.querySelector('#view-settings .btn.primary');
     const originalText = btn.textContent;
     btn.disabled = true;
@@ -1080,6 +1078,7 @@ async function saveAllSettings() {
             body: JSON.stringify(appSettings)
         });
         if (res.ok) {
+            originalSettings = { ...appSettings };
             showToast(currentTranslations['msg_settings_saved'] || 'Settings saved successfully');
             updateUnitLabels();
             // Refresh history to apply mask/timezone changes
