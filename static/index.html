@@ -69,13 +69,28 @@
 				</div>
 			</div>
 
-			<div class="results-grid">
-				<!-- WAN Results Card -->
-				<div class="card wan-card glass">
-					<div class="card-header">
-						<h2 data-i18n="card_wan_title">Internet Speed</h2>
-						<span id="wan-status" class="status-badge idle" data-i18n="status_idle">Idle</span>
-					</div>
+			<!-- Test Launcher Buttons (Visible when idle) -->
+			<div id="test-launcher" class="launcher-container">
+				<button id="btn-launcher-wan" class="btn-launcher secondary" onclick="startWANTest()">
+					<div class="launcher-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
+					<span data-i18n="btn_wan">Test Internet Speed</span>
+				</button>
+				<button id="btn-launcher-lan" class="btn-launcher primary" onclick="startLANTest()">
+					<div class="launcher-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/></svg></div>
+					<span data-i18n="btn_lan">Test LAN Speed</span>
+				</button>
+			</div>
+
+			<div class="results-grid" style="display: none;">
+                <!-- WAN Results Card -->
+                <div id="wan-card" class="card wan-card glass">
+                    <div class="card-header">
+                        <div class="header-main">
+                            <h2 data-i18n="card_wan_title">Internet Speed</h2>
+                            <span id="wan-status" class="status-badge idle" data-i18n="status_idle">Idle</span>
+                        </div>
+                        <button class="card-close-btn" onclick="closeTestCard('wan')" data-i18n="btn_close">Tutup</button>
+                    </div>
 					<div id="wan-server-info" class="server-info"></div>
 					<div class="metrics">
 						<div class="metric">
@@ -96,15 +111,18 @@
 					</div>
 					<div class="card-action">
 						<button id="btn-wan" class="btn secondary full-width" onclick="startWANTest()"
-							data-i18n="btn_wan">Test Internet Speed</button>
+							data-i18n="btn_wan" style="display: none;">Test Internet Speed</button>
 					</div>
 				</div>
 
 				<!-- LAN Results Card -->
-				<div class="card lan-card glass">
+				<div id="lan-card" class="card lan-card glass">
 					<div class="card-header">
-						<h2 data-i18n="card_lan_title">LAN Speed</h2>
-						<span id="lan-status" class="status-badge idle" data-i18n="status_idle">Idle</span>
+						<div class="header-main">
+							<h2 data-i18n="card_lan_title">LAN Speed</h2>
+							<span id="lan-status" class="status-badge idle" data-i18n="status_idle">Idle</span>
+						</div>
+						<button class="card-close-btn" onclick="closeTestCard('lan')" data-i18n="btn_close">Tutup</button>
 					</div>
 					<div class="metrics">
 						<div class="metric">
@@ -125,7 +143,7 @@
 					</div>
 					<div class="card-action">
 						<button id="btn-lan" class="btn primary full-width" onclick="startLANTest()"
-							data-i18n="btn_lan">Test LAN Speed</button>
+							data-i18n="btn_lan" style="display: none;">Test LAN Speed</button>
 					</div>
 				</div>
 			</div> <!-- End results-grid -->

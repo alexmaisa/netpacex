@@ -191,6 +191,81 @@ body {
 	transform: translateY(-2px);
 }
 
+/* Launcher Container */
+.launcher-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+	animation: fadeIn 0.5s ease forwards;
+}
+
+.btn-launcher {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 2.5rem 2rem;
+	border-radius: 20px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: var(--glass-bg);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	cursor: pointer;
+	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	text-align: center;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.btn-launcher .launcher-icon {
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 1.25rem;
+	transition: all 0.4s ease;
+}
+
+.btn-launcher span {
+	font-size: 1.15rem;
+	font-weight: 700;
+	color: var(--text-main);
+	letter-spacing: -0.2px;
+}
+
+.btn-launcher.primary .launcher-icon {
+	background: rgba(236, 72, 153, 0.15);
+	color: #ec4899;
+}
+
+.btn-launcher.secondary .launcher-icon {
+	background: rgba(139, 92, 246, 0.15);
+	color: #8b5cf6;
+}
+
+.btn-launcher:hover {
+	transform: translateY(-8px);
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(255, 255, 255, 0.2);
+	box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
+}
+
+.btn-launcher.primary:hover {
+	border-color: #ec4899;
+	box-shadow: 0 15px 45px rgba(236, 72, 153, 0.2);
+}
+
+.btn-launcher.secondary:hover {
+	border-color: #8b5cf6;
+	box-shadow: 0 15px 45px rgba(139, 92, 246, 0.2);
+}
+
+.btn-launcher:hover .launcher-icon {
+	transform: scale(1.1) rotate(5deg);
+}
+
 /* Grid & Cards */
 .results-grid {
 	display: grid;
@@ -226,6 +301,37 @@ body {
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 1.5rem;
+}
+
+.header-main {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.card-close-btn {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	color: var(--text-muted);
+	padding: 0.4rem 1rem;
+	border-radius: 10px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	opacity: 0;
+	visibility: hidden;
+}
+
+.card-close-btn.visible {
+	opacity: 1;
+	visibility: visible;
+}
+
+.card-close-btn:hover {
+	background: rgba(239, 68, 68, 0.15);
+	color: #ef4444;
+	border-color: rgba(239, 68, 68, 0.3);
 }
 
 h2 {

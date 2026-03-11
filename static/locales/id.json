@@ -41,5 +41,6 @@
   "lbl_avg_lan_title": "Jaringan Lokal (Rerata 24j)",
   "lbl_avg_dl": "Rerata Unduh",
   "lbl_avg_ul": "Rerata Unggah",
-  "lbl_avg_ping": "Rerata Ping"
+  "lbl_avg_ping": "Rerata Ping",
+  "btn_close": "Tutup"
 }

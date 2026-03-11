@@ -41,5 +41,6 @@
   "lbl_avg_lan_title": "Local Network (24h Avg)",
   "lbl_avg_dl": "Avg Download",
   "lbl_avg_ul": "Avg Upload",
-  "lbl_avg_ping": "Avg Ping"
+  "lbl_avg_ping": "Avg Ping",
+  "btn_close": "Close"
 }

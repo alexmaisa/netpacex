@@ -80,6 +80,25 @@ function switchMainView(viewId) {
     }
 }
 
+function closeTestCard(type) {
+    const launcher = document.getElementById('test-launcher');
+    const resultsGrid = document.querySelector('.results-grid');
+    const wanCard = document.getElementById('wan-card');
+    const lanCard = document.getElementById('lan-card');
+
+    launcher.style.display = 'grid';
+    resultsGrid.style.display = 'none';
+    
+    // Reset status to idle for next time
+    if (type === 'wan') {
+        wanStatus.textContent = currentTranslations['status_idle'] || 'Idle';
+        wanStatus.className = 'status-badge idle';
+    } else {
+        lanStatus.textContent = currentTranslations['status_idle'] || 'Idle';
+        lanStatus.className = 'status-badge idle';
+    }
+}
+
 function switchHistoryTab(tabId) {
     document.querySelectorAll('.history-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
     
@@ -391,9 +410,23 @@ function generatePayload(mb) {
 // -----------------------------------------------------------------
 
 async function startLANTest() {
+    const launcher = document.getElementById('test-launcher');
+    const resultsGrid = document.querySelector('.results-grid');
+    const wanCard = document.getElementById('wan-card');
+    const lanCard = document.getElementById('lan-card');
+
+    launcher.style.display = 'none';
+    resultsGrid.style.display = 'grid';
+    lanCard.style.display = 'flex';
+    wanCard.style.display = 'none';
+
+    // Hide close button during test
+    const closeBtn = lanCard.querySelector('.card-close-btn');
+    if (closeBtn) closeBtn.classList.remove('visible');
+
     // Reset UI
     lanStatus.className = 'status-badge testing';
-    lanStatus.textContent = 'Testing';
+    lanStatus.textContent = currentTranslations['status_testing'] || 'Testing';
     lanPing.textContent = '--';
     lanDl.textContent = '--';
     lanUl.textContent = '--';
@@ -419,7 +452,7 @@ async function startLANTest() {
         lanProgress.style.width = '100%';
 
         lanStatus.className = 'status-badge done';
-        lanStatus.textContent = 'Completed';
+        lanStatus.textContent = currentTranslations['status_completed'] || 'Completed';
 
         // Save LAN results to backend
         try {
@@ -442,8 +475,12 @@ async function startLANTest() {
     } catch (e) {
         console.error(e);
         lanStatus.className = 'status-badge error';
-        lanStatus.textContent = 'Error';
+        lanStatus.textContent = currentTranslations['status_error'] || 'Error';
     } finally {
+        // Show close button
+        const closeBtn = document.querySelector('#lan-card .card-close-btn');
+        if (closeBtn) closeBtn.classList.add('visible');
+
         btnLan.disabled = false;
         btnWan.disabled = false;
         // Turn off active colors
@@ -545,9 +582,23 @@ async function measureLANUpload() {
 // -----------------------------------------------------------------
 
 function startWANTest() {
+    const launcher = document.getElementById('test-launcher');
+    const resultsGrid = document.querySelector('.results-grid');
+    const wanCard = document.getElementById('wan-card');
+    const lanCard = document.getElementById('lan-card');
+
+    launcher.style.display = 'none';
+    resultsGrid.style.display = 'grid';
+    wanCard.style.display = 'flex';
+    lanCard.style.display = 'none';
+
+    // Hide close button during test
+    const closeBtn = wanCard.querySelector('.card-close-btn');
+    if (closeBtn) closeBtn.classList.remove('visible');
+
     // Reset UI
     wanStatus.className = 'status-badge testing';
-    wanStatus.textContent = 'Testing';
+    wanStatus.textContent = currentTranslations['status_testing'] || 'Testing';
     wanServerInfo.textContent = 'Locating best server...';
     wanPing.textContent = '--';
     wanDl.textContent = '--';
@@ -596,20 +647,26 @@ function startWANTest() {
                 break;
             case 'done':
                 wanStatus.className = 'status-badge done';
-                wanStatus.textContent = 'Completed';
+                wanStatus.textContent = currentTranslations['status_completed'] || 'Completed';
                 eventSource.close();
                 btnLan.disabled = false;
-                btnWa.disabled = false;
+                btnWan.disabled = false;
+                // Show close button
+                const closeBtnDone = document.querySelector('#wan-card .card-close-btn');
+                if (closeBtnDone) closeBtnDone.classList.add('visible');
                 setTimeout(() => wanProgress.style.width = '0%', 2000);
                 break;
             case 'error':
                 console.error("WAN Error:", data);
                 wanStatus.className = 'status-badge error';
-                wanStatus.textContent = 'Error';
+                wanStatus.textContent = currentTranslations['status_error'] || 'Error';
                 wanServerInfo.textContent = data.info || data.value;
                 eventSource.close();
                 btnLan.disabled = false;
                 btnWan.disabled = false;
+                // Show close button
+                const closeBtnError = document.querySelector('#wan-card .card-close-btn');
+                if (closeBtnError) closeBtnError.classList.add('visible');
                 [wanPing, wanDl, wanUl].forEach(el => el.classList.remove('testing-active'));
                 break;
         }
@@ -618,10 +675,13 @@ function startWANTest() {
     eventSource.onerror = function(err) {
         console.error("SSE Error:", err);
         wanStatus.className = 'status-badge error';
-        wanStatus.textContent = 'Connection Lost';
+        wanStatus.textContent = currentTranslations['status_error'] || 'Connection Lost';
         eventSource.close();
         btnLan.disabled = false;
         btnWan.disabled = false;
+        // Show close button
+        const closeBtn = document.querySelector('#wan-card .card-close-btn');
+        if (closeBtn) closeBtn.classList.add('visible');
         [wanPing, wanDl, wanUl].forEach(el => el.classList.remove('testing-active'));
     };
 }
