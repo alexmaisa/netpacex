@@ -102,7 +102,8 @@ let lanHistoryData = [];
 let currentHistoryTab = 'wan';
 let currentPage = 1;
 const ITEMS_PER_PAGE = 5;
-let historyChartInstance = null;
+let wanChartInstance = null;
+let lanChartInstance = null;
 
 async function fetchHistory() {
     try {
@@ -128,143 +129,128 @@ async function fetchHistory() {
 }
 
 function renderHistoryChart() {
-    const chartContainer = document.getElementById('chart-wrapper');
-    const ctx = document.getElementById('historyChart').getContext('2d');
+    const wanChartWrapper = document.getElementById('wan-chart-wrapper');
+    const lanChartWrapper = document.getElementById('lan-chart-wrapper');
+    const wanCtx = document.getElementById('wanChart').getContext('2d');
+    const lanCtx = document.getElementById('lanChart').getContext('2d');
 
-    // Combine and sort data chronologically
-    let combinedData = [];
-    wanHistoryData.forEach(d => combinedData.push({...d, type: 'wan', timestamp: new Date(d.raw_date).getTime()}));
-    lanHistoryData.forEach(d => combinedData.push({...d, type: 'lan', timestamp: new Date(d.raw_date).getTime()}));
-    
-    combinedData.sort((a, b) => a.timestamp - b.timestamp);
+    // Helper for date formatting
+    const formatDate = (rawDate) => {
+        const dt = new Date(rawDate);
+        return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+    };
 
-    if (combinedData.length === 0) {
-        chartContainer.style.display = 'none';
-        return;
-    }
-
-    chartContainer.style.display = 'block';
-
-    // Format date as DD/MM HH:MM
-    const labels = combinedData.map(d => {
-        const dt = new Date(d.raw_date);
-        const day = String(dt.getDate()).padStart(2, '0');
-        const month = String(dt.getMonth() + 1).padStart(2, '0');
-        const hours = String(dt.getHours()).padStart(2, '0');
-        const mins = String(dt.getMinutes()).padStart(2, '0');
-        return `${day}/${month} ${hours}:${mins}`;
-    });
-    
-    // We map out dataset values. If a datapoint doesn't exist for a type at that time, it returns null
-    const wanDlData = combinedData.map(d => d.type === 'wan' ? d.download_mbps : null);
-    const wanUlData = combinedData.map(d => d.type === 'wan' ? d.upload_mbps : null);
-    
-    const lanDlData = combinedData.map(d => d.type === 'lan' ? d.download_mbps : null);
-    const lanUlData = combinedData.map(d => d.type === 'lan' ? d.upload_mbps : null);
-
-    if (historyChartInstance) {
-        historyChartInstance.destroy();
-    }
-
-    historyChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Internet DL (Mbps)',
-                    data: wanDlData,
-                    borderColor: '#3b82f6', // accent-1
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 2,
-                    spanGaps: true,
-                    tension: 0.3,
-                    yAxisID: 'y'
-                },
-                {
-                    label: 'Internet UL (Mbps)',
-                    data: wanUlData,
-                    borderColor: '#3b82f6',
-                    borderDash: [5, 5],
-                    borderWidth: 2,
-                    spanGaps: true,
-                    tension: 0.3,
-                    yAxisID: 'y'
-                },
-                {
-                    label: 'LAN DL (Mbps)',
-                    data: lanDlData,
-                    borderColor: '#8b5cf6', // accent-2
-                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                    borderWidth: 2,
-                    spanGaps: true,
-                    tension: 0.3,
-                    yAxisID: 'y1'
-                },
-                {
-                    label: 'LAN UL (Mbps)',
-                    data: lanUlData,
-                    borderColor: '#8b5cf6',
-                    borderDash: [5, 5],
-                    borderWidth: 2,
-                    spanGaps: true,
-                    tension: 0.3,
-                    yAxisID: 'y1'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#9ca3af', // text-muted
-                        font: { family: 'Inter', size: 12 }
-                    }
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                }
-            },
-            scales: {
-                x: {
-                    ticks: { 
-                        color: '#9ca3af',
-                        autoSkip: true,
-                        maxTicksLimit: 8,
-                        maxRotation: 0
+    // --- WAN Chart ---
+    if (wanHistoryData.length > 0) {
+        wanChartWrapper.style.display = currentHistoryTab === 'wan' ? 'block' : 'none';
+        const sortedWan = [...wanHistoryData].sort((a,b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime());
+        const labels = sortedWan.map(d => formatDate(d.raw_date));
+        
+        if (wanChartInstance) wanChartInstance.destroy();
+        
+        wanChartInstance = new Chart(wanCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Download (Mbps)',
+                        data: sortedWan.map(d => d.download_mbps),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' }
-                },
-                y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    beginAtZero: true,
-                    title: { display: true, text: 'Internet (Mbps)', color: '#3b82f6' },
-                    ticks: { color: '#9ca3af' },
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' }
-                },
-                y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    beginAtZero: true,
-                    title: { display: true, text: 'LAN (Mbps)', color: '#8b5cf6' },
-                    ticks: { color: '#9ca3af' },
-                    grid: {
-                        drawOnChartArea: false, // only want the grid lines for one axis to show up
+                    {
+                        label: 'Upload (Mbps)',
+                        data: sortedWan.map(d => d.upload_mbps),
+                        borderColor: '#3b82f6',
+                        borderDash: [5, 5],
+                        borderWidth: 2, tension: 0.3, yAxisID: 'y'
+                    },
+                    {
+                        label: 'Ping (ms)',
+                        data: sortedWan.map(d => d.ping_ms),
+                        borderColor: '#10b981', // emerald
+                        borderWidth: 2, tension: 0.3, yAxisID: 'y1'
                     }
-                }
+                ]
+            },
+            options: getChartOptions('Internet Speed (Mbps)', '#3b82f6')
+        });
+    } else {
+        wanChartWrapper.style.display = 'none';
+    }
+
+    // --- LAN Chart ---
+    if (lanHistoryData.length > 0) {
+        lanChartWrapper.style.display = currentHistoryTab === 'lan' ? 'block' : 'none';
+        const sortedLan = [...lanHistoryData].sort((a,b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime());
+        const labels = sortedLan.map(d => formatDate(d.raw_date));
+
+        if (lanChartInstance) lanChartInstance.destroy();
+
+        lanChartInstance = new Chart(lanCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Download (Mbps)',
+                        data: sortedLan.map(d => d.download_mbps),
+                        borderColor: '#8b5cf6', // violet
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2, tension: 0.3, yAxisID: 'y'
+                    },
+                    {
+                        label: 'Upload (Mbps)',
+                        data: sortedLan.map(d => d.upload_mbps),
+                        borderColor: '#8b5cf6',
+                        borderDash: [5, 5],
+                        borderWidth: 2, tension: 0.3, yAxisID: 'y'
+                    },
+                    {
+                        label: 'Ping (ms)',
+                        data: sortedLan.map(d => d.ping_ms),
+                        borderColor: '#10b981',
+                        borderWidth: 2, tension: 0.3, yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: getChartOptions('LAN Speed (Mbps)', '#8b5cf6')
+        });
+    } else {
+        lanChartWrapper.style.display = 'none';
+    }
+}
+
+function getChartOptions(yTitle, yColor) {
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { labels: { color: '#9ca3af', font: { family: 'Inter', size: 12 } } },
+            tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+            x: {
+                ticks: { color: '#9ca3af', autoSkip: true, maxTicksLimit: 8, maxRotation: 0 },
+                grid: { color: 'rgba(255, 255, 255, 0.05)' }
+            },
+            y: {
+                type: 'linear', display: true, position: 'left', beginAtZero: true,
+                title: { display: true, text: yTitle, color: yColor },
+                ticks: { color: '#9ca3af' },
+                grid: { color: 'rgba(255, 255, 255, 0.05)' }
+            },
+            y1: {
+                type: 'linear', display: true, position: 'right', beginAtZero: true,
+                title: { display: true, text: 'Ping (ms)', color: '#10b981' },
+                ticks: { color: '#9ca3af' },
+                grid: { drawOnChartArea: false }
             }
         }
-    });
+    };
 }
 
 function renderHistoryTable() {
@@ -274,6 +260,14 @@ function renderHistoryTable() {
     // Toggle Table Containers
     document.getElementById('history-table-wan-container').style.display = isWan ? 'block' : 'none';
     document.getElementById('history-table-lan-container').style.display = !isWan ? 'block' : 'none';
+    
+    // Toggle Chart Containers
+    if (wanHistoryData.length > 0) {
+        document.getElementById('wan-chart-wrapper').style.display = isWan ? 'block' : 'none';
+    }
+    if (lanHistoryData.length > 0) {
+        document.getElementById('lan-chart-wrapper').style.display = !isWan ? 'block' : 'none';
+    }
     
     const tbodyId = isWan ? 'history-body-wan' : 'history-body-lan';
     const tbody = document.getElementById(tbodyId);

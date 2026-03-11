@@ -108,9 +108,12 @@
 		<div id="view-history" style="display: none;">
 			<div class="history-section glass">
 				
-				<!-- Unified Speed History Chart -->
-				<div id="chart-wrapper" class="chart-container" style="position: relative; height:300px; width:100%; margin-bottom: 2rem; display: none;">
-					<canvas id="historyChart"></canvas>
+				<!-- Separated Speed History Charts -->
+				<div id="wan-chart-wrapper" class="chart-container" style="position: relative; height:300px; width:100%; margin-bottom: 2rem; display: none;">
+					<canvas id="wanChart"></canvas>
+				</div>
+				<div id="lan-chart-wrapper" class="chart-container" style="position: relative; height:300px; width:100%; margin-bottom: 2rem; display: none; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 1rem;">
+					<canvas id="lanChart"></canvas>
 				</div>
 
 				<div class="card-header history-header">
