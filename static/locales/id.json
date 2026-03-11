@@ -83,5 +83,10 @@
   "th_actions": "Aksi",
   "btn_delete": "Hapus",
   "msg_delete_confirm": "Apakah Anda yakin ingin menghapus hasil pengujian ini?",
-  "msg_delete_success": "Hasil pengujian berhasil dihapus"
+  "msg_delete_success": "Hasil pengujian berhasil dihapus",
+  "th_conn_type": "Koneksi",
+  "modal_conn_title": "Tipe Koneksi",
+  "modal_conn_desc": "Bagaimana Anda terhubung ke jaringan?",
+  "btn_wifi": "Wi-Fi",
+  "btn_ethernet": "Ethernet"
 }

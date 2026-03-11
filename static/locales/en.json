@@ -83,5 +83,10 @@
   "th_actions": "Actions",
   "btn_delete": "Delete",
   "msg_delete_confirm": "Are you sure you want to delete this test result?",
-  "msg_delete_success": "Test result deleted successfully"
+  "msg_delete_success": "Test result deleted successfully",
+  "th_conn_type": "Connection",
+  "modal_conn_title": "Connection Type",
+  "modal_conn_desc": "How are you connected to the network?",
+  "btn_wifi": "Wi-Fi",
+  "btn_ethernet": "Ethernet"
 }

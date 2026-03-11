@@ -398,9 +398,11 @@ function renderHistoryTable() {
             `;
         } else {
             const displayMAC = appSettings.mask_mac === 'true' ? maskMAC(item.mac_address) : item.mac_address;
+            const connIcon = item.conn_type === 'Wi-Fi' ? '📶' : (item.conn_type === 'Ethernet' ? '🔌' : '❓');
             tr.innerHTML = `
                 <td>${item.ip_address}</td>
                 <td class="mac-cell">${displayMAC}</td>
+                <td class="text-center" title="${item.conn_type}">${connIcon}</td>
                 <td class="text-center">${item.ping_ms.toFixed(1)}</td>
                 <td class="text-center">${formatSpeed(item.download_mbps, lanUnit)}</td>
                 <td class="text-center">${formatSpeed(item.upload_mbps, lanUnit)}</td>
@@ -536,38 +538,63 @@ async function startLANTest() {
         lanStatus.className = 'status-badge completed';
         lanStatus.textContent = currentTranslations['status_completed'] || 'Completed';
 
-        // Save LAN results to backend
-        try {
-            await fetch('/api/lan/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ping: parseFloat(lanPing.textContent) || 0,
-                    jitter: lanJitter,
-                    min_ping: lanMinPing,
-                    max_ping: lanMaxPing,
-                    download: parseFloat(lanDl.textContent) || 0,
-                    upload: parseFloat(lanUl.textContent) || 0
-                })
-            });
-        } catch (saveErr) {
-            console.error('Failed to save LAN results:', saveErr);
-        }
+        // Show connection type modal instead of saving immediately
+        showConnTypeModal(async (connType) => {
+            // Save LAN results to backend
+            try {
+                await fetch('/api/lan/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ping: parseFloat(lanPing.textContent) || 0,
+                        jitter: lanJitter,
+                        min_ping: lanMinPing,
+                        max_ping: lanMaxPing,
+                        download: parseFloat(lanDl.textContent) || 0,
+                        upload: parseFloat(lanUl.textContent) || 0,
+                        conn_type: connType
+                    })
+                });
+            } catch (saveErr) {
+                console.error('Failed to save LAN results:', saveErr);
+            } finally {
+                finishLANTestUI();
+            }
+        });
 
     } catch (e) {
         console.error(e);
         lanStatus.className = 'status-badge error';
         lanStatus.textContent = currentTranslations['status_error'] || 'Error';
-    } finally {
-        // Show close button
-        const closeBtn = document.querySelector('#lan-card .card-close-btn');
-        if (closeBtn) closeBtn.classList.add('visible');
+        finishLANTestUI();
+    }
+}
 
-        btnLan.disabled = false;
-        btnWan.disabled = false;
-        // Turn off active colors
-        [lanPing, lanDl, lanUl].forEach(el => el.classList.remove('testing-active'));
-        setTimeout(() => lanProgress.style.width = '0%', 2000);
+function finishLANTestUI() {
+    // Show close button
+    const closeBtn = document.querySelector('#lan-card .card-close-btn');
+    if (closeBtn) closeBtn.classList.add('visible');
+
+    document.getElementById('btn-lan').disabled = false;
+    document.getElementById('btn-wan').disabled = false;
+    // Turn off active colors
+    [document.getElementById('lan-ping'), document.getElementById('lan-dl'), document.getElementById('lan-ul')].forEach(el => el.classList.remove('testing-active'));
+    setTimeout(() => document.getElementById('lan-progress').style.width = '0%', 2000);
+}
+
+// Global state for Connection Type Modal
+let connTypeCallback = null;
+
+function showConnTypeModal(callback) {
+    connTypeCallback = callback;
+    document.getElementById('conn-modal').style.display = 'flex';
+}
+
+function submitConnType(type) {
+    document.getElementById('conn-modal').style.display = 'none';
+    if (connTypeCallback) {
+        connTypeCallback(type);
+        connTypeCallback = null;
     }
 }
 

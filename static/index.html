@@ -247,6 +247,7 @@
 							<tr>
 								<th data-i18n="th_ip">IP Address</th>
 								<th data-i18n="th_mac">MAC Address</th>
+								<th class="text-center" data-i18n="th_conn_type">Connection</th>
 								<th class="text-center" data-i18n="th_ping">Ping (ms)</th>
 								<th class="text-center"><span data-i18n="th_download">DL</span> (<span
 										class="unit-lan">Mbps</span>)</th>
@@ -517,6 +518,22 @@
 			<div class="modal-actions">
 				<button class="btn secondary" onclick="closeSecurityModal()" data-i18n="btn_cancel">Cancel</button>
 				<button id="btn-security-confirm" class="btn primary" data-i18n="btn_confirm">Confirm</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Connection Type Modal -->
+	<div id="conn-modal" class="modal-overlay" style="display: none;">
+		<div class="modal-content glass security-modal-content">
+			<div class="security-icon" style="color: var(--accent-1); filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));">
+				<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+			</div>
+			<h2 data-i18n="modal_conn_title">Connection Type</h2>
+			<p data-i18n="modal_conn_desc">How are you connected to the network?</p>
+
+			<div class="modal-actions" style="margin-top: 2rem;">
+				<button class="btn secondary" onclick="submitConnType('Wi-Fi')" data-i18n="btn_wifi" style="background: rgba(30, 41, 59, 0.8);">Wi-Fi</button>
+				<button class="btn primary" onclick="submitConnType('Ethernet')" data-i18n="btn_ethernet">Ethernet</button>
 			</div>
 		</div>
 	</div>
