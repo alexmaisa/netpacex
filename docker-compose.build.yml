@@ -5,8 +5,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - TZ=${TZ:-Asia/Jakarta}
-      # - APP_PASSWORD=${APP_PASSWORD:-} # Uncomment to enable security features
+      - TZ=${TZ}
+      # - APP_PASSWORD=${APP_PASSWORD} # Uncomment to enable security features
     env_file:
       - .env
     volumes:
