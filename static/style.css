@@ -905,7 +905,7 @@ footer a:hover {
 
 .avg-item .value.dl { color: var(--accent-1); }
 .avg-item .value.ul { color: var(--accent-2); }
-.avg-item .value.ping { color: #10b981; }
+.avg-item .value.ping { color: var(--accent-ping); }
 
 .avg-item .value small {
 	font-size: 0.75rem;
