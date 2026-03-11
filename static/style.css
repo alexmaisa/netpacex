@@ -117,13 +117,6 @@ header {
 }
 
 /* Buttons */
-.test-controls {
-	display: flex;
-	gap: 1rem;
-	justify-content: center;
-	flex-wrap: wrap;
-}
-
 .btn {
 	padding: 1rem 2rem;
 	border-radius: 12px;
@@ -164,6 +157,15 @@ header {
 	transform: none;
 }
 
+.btn.full-width {
+	width: 100%;
+	display: block;
+	padding: 1.25rem;
+	font-size: 1.05rem;
+	letter-spacing: 0.5px;
+	border-radius: 14px;
+}
+
 .btn.primary {
 	background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
 	color: white;
@@ -198,6 +200,14 @@ header {
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 	position: relative;
 	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.card-action {
+	margin-top: auto;
+	padding-top: 1.5rem;
 }
 
 .card-header {

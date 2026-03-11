@@ -35,11 +35,6 @@
 
 			<!-- TEST VIEW -->
 			<div id="view-test">
-				<div class="test-controls">
-					<button id="btn-lan" class="btn primary" onclick="startLANTest()" data-i18n="btn_lan">Test LAN Speed (Client -> Server)</button>
-					<button id="btn-wan" class="btn secondary" onclick="startWANTest()" data-i18n="btn_wan">Test WAN Speed (Server -> Internet)</button>
-				</div>
-
 				<div class="results-grid">
 				<!-- LAN Results Card -->
 				<div class="card lan-card glass">
@@ -63,6 +58,9 @@
 					</div>
 					<div class="progress-bar-container">
 						<div id="lan-progress" class="progress-bar"></div>
+					</div>
+					<div class="card-action">
+						<button id="btn-lan" class="btn primary full-width" onclick="startLANTest()" data-i18n="btn_lan">Test LAN Speed (Client -> Server)</button>
 					</div>
 				</div>
 
@@ -89,6 +87,9 @@
 					</div>
 					<div class="progress-bar-container">
 						<div id="wan-progress" class="progress-bar"></div>
+					</div>
+					<div class="card-action">
+						<button id="btn-wan" class="btn secondary full-width" onclick="startWANTest()" data-i18n="btn_wan">Test WAN Speed (Server -> Internet)</button>
 					</div>
 				</div>
 				</div> <!-- End results-grid -->
