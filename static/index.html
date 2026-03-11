@@ -534,6 +534,7 @@
 			<div class="modal-actions" style="margin-top: 2rem;">
 				<button class="btn secondary" onclick="submitConnType('Wi-Fi')" data-i18n="btn_wifi" style="background: rgba(30, 41, 59, 0.8);">Wi-Fi</button>
 				<button class="btn primary" onclick="submitConnType('Ethernet')" data-i18n="btn_ethernet">Ethernet</button>
+				<button class="btn secondary" onclick="submitConnType('Localhost')" data-i18n="btn_localhost" style="background: rgba(30, 41, 59, 0.8);">Localhost</button>
 			</div>
 		</div>
 	</div>
@@ -628,7 +629,7 @@
 	</div>
 
 	<footer>
-		<p>&copy; 2026 <a href="https://github.com/alexmaisa" target="_blank" rel="noopener noreferrer">Benny Maisa</a>. All rights reserved. &bull; Engineered with <a href="https://github.com/alexmaisa/netpacex" target="_blank" rel="noopener noreferrer">NetPaceX Go Backend</a></p>
+		<p id="footer-text"></p>
 	</footer>
 
 	<script src="app.js?v=4"></script>

@@ -63,9 +63,19 @@ async function changeLanguage(lang) {
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[key]) {
-                el.textContent = translations[key];
+                if (el.tagName === 'INPUT' && el.type === 'text' && el.placeholder) {
+                    el.placeholder = translations[key];
+                } else {
+                    el.innerHTML = translations[key];
+                }
             }
         });
+
+        // Custom render for Footer to allow HTML string replacement
+        const footerEl = document.getElementById('footer-text');
+        if (footerEl && translations['footer_text']) {
+            footerEl.innerHTML = translations['footer_text'];
+        }
 
         currentTranslations = translations;
 
@@ -398,7 +408,7 @@ function renderHistoryTable() {
             `;
         } else {
             const displayMAC = appSettings.mask_mac === 'true' ? maskMAC(item.mac_address) : item.mac_address;
-            const connIcon = item.conn_type === 'Wi-Fi' ? '📶' : (item.conn_type === 'Ethernet' ? '🔌' : '❓');
+            const connIcon = item.conn_type === 'Wi-Fi' ? '📶' : (item.conn_type === 'Ethernet' ? '🔌' : (item.conn_type === 'Localhost' ? '💻' : '❓'));
             tr.innerHTML = `
                 <td>${item.ip_address}</td>
                 <td class="mac-cell">${displayMAC}</td>

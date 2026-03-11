@@ -88,5 +88,7 @@
   "modal_conn_title": "Connection Type",
   "modal_conn_desc": "How are you connected to the network?",
   "btn_wifi": "Wi-Fi",
-  "btn_ethernet": "Ethernet"
+  "btn_ethernet": "Ethernet",
+  "btn_localhost": "Localhost",
+  "footer_text": "&copy; 2026 <a href=\"https://github.com/alexmaisa\" target=\"_blank\" rel=\"noopener noreferrer\">Benny Maisa</a>. All rights reserved. &bull; Engineered with <a href=\"https://github.com/alexmaisa/netpacex\" target=\"_blank\" rel=\"noopener noreferrer\">NetPaceX Go Backend</a>"
 }

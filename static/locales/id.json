@@ -88,5 +88,7 @@
   "modal_conn_title": "Tipe Koneksi",
   "modal_conn_desc": "Bagaimana Anda terhubung ke jaringan?",
   "btn_wifi": "Wi-Fi",
-  "btn_ethernet": "Ethernet"
+  "btn_ethernet": "Ethernet",
+  "btn_localhost": "Localhost",
+  "footer_text": "&copy; 2026 <a href=\"https://github.com/alexmaisa\" target=\"_blank\" rel=\"noopener noreferrer\">Benny Maisa</a>. Hak Cipta Dilindungi. &bull; Dibuat dengan <a href=\"https://github.com/alexmaisa/netpacex\" target=\"_blank\" rel=\"noopener noreferrer\">NetPaceX Go Backend</a>"
 }
