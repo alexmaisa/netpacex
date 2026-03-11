@@ -904,10 +904,6 @@ function renderSettings() {
         maskToggle.checked = false;
         maskGroup.style.opacity = '0.5';
         maskGroup.title = 'Requires APP_PASSWORD set in Docker';
-        
-        // Ensure values are synced if they were true
-        appSettings.allow_delete = 'false';
-        appSettings.mask_mac = 'false';
     } else {
         deleteToggle.disabled = false;
         deleteToggle.checked = appSettings.allow_delete === 'true';
@@ -957,6 +953,42 @@ function renderSettings() {
 
 function updateSetting(key, value) {
     appSettings[key] = String(value);
+}
+
+function toggleSensitiveSetting(key, checkbox) {
+    if (!isPasswordProtected) {
+        checkbox.checked = false;
+        return;
+    }
+
+    // Capture target state and temporarily revert checkbox
+    const targetState = checkbox.checked;
+    checkbox.checked = !targetState;
+
+    // Open security modal with specific context
+    openSecurityModal(async (password) => {
+        try {
+            const res = await fetch('/api/auth/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+
+            if (res.ok) {
+                appSettings[key] = String(targetState);
+                checkbox.checked = targetState;
+                closeSecurityModal();
+            } else {
+                showToast(currentTranslations['msg_invalid_password'] || 'Invalid password', 'error');
+                const modal = document.querySelector('.security-modal-content');
+                modal.classList.add('error-shake');
+                setTimeout(() => modal.classList.remove('error-shake'), 500);
+            }
+        } catch (e) {
+            console.error('Verify error:', e);
+            showToast('Connection error', 'error');
+        }
+    });
 }
 
 async function saveAllSettings() {
