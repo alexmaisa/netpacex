@@ -32,6 +32,22 @@ NetPaceX measures two distinct types of network speeds:
 * **Database:** SQLite
 * **Deployment:** Docker
 
+## ⚙️ Configuration (.env)
+
+NetPaceX can be configured via environment variables. The easiest way is to create a `.env` file in the root directory.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `APP_PASSWORD` | Password for sensitive actions (Mask MAC, Delete History) | (Empty) |
+| `TZ` | System timezone (e.g., `Asia/Jakarta`) | `UTC` |
+| `PORT` | Port the application runs on inside the container | `8080` |
+
+### Example `.env` file:
+```bash
+APP_PASSWORD=your_secure_password
+TZ=Asia/Jakarta
+```
+
 ## 📦 Installation & Running
 
 ### Using Docker Compose (Recommended)
@@ -42,15 +58,10 @@ NetPaceX measures two distinct types of network speeds:
    cd NetPaceX
    ```
 
-2. Configure environment variables in `docker-compose.yml` or a `.env` file:
-   ```yaml
-   services:
-     netpacex:
-       image: alexmaisa/netpacex:latest
-       ports:
-         - "8080:8080"
-       environment:
-         - APP_PASSWORD=your_secure_password # Optional but highly recommended for security features
+2. Create your `.env` file:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your preferred password and timezone
    ```
 
 3. Start the container:

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"database/sql"
 	"encoding/json"
@@ -11,9 +12,11 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"regexp"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -21,16 +24,27 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-var db *sql.DB
-var appPassword string
+var (
+	db           *sql.DB
+	appPassword  string
+	rateLimitMap = make(map[string]time.Time)
+)
 
 func init() {
 	appPassword = os.Getenv("APP_PASSWORD")
 }
 
 func initDB() {
+	// Ensure data directory exists
+	if _, err := os.Stat("data"); os.IsNotExist(err) {
+		err := os.MkdirAll("data", 0755)
+		if err != nil {
+			log.Fatalf("Failed to create data directory: %v", err)
+		}
+	}
+
 	var err error
-	db, err = sql.Open("sqlite", "history.db")
+	db, err = sql.Open("sqlite", "data/history.db")
 	if err != nil {
 		log.Fatal("Failed to open database:", err)
 	}
@@ -97,35 +111,100 @@ func initDB() {
 func main() {
 	initDB()
 
-	// Serve static files from the "static" directory
+	mux := http.NewServeMux()
+
+	// Serve static files
 	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/", fs)
+	mux.Handle("/", securityMiddleware(fs))
 
-	// LAN Testing Endpoints
-	http.HandleFunc("/api/lan/ping", handleLANPing)
-	http.HandleFunc("/api/lan/download", handleLANDownload)
-	http.HandleFunc("/api/lan/upload", handleLANUpload)
-	http.HandleFunc("/api/lan/save", handleLANSave)
-	http.HandleFunc("/api/lan/history", handleLANHistory)
-
-	// WAN Testing Endpoints
-	http.HandleFunc("/api/wan/test", handleWANTest)
-	http.HandleFunc("/api/wan/history", handleWANHistory)
-
-	// Settings & Auth Endpoints
-	http.HandleFunc("/api/settings", handleSettings)
-	http.HandleFunc("/api/auth/check", handleAuthCheck)
-	http.HandleFunc("/api/auth/verify", handleAuthVerify)
-	http.HandleFunc("/api/timezones", handleTimezones)
-	http.HandleFunc("/api/wan/history/delete", handleWANHistoryDelete)
-	http.HandleFunc("/api/lan/history/delete", handleLANHistoryDelete)
+	// API Endpoints - Wrapped with security middleware
+	registerHandler(mux, "/api/lan/ping", handleLANPing)
+	registerHandler(mux, "/api/lan/download", handleLANDownload)
+	registerHandler(mux, "/api/lan/upload", handleLANUpload)
+	registerHandler(mux, "/api/lan/save", handleLANSave)
+	registerHandler(mux, "/api/lan/history", handleLANHistory)
+	registerHandler(mux, "/api/wan/test", handleWANTest)
+	registerHandler(mux, "/api/wan/history", handleWANHistory)
+	registerHandler(mux, "/api/settings", handleSettings)
+	registerHandler(mux, "/api/auth/check", handleAuthCheck)
+	registerHandler(mux, "/api/auth/verify", rateLimitMiddleware(handleAuthVerify, 2*time.Second)) // Rate limit auth
+	registerHandler(mux, "/api/timezones", handleTimezones)
+	registerHandler(mux, "/api/wan/history/delete", handleWANHistoryDelete)
+	registerHandler(mux, "/api/lan/history/delete", handleLANHistoryDelete)
 
 	initScheduler()
 
-	port := "8080"
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	server := &http.Server{
+		Addr:    ":" + port,
+		Handler: mux,
+	}
+
 	fmt.Printf("NetPaceX server started on port %s...\n", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+
+	// Graceful shutdown
+	done := make(chan struct{})
+	go func() {
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
+		<-sigint
+
+		fmt.Println("\nShutting down server gracefully...")
+		
+		if globalCron != nil {
+			log.Println("Stopping scheduler...")
+			globalCron.Stop()
+		}
+
+		if db != nil {
+			log.Println("Closing database...")
+			db.Close()
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			log.Printf("Server shutdown error: %v", err)
+		}
+		close(done)
+	}()
+
+	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatal(err)
+	}
+
+	<-done
+	log.Println("Server stopped")
+}
+
+func registerHandler(mux *http.ServeMux, pattern string, handler http.HandlerFunc) {
+	mux.Handle(pattern, securityMiddleware(handler))
+}
+
+func securityMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://www.speedtest.net;")
+		next.ServeHTTP(w, r)
+	})
+}
+
+func rateLimitMiddleware(next http.HandlerFunc, duration time.Duration) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ip := getClientIP(r)
+		lastRequest, exists := rateLimitMap[ip]
+		if exists && time.Since(lastRequest) < duration {
+			http.Error(w, "Too many requests. Please slow down.", http.StatusTooManyRequests)
+			return
+		}
+		rateLimitMap[ip] = time.Now()
+		next.ServeHTTP(w, r)
 	}
 }
 

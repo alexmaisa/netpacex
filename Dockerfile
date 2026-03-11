@@ -28,6 +28,9 @@ COPY --from=builder /app/netpacex .
 # Copy the static frontend files
 COPY --from=builder /app/static ./static
 
+# Create data directory for SQLite persistence
+RUN mkdir -p /app/data
+
 # Expose the application port
 EXPOSE 8080
 
