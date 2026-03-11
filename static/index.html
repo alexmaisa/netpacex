@@ -245,17 +245,29 @@
 					<div class="settings-content">
 						<div class="unit-group">
 							<span data-i18n="unit_wan">Internet (WAN)</span>
-							<select id="set-wan-unit" class="settings-control" onchange="updateSetting('wan_unit', this.value)">
-								<option value="Mbps">Mbps</option>
-								<option value="Gbps">Gbps</option>
-							</select>
+							<div class="radio-group" id="radio-wan-unit">
+								<label class="radio-item">
+									<input type="radio" name="wan_unit" value="Mbps" onchange="updateSetting('wan_unit', this.value)">
+									<span class="radio-label">Mbps</span>
+								</label>
+								<label class="radio-item">
+									<input type="radio" name="wan_unit" value="Gbps" onchange="updateSetting('wan_unit', this.value)">
+									<span class="radio-label">Gbps</span>
+								</label>
+							</div>
 						</div>
 						<div class="unit-group">
 							<span data-i18n="unit_lan">Local (LAN)</span>
-							<select id="set-lan-unit" class="settings-control" onchange="updateSetting('lan_unit', this.value)">
-								<option value="Mbps">Mbps</option>
-								<option value="Gbps">Gbps</option>
-							</select>
+							<div class="radio-group" id="radio-lan-unit">
+								<label class="radio-item">
+									<input type="radio" name="lan_unit" value="Mbps" onchange="updateSetting('lan_unit', this.value)">
+									<span class="radio-label">Mbps</span>
+								</label>
+								<label class="radio-item">
+									<input type="radio" name="lan_unit" value="Gbps" onchange="updateSetting('lan_unit', this.value)">
+									<span class="radio-label">Gbps</span>
+								</label>
+							</div>
 						</div>
 					</div>
 				</div>

@@ -983,6 +983,42 @@ footer a:hover {
 	font-size: 0.95rem;
 }
 
+/* Radio Group Styling */
+.radio-group {
+	display: flex;
+	background: rgba(255, 255, 255, 0.05);
+	padding: 4px;
+	border-radius: 8px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.radio-item {
+	cursor: pointer;
+	position: relative;
+}
+
+.radio-item input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.radio-label {
+	display: block;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	transition: all 0.3s ease;
+	color: var(--text-muted);
+}
+
+.radio-item input:checked + .radio-label {
+	background: var(--accent-1);
+	color: white;
+	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
 .toggle-info {
 	display: flex;
 	flex-direction: column;
