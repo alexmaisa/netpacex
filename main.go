@@ -527,12 +527,6 @@ func handleAuthVerify(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleTimezones(w http.ResponseWriter, r *http.Request) {
-	// Simple curated list of common timezones. In a real app, you might use more.
-	tzs := []string{
-		"UTC", "America/New_York", "America/Los_Angeles", "Europe/London",
-		"Europe/Paris", "Asia/Tokyo", "Asia/Jakarta", "Asia/Singapore",
-		"Australia/Sydney",
-	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tzs)
+	json.NewEncoder(w).Encode(allTimezones)
 }
