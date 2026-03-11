@@ -788,8 +788,6 @@ async function checkAuthStatus() {
 
 function renderSettings() {
     const tzSelect = document.getElementById('set-timezone');
-    const wanUnitSelect = document.getElementById('set-wan-unit');
-    const lanUnitSelect = document.getElementById('set-lan-unit');
     const maskMacToggle = document.getElementById('set-mask-mac');
 
     // Load Timezones if empty
@@ -807,8 +805,13 @@ function renderSettings() {
         tzSelect.value = appSettings.timezone;
     }
 
-    wanUnitSelect.value = appSettings.wan_unit;
-    lanUnitSelect.value = appSettings.lan_unit;
+    // Set Radio Buttons
+    const wanRadios = document.querySelectorAll('input[name="wan_unit"]');
+    const lanRadios = document.querySelectorAll('input[name="lan_unit"]');
+    
+    wanRadios.forEach(r => r.checked = r.value === appSettings.wan_unit);
+    lanRadios.forEach(r => r.checked = r.value === appSettings.lan_unit);
+
     maskMacToggle.checked = appSettings.mask_mac === 'true';
 }
 
@@ -846,8 +849,8 @@ async function saveAllSettings() {
 }
 
 function updateUnitLabels() {
-    const wanUnits = document.querySelectorAll('#wan-card .unit, #avg-wan-download + small, #avg-wan-upload + small');
-    const lanUnits = document.querySelectorAll('#lan-card .unit, #avg-lan-download + small, #avg-lan-upload + small');
+    const wanUnits = document.querySelectorAll('#wan-card .unit, #avg-wan-download + small, #avg-wan-upload + small, .unit-wan');
+    const lanUnits = document.querySelectorAll('#lan-card .unit, #avg-lan-download + small, #avg-lan-upload + small, .unit-lan');
     
     wanUnits.forEach(el => el.textContent = appSettings.wan_unit);
     lanUnits.forEach(el => el.textContent = appSettings.lan_unit);
