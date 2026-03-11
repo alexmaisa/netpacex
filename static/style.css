@@ -942,6 +942,11 @@ footer a:hover {
 	gap: 1rem;
 }
 
+.settings-card .card-header {
+	justify-content: flex-start;
+	gap: 1rem;
+}
+
 .settings-content {
 	display: flex;
 	flex-direction: column;
