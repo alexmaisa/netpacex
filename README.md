@@ -62,7 +62,7 @@ The easiest way to run NetPaceX is by using our official image from the GitHub C
    ```
 3. Start the application:
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 4. Access the UI at `http://<your-server-ip>:8080`.
 
@@ -81,7 +81,7 @@ If you want to modify the code or build your own image locally:
    ```
 3. Start using the build-focused compose file:
    ```bash
-   docker-compose -f docker-compose.build.yml up -d --build
+   docker compose -f docker-compose.build.yml up -d --build
    ```
 
 *(Note: For the most accurate WAN results without Docker NAT overhead, add `network_mode: host` to your compose file.)*
