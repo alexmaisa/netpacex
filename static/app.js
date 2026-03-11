@@ -965,29 +965,10 @@ function toggleSensitiveSetting(key, checkbox) {
     const targetState = checkbox.checked;
     checkbox.checked = !targetState;
 
-    // Open security modal with specific context
-    openSecurityModal(async (password) => {
-        try {
-            const res = await fetch('/api/auth/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password })
-            });
-
-            if (res.ok) {
-                appSettings[key] = String(targetState);
-                checkbox.checked = targetState;
-                closeSecurityModal();
-            } else {
-                showToast(currentTranslations['msg_invalid_password'] || 'Invalid password', 'error');
-                const modal = document.querySelector('.security-modal-content');
-                modal.classList.add('error-shake');
-                setTimeout(() => modal.classList.remove('error-shake'), 500);
-            }
-        } catch (e) {
-            console.error('Verify error:', e);
-            showToast('Connection error', 'error');
-        }
+    // Open security modal. Verification is handled inside openSecurityModal.
+    openSecurityModal(() => {
+        appSettings[key] = String(targetState);
+        checkbox.checked = targetState;
     });
 }
 
