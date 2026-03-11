@@ -196,7 +196,7 @@ function renderHistoryChart() {
                     }
                 ]
             },
-            options: getChartOptions('Internet Speed (Mbps)', '#3b82f6')
+            options: getChartOptions(currentTranslations['history_wan_title'] || 'Internet Speed Test History', '#3b82f6')
         });
     } else {
         wanChartWrapper.style.display = 'none';
@@ -238,7 +238,7 @@ function renderHistoryChart() {
                     }
                 ]
             },
-            options: getChartOptions('LAN Speed (Mbps)', '#3b82f6')
+            options: getChartOptions(currentTranslations['history_lan_title'] || 'LAN Speed Test History', '#3b82f6')
         });
     } else {
         lanChartWrapper.style.display = 'none';
@@ -599,7 +599,7 @@ function startWANTest() {
     // Reset UI
     wanStatus.className = 'status-badge testing';
     wanStatus.textContent = currentTranslations['status_testing'] || 'Testing';
-    wanServerInfo.textContent = 'Locating best server...';
+    wanServerInfo.textContent = currentTranslations['msg_locating_server'] || 'Locating best server...';
     wanPing.textContent = '--';
     wanDl.textContent = '--';
     wanUl.textContent = '--';
@@ -675,7 +675,7 @@ function startWANTest() {
     eventSource.onerror = function(err) {
         console.error("SSE Error:", err);
         wanStatus.className = 'status-badge error';
-        wanStatus.textContent = currentTranslations['status_error'] || 'Connection Lost';
+        wanStatus.textContent = currentTranslations['status_connection_lost'] || 'Connection Lost';
         eventSource.close();
         btnLan.disabled = false;
         btnWan.disabled = false;
