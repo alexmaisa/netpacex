@@ -1029,13 +1029,11 @@ footer a:hover {
 }
 
 .unit-group, .toggle-group {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 0.75rem 0.5rem;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
 }
-
 .toggle-group:last-child {
 	border-bottom: none;
 }
