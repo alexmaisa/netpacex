@@ -446,24 +446,26 @@ function renderHistoryTable() {
 }
 
 async function deleteHistoryItem(type, id) {
-    const msg = currentTranslations['msg_delete_confirm'] || 'Are you sure you want to delete this test result?';
-    if (!confirm(msg)) return;
-
-    openSecurityModal(async () => {
-        try {
-            const res = await fetch(`/api/${type}/history/delete?id=${id}`, {
-                method: 'POST'
-            });
-            if (res.ok) {
-                showToast(currentTranslations['msg_delete_success'] || 'Test result deleted successfully');
-                await fetchHistory();
-            } else {
-                showToast('Error deleting record', 'error');
+    const title = currentTranslations['modal_confirm_title'] || 'Confirm Deletion';
+    const msg = currentTranslations['msg_confirm_delete'] || 'Are you sure you want to delete this history item? This action cannot be undone.';
+    
+    showConfirmModal(title, msg, () => {
+        openSecurityModal(async () => {
+            try {
+                const res = await fetch(`/api/${type}/history/delete?id=${id}`, {
+                    method: 'POST'
+                });
+                if (res.ok) {
+                    showToast(currentTranslations['msg_delete_success'] || 'Test result deleted successfully');
+                    await fetchHistory();
+                } else {
+                    showToast('Error deleting record', 'error');
+                }
+            } catch (e) {
+                console.error('Deletion failed:', e);
+                showToast('Connection error', 'error');
             }
-        } catch (e) {
-            console.error('Deletion failed:', e);
-            showToast('Connection error', 'error');
-        }
+        });
     });
 }
 
@@ -1156,6 +1158,40 @@ function openSecurityModal(onConfirm) {
 function executeSecurityAction() {
     if (securityCallback) securityCallback();
     closeSecurityModal();
+}
+
+// Custom Confirm Modal Logic
+let confirmCallback = null;
+
+function showConfirmModal(titleText, messageText, onConfirm) {
+    confirmCallback = onConfirm;
+    
+    const modal = document.getElementById('confirm-modal');
+    const title = document.getElementById('confirm-title');
+    const message = document.getElementById('confirm-message');
+    const cancelBtn = document.getElementById('btn-confirm-cancel');
+    const proceedBtn = document.getElementById('btn-confirm-proceed');
+
+    title.textContent = titleText;
+    message.textContent = messageText;
+    
+    // Clear previous event listeners
+    proceedBtn.onclick = null;
+    cancelBtn.onclick = null;
+
+    proceedBtn.onclick = () => {
+        closeConfirmModal();
+        if (confirmCallback) confirmCallback();
+    };
+
+    cancelBtn.onclick = closeConfirmModal;
+
+    modal.style.display = 'flex';
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirm-modal').style.display = 'none';
+    confirmCallback = null;
 }
 
 function closeSecurityModal() {
