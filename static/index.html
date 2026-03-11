@@ -225,94 +225,101 @@
 		</div>
 		<!-- SETTINGS VIEW -->
 		<div id="view-settings" style="display: none;">
-			<div class="settings-grid">
-				<!-- Section: General -->
-				<div class="settings-section-title" style="grid-column: 1 / -1; margin-bottom: 0.5rem;">
-					<h3 style="font-size: 1.1rem; opacity: 0.8;" data-i18n="set_sec_general">General Configuration</h3>
-				</div>
-				<!-- Timezone Card -->
-				<div class="glass settings-card">
-					<div class="card-header">
-						<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-						<h2 data-i18n="set_timezone_title">Timezone</h2>
+			<!-- Section: General -->
+			<div class="settings-section">
+				<h3 class="settings-section-title" data-i18n="set_sec_general">General Configuration</h3>
+				<div class="settings-grid">
+					<!-- Timezone Card -->
+					<div class="glass settings-card">
+						<div class="card-header">
+							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+							<h2 data-i18n="set_timezone_title">Timezone</h2>
+						</div>
+						<div class="settings-content">
+							<p class="settings-desc" data-i18n="set_timezone_desc">Configure the display timezone for your test history.</p>
+							<select id="set-timezone" class="settings-control" onchange="updateSetting('timezone', this.value)"></select>
+						</div>
 					</div>
-					<div class="settings-content">
-						<p class="settings-desc" data-i18n="set_timezone_desc">Configure the display timezone for your test history.</p>
-						<select id="set-timezone" class="settings-control" onchange="updateSetting('timezone', this.value)"></select>
-					</div>
-				</div>
 
-				<!-- Units Card -->
-				<div class="glass settings-card">
-					<div class="card-header">
-						<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m17 7-5-5-5 5"/><path d="m17 17-5 5-5-5"/></svg></div>
-						<h2 data-i18n="set_units_title">Speed Units</h2>
-					</div>
-					<div class="settings-content">
-						<div class="unit-group">
-							<span data-i18n="unit_wan">Internet (WAN)</span>
-							<div class="radio-group" id="radio-wan-unit">
-								<label class="radio-item">
-									<input type="radio" name="wan_unit" value="Mbps" onchange="updateSetting('wan_unit', this.value)">
-									<span class="radio-label">Mbps</span>
-								</label>
-								<label class="radio-item">
-									<input type="radio" name="wan_unit" value="Gbps" onchange="updateSetting('wan_unit', this.value)">
-									<span class="radio-label">Gbps</span>
-								</label>
-							</div>
+					<!-- Units Card -->
+					<div class="glass settings-card">
+						<div class="card-header">
+							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m17 7-5-5-5 5"/><path d="m17 17-5 5-5-5"/></svg></div>
+							<h2 data-i18n="set_units_title">Speed Units</h2>
 						</div>
-						<div class="unit-group">
-							<span data-i18n="unit_lan">Local (LAN)</span>
-							<div class="radio-group" id="radio-lan-unit">
-								<label class="radio-item">
-									<input type="radio" name="lan_unit" value="Mbps" onchange="updateSetting('lan_unit', this.value)">
-									<span class="radio-label">Mbps</span>
-								</label>
-								<label class="radio-item">
-									<input type="radio" name="lan_unit" value="Gbps" onchange="updateSetting('lan_unit', this.value)">
-									<span class="radio-label">Gbps</span>
-								</label>
+						<div class="settings-content">
+							<div class="unit-group">
+								<span data-i18n="unit_wan">Internet (WAN)</span>
+								<div class="radio-group" id="radio-wan-unit">
+									<label class="radio-item">
+										<input type="radio" name="wan_unit" value="Mbps" onchange="updateSetting('wan_unit', this.value)">
+										<span class="radio-label">Mbps</span>
+									</label>
+									<label class="radio-item">
+										<input type="radio" name="wan_unit" value="Gbps" onchange="updateSetting('wan_unit', this.value)">
+										<span class="radio-label">Gbps</span>
+									</label>
+								</div>
+							</div>
+							<div class="unit-group">
+								<span data-i18n="unit_lan">Local (LAN)</span>
+								<div class="radio-group" id="radio-lan-unit">
+									<label class="radio-item">
+										<input type="radio" name="lan_unit" value="Mbps" onchange="updateSetting('lan_unit', this.value)">
+										<span class="radio-label">Mbps</span>
+									</label>
+									<label class="radio-item">
+										<input type="radio" name="lan_unit" value="Gbps" onchange="updateSetting('lan_unit', this.value)">
+										<span class="radio-label">Gbps</span>
+									</label>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+			</div>
 
-				<!-- Privacy Card -->
-				<div class="glass settings-card">
-					<div class="card-header">
-						<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-						<h2 data-i18n="set_privacy_title">Privacy & Security</h2>
-					</div>
-					<div class="settings-content">
-						<div class="toggle-group">
-							<div class="toggle-info">
-								<span data-i18n="set_mask_mac">Mask MAC Address</span>
-								<p class="settings-desc" data-i18n="set_mask_mac_desc">Hide MAC addresses in history by default.</p>
-							</div>
-							<label class="switch">
-								<input type="checkbox" id="set-mask-mac" onchange="updateSetting('mask_mac', this.checked)">
-								<span class="slider round"></span>
-							</label>
+			<!-- Section: Security & Data -->
+			<div class="settings-section">
+				<h3 class="settings-section-title" data-i18n="set_sec_security">Security & Data Management</h3>
+				<div class="settings-grid">
+					<!-- Privacy Card -->
+					<div class="glass settings-card">
+						<div class="card-header">
+							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+							<h2 data-i18n="set_privacy_title">Privacy & Security</h2>
 						</div>
-				</div>
-				
-				<!-- Data Management Card -->
-				<div class="glass settings-card">
-					<div class="card-header">
-						<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
-						<h2 data-i18n="set_data_management_title">Data Management</h2>
-					</div>
-					<div class="settings-content">
-						<div class="toggle-group">
-							<div class="toggle-info">
-								<span data-i18n="set_allow_delete">Allow History Deletion</span>
-								<p class="settings-desc" data-i18n="set_allow_delete_desc">Enable the option to delete individual test results from history. Requires APP_PASSWORD to be configured.</p>
+						<div class="settings-content">
+							<div class="toggle-group">
+								<div class="toggle-info">
+									<span data-i18n="set_mask_mac">Mask MAC Address</span>
+									<p class="settings-desc" data-i18n="set_mask_mac_desc">Hide MAC addresses in history by default.</p>
+								</div>
+								<label class="switch">
+									<input type="checkbox" id="set-mask-mac" onchange="updateSetting('mask_mac', this.checked)">
+									<span class="slider round"></span>
+								</label>
 							</div>
-							<label class="switch" id="switch-allow-delete">
-								<input type="checkbox" id="set-allow-delete" onchange="updateSetting('allow_delete', this.checked)">
-								<span class="slider round"></span>
-							</label>
+						</div>
+					</div>
+					
+					<!-- Data Management Card -->
+					<div class="glass settings-card">
+						<div class="card-header">
+							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+							<h2 data-i18n="set_data_management_title">Data Management</h2>
+						</div>
+						<div class="settings-content">
+							<div class="toggle-group">
+								<div class="toggle-info">
+									<span data-i18n="set_allow_delete">Allow History Deletion</span>
+									<p class="settings-desc" data-i18n="set_allow_delete_desc">Enable the option to delete individual test results from history. Requires APP_PASSWORD to be configured.</p>
+								</div>
+								<label class="switch" id="switch-allow-delete">
+									<input type="checkbox" id="set-allow-delete" onchange="updateSetting('allow_delete', this.checked)">
+									<span class="slider round"></span>
+								</label>
+							</div>
 						</div>
 					</div>
 				</div>
