@@ -30,6 +30,7 @@ const LAN_UL_SIZE_MB = 10; // Size of payload for LAN Upload test
 // -----------------------------------------------------------------
 
 let currentLang = localStorage.getItem('lang') || 'en';
+let currentTranslations = {};
 const langSelectBtn = document.getElementById('lang-select');
 if(langSelectBtn) langSelectBtn.value = currentLang;
 
@@ -45,9 +46,10 @@ async function changeLanguage(lang) {
             const key = el.getAttribute('data-i18n');
             if (translations[key]) {
                 el.textContent = translations[key];
-                // Also update placeholders or values if needed, but innerText is usually enough
             }
         });
+
+        currentTranslations = translations;
     } catch (e) {
         console.error('Failed to load translations:', e);
     }
@@ -593,14 +595,14 @@ function openDetailsModal(item, isWan) {
     const badge = document.getElementById('modal-badge');
     
     if (isWan) {
-        document.getElementById('modal-title-target').textContent = 'Internet Test Details';
+        document.getElementById('modal-title-target').textContent = currentTranslations['modal_title_wan'] || 'Internet Test Details';
         document.getElementById('modal-target').textContent = item.server_name || '--';
-        badge.textContent = 'Internet';
+        badge.textContent = currentTranslations['badge_wan'] || 'Internet';
         badge.className = 'modal-badge';
     } else {
-        document.getElementById('modal-title-target').textContent = 'LAN Test Details';
+        document.getElementById('modal-title-target').textContent = currentTranslations['modal_title_lan'] || 'LAN Test Details';
         document.getElementById('modal-target').textContent = item.ip_address + (item.mac_address ? ' (' + item.mac_address + ')' : '');
-        badge.textContent = 'Local Network';
+        badge.textContent = currentTranslations['badge_lan'] || 'Local Network';
         badge.className = 'modal-badge lan';
     }
     

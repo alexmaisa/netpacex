@@ -26,5 +26,15 @@
   "nav_history": "History",
   "btn_prev": "Previous",
   "btn_next": "Next",
-  "lbl_page": "Page"
+  "lbl_page": "Page",
+  "modal_title_wan": "Internet Test Details",
+  "modal_title_lan": "LAN Test Details",
+  "lbl_target_server": "Target / Server",
+  "lbl_latency_breakdown": "Latency Breakdown",
+  "lbl_avg": "Average",
+  "lbl_jitter": "Jitter",
+  "lbl_min": "Minimum",
+  "lbl_max": "Maximum",
+  "badge_wan": "Internet",
+  "badge_lan": "Local Network"
 }

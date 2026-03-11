@@ -26,5 +26,15 @@
   "nav_history": "Riwayat",
   "btn_prev": "Sebelumnya",
   "btn_next": "Selanjutnya",
-  "lbl_page": "Halaman"
+  "lbl_page": "Halaman",
+  "modal_title_wan": "Detail Pengujian Internet",
+  "modal_title_lan": "Detail Pengujian LAN",
+  "lbl_target_server": "Target / Server",
+  "lbl_latency_breakdown": "Rincian Latensi",
+  "lbl_avg": "Rata-rata",
+  "lbl_jitter": "Jitter",
+  "lbl_min": "Minimum",
+  "lbl_max": "Maksimum",
+  "badge_wan": "Internet",
+  "badge_lan": "Jaringan Lokal"
 }
