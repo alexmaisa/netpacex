@@ -231,6 +231,7 @@ type LANHistory struct {
 	DownloadMbps float64 `json:"download_mbps"`
 	UploadMbps   float64 `json:"upload_mbps"`
 	TestDate     string  `json:"test_date"`
+	RawDate      string  `json:"raw_date"`
 }
 
 func handleLANHistory(w http.ResponseWriter, r *http.Request) {
@@ -249,6 +250,7 @@ func handleLANHistory(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error scanning lan row: %v", err)
 			continue
 		}
+		record.RawDate = rawDate
 		record.TestDate = formatLocalTime(rawDate)
 		history = append(history, record)
 	}
@@ -272,6 +274,7 @@ type WANHistory struct {
 	DownloadMbps float64 `json:"download_mbps"`
 	UploadMbps   float64 `json:"upload_mbps"`
 	TestDate     string  `json:"test_date"`
+	RawDate      string  `json:"raw_date"`
 }
 
 func handleWANHistory(w http.ResponseWriter, r *http.Request) {
@@ -290,6 +293,7 @@ func handleWANHistory(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error scanning row: %v", err)
 			continue
 		}
+		record.RawDate = rawDate
 		record.TestDate = formatLocalTime(rawDate)
 		history = append(history, record)
 	}

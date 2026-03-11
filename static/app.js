@@ -96,6 +96,7 @@ let lanHistoryData = [];
 let currentHistoryTab = 'wan';
 let currentPage = 1;
 const ITEMS_PER_PAGE = 5;
+let historyChartInstance = null;
 
 async function fetchHistory() {
     try {
@@ -113,10 +114,138 @@ async function fetchHistory() {
             lanHistoryData = Array.isArray(data) ? data : [];
         }
         
+        renderHistoryChart();
         renderHistoryTable();
     } catch (e) {
         console.error('Failed to fetch history:', e);
     }
+}
+
+function renderHistoryChart() {
+    const chartContainer = document.getElementById('chart-wrapper');
+    const ctx = document.getElementById('historyChart').getContext('2d');
+
+    // Combine and sort data chronologically
+    let combinedData = [];
+    wanHistoryData.forEach(d => combinedData.push({...d, type: 'wan', timestamp: new Date(d.raw_date).getTime()}));
+    lanHistoryData.forEach(d => combinedData.push({...d, type: 'lan', timestamp: new Date(d.raw_date).getTime()}));
+    
+    combinedData.sort((a, b) => a.timestamp - b.timestamp);
+
+    if (combinedData.length === 0) {
+        chartContainer.style.display = 'none';
+        return;
+    }
+
+    chartContainer.style.display = 'block';
+
+    const labels = combinedData.map(d => d.test_date);
+    
+    // We map out dataset values. If a datapoint doesn't exist for a type at that time, it returns null
+    const wanDlData = combinedData.map(d => d.type === 'wan' ? d.download_mbps : null);
+    const wanUlData = combinedData.map(d => d.type === 'wan' ? d.upload_mbps : null);
+    
+    const lanDlData = combinedData.map(d => d.type === 'lan' ? d.download_mbps : null);
+    const lanUlData = combinedData.map(d => d.type === 'lan' ? d.upload_mbps : null);
+
+    if (historyChartInstance) {
+        historyChartInstance.destroy();
+    }
+
+    historyChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Internet DL (Mbps)',
+                    data: wanDlData,
+                    borderColor: '#3b82f6', // accent-1
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    spanGaps: true,
+                    tension: 0.3,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Internet UL (Mbps)',
+                    data: wanUlData,
+                    borderColor: '#3b82f6',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    spanGaps: true,
+                    tension: 0.3,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'LAN DL (Mbps)',
+                    data: lanDlData,
+                    borderColor: '#8b5cf6', // accent-2
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 2,
+                    spanGaps: true,
+                    tension: 0.3,
+                    yAxisID: 'y1'
+                },
+                {
+                    label: 'LAN UL (Mbps)',
+                    data: lanUlData,
+                    borderColor: '#8b5cf6',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    spanGaps: true,
+                    tension: 0.3,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#9ca3af', // text-muted
+                        font: { family: 'Inter', size: 12 }
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#9ca3af' },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    beginAtZero: true,
+                    title: { display: true, text: 'Internet (Mbps)', color: '#3b82f6' },
+                    ticks: { color: '#9ca3af' },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    beginAtZero: true,
+                    title: { display: true, text: 'LAN (Mbps)', color: '#8b5cf6' },
+                    ticks: { color: '#9ca3af' },
+                    grid: {
+                        drawOnChartArea: false, // only want the grid lines for one axis to show up
+                    }
+                }
+            }
+        }
+    });
 }
 
 function renderHistoryTable() {
