@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -20,6 +21,11 @@ import (
 )
 
 var db *sql.DB
+var appPassword string
+
+func init() {
+	appPassword = os.Getenv("APP_PASSWORD")
+}
 
 func initDB() {
 	var err error
@@ -52,6 +58,23 @@ func initDB() {
 		log.Fatal("Failed to create table:", err)
 	}
 
+	// Settings table
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);`)
+	if err != nil {
+		log.Fatalf("Failed to create settings table: %v", err)
+	}
+
+	// Default settings
+	defaults := map[string]string{
+		"timezone":    "UTC",
+		"wan_unit":    "Mbps",
+		"lan_unit":    "Mbps",
+		"mask_mac":    "false",
+	}
+	for k, v := range defaults {
+		db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?);`, k, v)
+	}
+
 	// Add new columns safely (will error internally if they already exist, which is fine)
 	db.Exec(`ALTER TABLE wan_history ADD COLUMN jitter_ms REAL DEFAULT 0;`)
 	db.Exec(`ALTER TABLE wan_history ADD COLUMN min_ping_ms REAL DEFAULT 0;`)
@@ -79,6 +102,12 @@ func main() {
 	// WAN Testing Endpoints
 	http.HandleFunc("/api/wan/test", handleWANTest)
 	http.HandleFunc("/api/wan/history", handleWANHistory)
+
+	// Settings & Auth Endpoints
+	http.HandleFunc("/api/settings", handleSettings)
+	http.HandleFunc("/api/auth/check", handleAuthCheck)
+	http.HandleFunc("/api/auth/verify", handleAuthVerify)
+	http.HandleFunc("/api/timezones", handleTimezones)
 
 	port := "8080"
 	fmt.Printf("NetPaceX server started on port %s...\n", port)
@@ -221,18 +250,31 @@ func handleLANSave(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// formatLocalTime converts a UTC timestamp string to a formatted local time string
+// formatLocalTime converts a UTC timestamp string to a formatted time string based on user setting
 func formatLocalTime(rawDate string) string {
-	// Attempt RFC3339 which may be returned by sqlite drivers
-	if t, err := time.Parse(time.RFC3339, rawDate); err == nil {
-		return t.Local().Format("02 Jan 2006, 15:04:05")
+	var tzName string
+	db.QueryRow("SELECT value FROM settings WHERE key = 'timezone'").Scan(&tzName)
+	if tzName == "" {
+		tzName = "UTC"
 	}
-	// Fallback to SQLite CURRENT_TIMESTAMP raw text format (YYYY-MM-DD HH:MM:SS) which is UTC
-	if t, err := time.Parse("2006-01-02 15:04:05", rawDate); err == nil {
-		tzUTC := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
-		return tzUTC.Local().Format("02 Jan 2006, 15:04:05")
+
+	loc, err := time.LoadLocation(tzName)
+	if err != nil {
+		loc = time.UTC
 	}
-	return rawDate
+
+	var t time.Time
+	// Attempt RFC3339
+	if t, err = time.Parse(time.RFC3339, rawDate); err != nil {
+		// Fallback to SQLite CURRENT_TIMESTAMP raw text format (YYYY-MM-DD HH:MM:SS) which is UTC
+		if t, err = time.Parse("2006-01-02 15:04:05", rawDate); err != nil {
+			return rawDate
+		}
+		// Ensure it's interpreted as UTC if parsed from current_timestamp
+		t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
+	}
+
+	return t.In(loc).Format("02 Jan 2006, 15:04:05")
 }
 
 type LANHistory struct {
@@ -415,4 +457,82 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 
 	// Finish
 	sendEvent("done", nil, "Test completed")
+}
+
+// ---------------------------------------------------------
+// SETTINGS & AUTH HANDLERS
+// ---------------------------------------------------------
+
+func handleSettings(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		rows, err := db.Query("SELECT key, value FROM settings")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		settings := make(map[string]string)
+		for rows.Next() {
+			var k, v string
+			rows.Scan(&k, &v)
+			settings[k] = v
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(settings)
+	} else if r.Method == http.MethodPost {
+		var settings map[string]string
+		if err := json.NewDecoder(r.Body).Decode(&settings); err != nil {
+			http.Error(w, "Invalid input", http.StatusBadRequest)
+			return
+		}
+
+		for k, v := range settings {
+			_, err := db.Exec("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", k, v)
+			if err != nil {
+				log.Printf("Failed to update setting %s: %v", k, err)
+			}
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func handleAuthCheck(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]bool{
+		"password_enabled": appPassword != "",
+	})
+}
+
+func handleAuthVerify(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		Password string `json:"password"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	if appPassword != "" && req.Password == appPassword {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	} else {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	}
+}
+
+func handleTimezones(w http.ResponseWriter, r *http.Request) {
+	// Simple curated list of common timezones. In a real app, you might use more.
+	tzs := []string{
+		"UTC", "America/New_York", "America/Los_Angeles", "Europe/London",
+		"Europe/Paris", "Asia/Tokyo", "Asia/Jakarta", "Asia/Singapore",
+		"Australia/Sydney",
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tzs)
 }

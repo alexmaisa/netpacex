@@ -46,5 +46,21 @@
   "lbl_avg_dl": "Rerata Unduh",
   "lbl_avg_ul": "Rerata Unggah",
   "lbl_avg_ping": "Rerata Ping",
-  "btn_close": "Tutup"
+  "btn_close": "Tutup",
+  "nav_settings": "Pengaturan",
+  "set_timezone_title": "Zona Waktu",
+  "set_timezone_desc": "Atur zona waktu tampilan untuk riwayat pengujian Anda.",
+  "set_units_title": "Satuan Kecepatan",
+  "unit_wan": "Internet (WAN)",
+  "unit_lan": "Lokal (LAN)",
+  "set_privacy_title": "Privasi & Keamanan",
+  "set_mask_mac": "Samarkan Alamat MAC",
+  "set_mask_mac_desc": "Sembunyikan alamat MAC di riwayat secara default.",
+  "btn_save_settings": "Simpan Semua Perubahan",
+  "sec_title": "Konfirmasi Keamanan",
+  "sec_desc": "Tindakan ini memerlukan verifikasi. Silakan konfirmasi untuk melanjutkan.",
+  "btn_cancel": "Batal",
+  "btn_confirm": "Konfirmasi",
+  "msg_settings_saved": "Pengaturan berhasil disimpan",
+  "tip_unmask_mac": "Klik untuk menampilkan"
 }

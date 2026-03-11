@@ -25,6 +25,16 @@ const wanProgress = document.getElementById('wan-progress');
 const LAN_DL_SIZE_MB = 20; // Size of payload for LAN Download test
 const LAN_UL_SIZE_MB = 10; // Size of payload for LAN Upload test
 
+// Settings State
+let appSettings = {
+    timezone: 'UTC',
+    wan_unit: 'Mbps',
+    lan_unit: 'Mbps',
+    mask_mac: 'false'
+};
+
+let isPasswordProtected = false;
+
 // -----------------------------------------------------------------
 // Localization Init
 // -----------------------------------------------------------------
@@ -55,8 +65,13 @@ async function changeLanguage(lang) {
     }
 }
 
-// Initialize Localization on page load
-changeLanguage(currentLang);
+// Initialize Localization and Settings on page load
+async function initApp() {
+    await changeLanguage(currentLang);
+    await loadSettings();
+    await checkAuthStatus();
+}
+initApp();
 
 // -----------------------------------------------------------------
 // Navigation & Views
@@ -65,18 +80,19 @@ function switchMainView(viewId) {
     // Update Tabs
     document.querySelectorAll('.main-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
     
-    if (viewId === 'test') {
-        document.querySelectorAll('.main-tabs .tab-btn')[0].classList.add('active');
-    } else {
-        document.querySelectorAll('.main-tabs .tab-btn')[1].classList.add('active');
-    }
+    const tabIndex = viewId === 'test' ? 0 : (viewId === 'history' ? 1 : 2);
+    const targetTab = document.querySelectorAll('.main-tabs .tab-btn')[tabIndex];
+    if (targetTab) targetTab.classList.add('active');
 
     // Toggle Views
     document.getElementById('view-test').style.display = viewId === 'test' ? 'block' : 'none';
     document.getElementById('view-history').style.display = viewId === 'history' ? 'block' : 'none';
+    document.getElementById('view-settings').style.display = viewId === 'settings' ? 'block' : 'none';
 
     if (viewId === 'history') {
         fetchHistory();
+    } else if (viewId === 'settings') {
+        renderSettings();
     }
 }
 
@@ -339,24 +355,37 @@ function renderHistoryTable() {
     paginatedData.forEach(item => {
         const tr = document.createElement('tr');
         const dateStr = item.test_date; 
+        const wanUnit = appSettings.wan_unit || 'Mbps';
+        const lanUnit = appSettings.lan_unit || 'Mbps';
 
         if (isWan) {
             tr.innerHTML = `
                 <td>${item.server_name}</td>
                 <td class="text-center">${item.ping_ms.toFixed(1)}</td>
-                <td class="text-center">${item.download_mbps.toFixed(1)}</td>
-                <td class="text-center">${item.upload_mbps.toFixed(1)}</td>
+                <td class="text-center">${formatSpeed(item.download_mbps, wanUnit)}</td>
+                <td class="text-center">${formatSpeed(item.upload_mbps, wanUnit)}</td>
                 <td class="text-center">${dateStr}</td>
             `;
         } else {
+            const displayMAC = appSettings.mask_mac === 'true' ? maskMAC(item.mac_address) : item.mac_address;
             tr.innerHTML = `
                 <td>${item.ip_address}</td>
-                <td>${item.mac_address}</td>
+                <td class="mac-cell">${displayMAC}</td>
                 <td class="text-center">${item.ping_ms.toFixed(1)}</td>
-                <td class="text-center">${item.download_mbps.toFixed(1)}</td>
-                <td class="text-center">${item.upload_mbps.toFixed(1)}</td>
+                <td class="text-center">${formatSpeed(item.download_mbps, lanUnit)}</td>
+                <td class="text-center">${formatSpeed(item.upload_mbps, lanUnit)}</td>
                 <td class="text-center">${dateStr}</td>
             `;
+            
+            if (appSettings.mask_mac === 'true') {
+                 const macCell = tr.querySelector('.mac-cell');
+                 macCell.style.cursor = 'pointer';
+                 macCell.title = currentTranslations['tip_unmask_mac'] || 'Click to unmask';
+                 macCell.onclick = (e) => {
+                     e.stopPropagation();
+                     handleUnmaskMAC(item.mac_address, macCell);
+                 };
+            }
         }
         
         tr.style.cursor = 'pointer';
@@ -729,3 +758,160 @@ function closeDetailsModal() {
 
 // Ensure history is fetched at least once on startup
 fetchHistory();
+// -----------------------------------------------------------------
+// Settings & Security Logic
+// -----------------------------------------------------------------
+
+async function loadSettings() {
+    try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+            appSettings = await res.json();
+            updateUnitLabels();
+        }
+    } catch (e) {
+        console.error('Failed to load settings:', e);
+    }
+}
+
+async function checkAuthStatus() {
+    try {
+        const res = await fetch('/api/auth/check');
+        if (res.ok) {
+            const data = await res.json();
+            isPasswordProtected = data.password_enabled;
+        }
+    } catch (e) {
+        console.error('Failed to check auth status:', e);
+    }
+}
+
+function renderSettings() {
+    const tzSelect = document.getElementById('set-timezone');
+    const wanUnitSelect = document.getElementById('set-wan-unit');
+    const lanUnitSelect = document.getElementById('set-lan-unit');
+    const maskMacToggle = document.getElementById('set-mask-mac');
+
+    // Load Timezones if empty
+    if (tzSelect.options.length === 0) {
+        fetch('/api/timezones').then(res => res.json()).then(tzs => {
+            tzs.forEach(tz => {
+                const opt = document.createElement('option');
+                opt.value = tz;
+                opt.textContent = tz;
+                tzSelect.appendChild(opt);
+            });
+            tzSelect.value = appSettings.timezone;
+        });
+    } else {
+        tzSelect.value = appSettings.timezone;
+    }
+
+    wanUnitSelect.value = appSettings.wan_unit;
+    lanUnitSelect.value = appSettings.lan_unit;
+    maskMacToggle.checked = appSettings.mask_mac === 'true';
+}
+
+function updateSetting(key, value) {
+    appSettings[key] = String(value);
+}
+
+async function saveAllSettings() {
+    try {
+        const res = await fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(appSettings)
+        });
+        if (res.ok) {
+            showToast(currentTranslations['msg_settings_saved'] || 'Settings saved successfully');
+            updateUnitLabels();
+            // If timezone changed, we might want to refresh history
+            fetchHistory();
+        }
+    } catch (e) {
+        console.error('Failed to save settings:', e);
+    }
+}
+
+function updateUnitLabels() {
+    const wanUnits = document.querySelectorAll('#wan-card .unit, #avg-wan-download + small, #avg-wan-upload + small');
+    const lanUnits = document.querySelectorAll('#lan-card .unit, #avg-lan-download + small, #avg-lan-upload + small');
+    
+    wanUnits.forEach(el => el.textContent = appSettings.wan_unit);
+    lanUnits.forEach(el => el.textContent = appSettings.lan_unit);
+}
+
+function formatSpeed(mbps, unit) {
+    if (unit === 'Gbps') {
+        return (mbps / 1000).toFixed(3);
+    }
+    return mbps.toFixed(1);
+}
+
+function maskMAC(mac) {
+    if (!mac || mac === 'Unknown MAC' || mac.includes('Localhost')) return mac;
+    return 'XX:XX:XX:XX:XX:XX';
+}
+
+// Security Modal Logic
+let securityCallback = null;
+
+function openSecurityModal(onConfirm) {
+    securityCallback = onConfirm;
+    const modal = document.getElementById('security-modal');
+    const pwdContainer = document.getElementById('password-field-container');
+    const pwdInput = document.getElementById('security-password');
+    const confirmBtn = document.getElementById('btn-security-confirm');
+
+    pwdInput.value = '';
+    pwdContainer.style.display = isPasswordProtected ? 'block' : 'none';
+    modal.style.display = 'flex';
+
+    confirmBtn.onclick = async () => {
+        if (isPasswordProtected) {
+            const password = pwdInput.value;
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                if (res.ok) {
+                    executeSecurityAction();
+                } else {
+                    pwdInput.classList.add('error-shake');
+                    setTimeout(() => pwdInput.classList.remove('error-shake'), 500);
+                }
+            } catch (e) {
+                console.error('Verification failed:', e);
+            }
+        } else {
+            executeSecurityAction();
+        }
+    };
+}
+
+function executeSecurityAction() {
+    if (securityCallback) securityCallback();
+    closeSecurityModal();
+}
+
+function closeSecurityModal() {
+    document.getElementById('security-modal').style.display = 'none';
+    securityCallback = null;
+}
+
+function handleUnmaskMAC(fullMAC, cellEl) {
+    openSecurityModal(() => {
+        cellEl.textContent = fullMAC;
+        cellEl.onclick = null;
+        cellEl.style.cursor = 'default';
+        cellEl.title = '';
+    });
+}
+
+function showToast(msg) {
+    // Simple toast implementation or just alert for now
+    alert(msg);
+}

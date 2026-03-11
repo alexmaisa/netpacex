@@ -30,6 +30,7 @@
 			<div class="main-tabs">
 				<button class="tab-btn active" onclick="switchMainView('test')" data-i18n="nav_test">Speed Test</button>
 				<button class="tab-btn" onclick="switchMainView('history')" data-i18n="nav_history">History</button>
+				<button class="tab-btn" onclick="switchMainView('settings')" data-i18n="nav_settings">Settings</button>
 			</div>
 
 			<div class="lang-switcher">
@@ -218,7 +219,91 @@
 				</div>
 			</div>
 		</div>
+		<!-- SETTINGS VIEW -->
+		<div id="view-settings" style="display: none;">
+			<div class="settings-grid">
+				<!-- Timezone Card -->
+				<div class="glass settings-card">
+					<div class="card-header">
+						<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+						<h2 data-i18n="set_timezone_title">Timezone</h2>
+					</div>
+					<div class="settings-content">
+						<p class="settings-desc" data-i18n="set_timezone_desc">Configure the display timezone for your test history.</p>
+						<select id="set-timezone" class="settings-control" onchange="updateSetting('timezone', this.value)"></select>
+					</div>
+				</div>
+
+				<!-- Units Card -->
+				<div class="glass settings-card">
+					<div class="card-header">
+						<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m17 7-5-5-5 5"/><path d="m17 17-5 5-5-5"/></svg></div>
+						<h2 data-i18n="set_units_title">Speed Units</h2>
+					</div>
+					<div class="settings-content">
+						<div class="unit-group">
+							<span data-i18n="unit_wan">Internet (WAN)</span>
+							<select id="set-wan-unit" class="settings-control" onchange="updateSetting('wan_unit', this.value)">
+								<option value="Mbps">Mbps</option>
+								<option value="Gbps">Gbps</option>
+							</select>
+						</div>
+						<div class="unit-group">
+							<span data-i18n="unit_lan">Local (LAN)</span>
+							<select id="set-lan-unit" class="settings-control" onchange="updateSetting('lan_unit', this.value)">
+								<option value="Mbps">Mbps</option>
+								<option value="Gbps">Gbps</option>
+							</select>
+						</div>
+					</div>
+				</div>
+
+				<!-- Privacy Card -->
+				<div class="glass settings-card">
+					<div class="card-header">
+						<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+						<h2 data-i18n="set_privacy_title">Privacy & Security</h2>
+					</div>
+					<div class="settings-content">
+						<div class="toggle-group">
+							<div class="toggle-info">
+								<span data-i18n="set_mask_mac">Mask MAC Address</span>
+								<p class="settings-desc" data-i18n="set_mask_mac_desc">Hide MAC addresses in history by default.</p>
+							</div>
+							<label class="switch">
+								<input type="checkbox" id="set-mask-mac" onchange="updateSetting('mask_mac', this.checked)">
+								<span class="slider round"></span>
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="settings-footer">
+				<button class="btn primary" onclick="saveAllSettings()" data-i18n="btn_save_settings">Save All Changes</button>
+			</div>
+		</div>
 	</main>
+
+	<!-- Security / Confirmation Modal -->
+	<div id="security-modal" class="modal-overlay" style="display: none;">
+		<div class="modal-content glass security-modal-content">
+			<div class="security-icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+			</div>
+			<h2 id="security-modal-title" data-i18n="sec_title">Security Confirmation</h2>
+			<p id="security-modal-desc" data-i18n="sec_desc">This action requires verification. Please confirm to proceed.</p>
+			
+			<div id="password-field-container" style="display: none; width: 100%; margin: 1.5rem 0;">
+				<input type="password" id="security-password" placeholder="Enter Password" class="settings-control text-center" style="font-size: 1.1rem; letter-spacing: 0.2em;">
+			</div>
+
+			<div class="modal-actions">
+				<button class="btn secondary" onclick="closeSecurityModal()" data-i18n="btn_cancel">Cancel</button>
+				<button id="btn-security-confirm" class="btn primary" data-i18n="btn_confirm">Confirm</button>
+			</div>
+		</div>
+	</div>
 
 	<!-- History Details Modal -->
 	<div id="details-modal" class="modal-overlay" style="display: none;" onclick="if(event.target === this) closeDetailsModal()">

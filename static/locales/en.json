@@ -46,5 +46,21 @@
   "lbl_avg_dl": "Avg Download",
   "lbl_avg_ul": "Avg Upload",
   "lbl_avg_ping": "Avg Ping",
-  "btn_close": "Close"
+  "btn_close": "Close",
+  "nav_settings": "Settings",
+  "set_timezone_title": "Timezone",
+  "set_timezone_desc": "Configure the display timezone for your test history.",
+  "set_units_title": "Speed Units",
+  "unit_wan": "Internet (WAN)",
+  "unit_lan": "Local (LAN)",
+  "set_privacy_title": "Privacy & Security",
+  "set_mask_mac": "Mask MAC Address",
+  "set_mask_mac_desc": "Hide MAC addresses in history by default.",
+  "btn_save_settings": "Save All Changes",
+  "sec_title": "Security Confirmation",
+  "sec_desc": "This action requires verification. Please confirm to proceed.",
+  "btn_cancel": "Cancel",
+  "btn_confirm": "Confirm",
+  "msg_settings_saved": "Settings saved successfully",
+  "tip_unmask_mac": "Click to unmask"
 }
