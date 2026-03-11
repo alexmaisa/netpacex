@@ -51,6 +51,15 @@ func initDB() {
 	if err != nil {
 		log.Fatal("Failed to create table:", err)
 	}
+
+	// Add new columns safely (will error internally if they already exist, which is fine)
+	db.Exec(`ALTER TABLE wan_history ADD COLUMN jitter_ms REAL DEFAULT 0;`)
+	db.Exec(`ALTER TABLE wan_history ADD COLUMN min_ping_ms REAL DEFAULT 0;`)
+	db.Exec(`ALTER TABLE wan_history ADD COLUMN max_ping_ms REAL DEFAULT 0;`)
+
+	db.Exec(`ALTER TABLE lan_history ADD COLUMN jitter_ms REAL DEFAULT 0;`)
+	db.Exec(`ALTER TABLE lan_history ADD COLUMN min_ping_ms REAL DEFAULT 0;`)
+	db.Exec(`ALTER TABLE lan_history ADD COLUMN max_ping_ms REAL DEFAULT 0;`)
 }
 
 func main() {
@@ -176,6 +185,9 @@ func getMACAddress(ip string) string {
 
 type LANSaveRequest struct {
 	Ping           float64 `json:"ping"`
+	Jitter         float64 `json:"jitter"`
+	MinPing        float64 `json:"min_ping"`
+	MaxPing        float64 `json:"max_ping"`
 	DownloadMbps   float64 `json:"download"`
 	UploadMbps     float64 `json:"upload"`
 }
@@ -196,9 +208,9 @@ func handleLANSave(w http.ResponseWriter, r *http.Request) {
 	mac := getMACAddress(ip)
 
 	_, err := db.Exec(`
-		INSERT INTO lan_history (ip_address, mac_address, ping_ms, download_mbps, upload_mbps) 
-		VALUES (?, ?, ?, ?, ?)
-	`, ip, mac, req.Ping, req.DownloadMbps, req.UploadMbps)
+		INSERT INTO lan_history (ip_address, mac_address, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	`, ip, mac, req.Ping, req.Jitter, req.MinPing, req.MaxPing, req.DownloadMbps, req.UploadMbps)
 	
 	if err != nil {
 		log.Printf("Failed to save LAN history: %v", err)
@@ -228,6 +240,9 @@ type LANHistory struct {
 	IPAddress    string  `json:"ip_address"`
 	MACAddress   string  `json:"mac_address"`
 	PingMs       float64 `json:"ping_ms"`
+	JitterMs     float64 `json:"jitter_ms"`
+	MinPingMs    float64 `json:"min_ping_ms"`
+	MaxPingMs    float64 `json:"max_ping_ms"`
 	DownloadMbps float64 `json:"download_mbps"`
 	UploadMbps   float64 `json:"upload_mbps"`
 	TestDate     string  `json:"test_date"`
@@ -235,7 +250,7 @@ type LANHistory struct {
 }
 
 func handleLANHistory(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT id, ip_address, mac_address, ping_ms, download_mbps, upload_mbps, test_date FROM lan_history ORDER BY id DESC")
+	rows, err := db.Query("SELECT id, ip_address, mac_address, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps, test_date FROM lan_history ORDER BY id DESC")
 	if err != nil {
 		http.Error(w, "Failed to fetch LAN history: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -246,7 +261,7 @@ func handleLANHistory(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var record LANHistory
 		var rawDate string
-		if err := rows.Scan(&record.ID, &record.IPAddress, &record.MACAddress, &record.PingMs, &record.DownloadMbps, &record.UploadMbps, &rawDate); err != nil {
+		if err := rows.Scan(&record.ID, &record.IPAddress, &record.MACAddress, &record.PingMs, &record.JitterMs, &record.MinPingMs, &record.MaxPingMs, &record.DownloadMbps, &record.UploadMbps, &rawDate); err != nil {
 			log.Printf("Error scanning lan row: %v", err)
 			continue
 		}
@@ -271,6 +286,9 @@ type WANHistory struct {
 	ID           int     `json:"id"`
 	ServerName   string  `json:"server_name"`
 	PingMs       float64 `json:"ping_ms"`
+	JitterMs     float64 `json:"jitter_ms"`
+	MinPingMs    float64 `json:"min_ping_ms"`
+	MaxPingMs    float64 `json:"max_ping_ms"`
 	DownloadMbps float64 `json:"download_mbps"`
 	UploadMbps   float64 `json:"upload_mbps"`
 	TestDate     string  `json:"test_date"`
@@ -278,7 +296,7 @@ type WANHistory struct {
 }
 
 func handleWANHistory(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT id, server_name, ping_ms, download_mbps, upload_mbps, test_date FROM wan_history ORDER BY id DESC")
+	rows, err := db.Query("SELECT id, server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps, test_date FROM wan_history ORDER BY id DESC")
 	if err != nil {
 		http.Error(w, "Failed to fetch history: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -289,7 +307,7 @@ func handleWANHistory(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var record WANHistory
 		var rawDate string
-		if err := rows.Scan(&record.ID, &record.ServerName, &record.PingMs, &record.DownloadMbps, &record.UploadMbps, &rawDate); err != nil {
+		if err := rows.Scan(&record.ID, &record.ServerName, &record.PingMs, &record.JitterMs, &record.MinPingMs, &record.MaxPingMs, &record.DownloadMbps, &record.UploadMbps, &rawDate); err != nil {
 			log.Printf("Error scanning row: %v", err)
 			continue
 		}
@@ -388,9 +406,9 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 	// 6. Save to History
 	serverName := fmt.Sprintf("%s (%s)", server.Name, server.Country)
 	_, dbErr := db.Exec(`
-		INSERT INTO wan_history (server_name, ping_ms, download_mbps, upload_mbps) 
-		VALUES (?, ?, ?, ?)
-	`, serverName, float64(server.Latency.Milliseconds()), dlMbps, ulMbps)
+		INSERT INTO wan_history (server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps) 
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+	`, serverName, float64(server.Latency.Milliseconds()), float64(server.Jitter.Milliseconds()), float64(server.MinLatency.Milliseconds()), float64(server.MaxLatency.Milliseconds()), dlMbps, ulMbps)
 	if dbErr != nil {
 		log.Printf("Failed to insert history record: %v", dbErr)
 	}

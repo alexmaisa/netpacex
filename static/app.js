@@ -8,6 +8,10 @@ const lanDl = document.getElementById('lan-dl');
 const lanUl = document.getElementById('lan-ul');
 const lanProgress = document.getElementById('lan-progress');
 
+let lanJitter = 0;
+let lanMinPing = 0;
+let lanMaxPing = 0;
+
 // UI Elements: WAN
 const btnWan = document.getElementById('btn-wan');
 const wanStatus = document.getElementById('wan-status');
@@ -290,6 +294,10 @@ function renderHistoryTable() {
                 <td class="text-center">${dateStr}</td>
             `;
         }
+        
+        tr.style.cursor = 'pointer';
+        tr.onclick = () => openDetailsModal(item, isWan);
+        
         tbody.appendChild(tr);
     });
 
@@ -375,6 +383,9 @@ async function startLANTest() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ping: parseFloat(lanPing.textContent) || 0,
+                    jitter: lanJitter,
+                    min_ping: lanMinPing,
+                    max_ping: lanMaxPing,
                     download: parseFloat(lanDl.textContent) || 0,
                     upload: parseFloat(lanUl.textContent) || 0
                 })
@@ -400,16 +411,29 @@ async function measureLANPing() {
     lanPing.classList.add('testing-active');
     let totalLatency = 0;
     const pings = 5; // Do 5 pings and average
+    let latencies = [];
 
     for (let i = 0; i < pings; i++) {
         const start = performance.now();
         await fetch('/api/lan/ping', { cache: 'no-store' });
         const end = performance.now();
-        totalLatency += (end - start);
+        const lat = end - start;
+        totalLatency += lat;
+        latencies.push(lat);
     }
 
     const avgLatency = totalLatency / pings;
     lanPing.textContent = avgLatency.toFixed(1);
+    
+    lanMinPing = Math.min(...latencies);
+    lanMaxPing = Math.max(...latencies);
+    
+    let jitterSum = 0;
+    for (let i = 1; i < latencies.length; i++) {
+        jitterSum += Math.abs(latencies[i] - latencies[i-1]);
+    }
+    lanJitter = pings > 1 ? (jitterSum / (pings - 1)) : 0;
+
     lanPing.classList.remove('testing-active');
 }
 
@@ -555,6 +579,42 @@ function startWANTest() {
         btnWan.disabled = false;
         [wanPing, wanDl, wanUl].forEach(el => el.classList.remove('testing-active'));
     };
+}
+
+// -----------------------------------------------------------------
+// Modal Logic
+// -----------------------------------------------------------------
+
+function openDetailsModal(item, isWan) {
+    const modal = document.getElementById('details-modal');
+    if (!modal) return;
+    
+    document.getElementById('modal-date').textContent = item.test_date || '--';
+    
+    if (isWan) {
+        document.getElementById('modal-title-target').textContent = 'Internet Test Details';
+        document.getElementById('modal-target').textContent = item.server_name || '--';
+    } else {
+        document.getElementById('modal-title-target').textContent = 'LAN Test Details';
+        document.getElementById('modal-target').textContent = item.ip_address + ' (' + item.mac_address + ')';
+    }
+    
+    document.getElementById('modal-download').textContent = item.download_mbps ? item.download_mbps.toFixed(1) : '0.0';
+    document.getElementById('modal-upload').textContent = item.upload_mbps ? item.upload_mbps.toFixed(1) : '0.0';
+    
+    document.getElementById('modal-ping-avg').textContent = item.ping_ms ? item.ping_ms.toFixed(1) : '0.0';
+    document.getElementById('modal-ping-jitter').textContent = item.jitter_ms ? item.jitter_ms.toFixed(1) : '0.0';
+    document.getElementById('modal-ping-min').textContent = item.min_ping_ms ? item.min_ping_ms.toFixed(1) : '0.0';
+    document.getElementById('modal-ping-max').textContent = item.max_ping_ms ? item.max_ping_ms.toFixed(1) : '0.0';
+    
+    modal.style.display = 'flex';
+}
+
+function closeDetailsModal() {
+    const modal = document.getElementById('details-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 // Ensure history is fetched at least once on startup

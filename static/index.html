@@ -9,7 +9,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="style.css?v=4">
+	<link rel="stylesheet" href="style.css?v=5">
 	<!-- Chart.js for data visualization -->
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -172,11 +172,63 @@
 		</div>
 	</main>
 
+	<!-- History Details Modal -->
+	<div id="details-modal" class="modal-overlay" style="display: none;" onclick="if(event.target === this) closeDetailsModal()">
+		<div class="modal-content glass">
+			<button class="close-btn" onclick="closeDetailsModal()">&times;</button>
+			<h2 id="modal-title-target" style="margin-top: 0; color: var(--accent-1); font-size: 1.25rem;">Test Details</h2>
+			
+			<div class="modal-grid">
+				<div class="modal-item full-width">
+					<span class="label">Target / Server</span>
+					<span class="value" id="modal-target">--</span>
+				</div>
+				<div class="modal-item full-width">
+					<span class="label">Date</span>
+					<span class="value" id="modal-date">--</span>
+				</div>
+				
+				<div class="modal-divider full-width"></div>
+
+				<div class="modal-item">
+					<span class="label">Download</span>
+					<span class="value highlight-dl"><span id="modal-download">0.0</span> <small>Mbps</small></span>
+				</div>
+				<div class="modal-item">
+					<span class="label">Upload</span>
+					<span class="value highlight-ul"><span id="modal-upload">0.0</span> <small>Mbps</small></span>
+				</div>
+				
+				<div class="modal-divider full-width"></div>
+				<div class="modal-item full-width" style="margin-bottom: 0.5rem;">
+					<span class="label" style="text-align: center; color: var(--text-main);">Latency Breakdown</span>
+				</div>
+
+				<div class="modal-item highlight-ping">
+					<span class="label">Avg Ping</span>
+					<span class="value"><span id="modal-ping-avg">0.0</span> <small>ms</small></span>
+				</div>
+				<div class="modal-item highlight-ping">
+					<span class="label">Jitter</span>
+					<span class="value"><span id="modal-ping-jitter">0.0</span> <small>ms</small></span>
+				</div>
+				<div class="modal-item highlight-ping">
+					<span class="label">Min Ping</span>
+					<span class="value"><span id="modal-ping-min">0.0</span> <small>ms</small></span>
+				</div>
+				<div class="modal-item highlight-ping">
+					<span class="label">Max Ping</span>
+					<span class="value"><span id="modal-ping-max">0.0</span> <small>ms</small></span>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<footer>
 		<p>Powered by <a href="https://github.com/alexmaisa/netpacex" target="_blank">NetPaceX Go Backend</a></p>
 	</footer>
 
-	<script src="app.js?v=2"></script>
+	<script src="app.js?v=3"></script>
 </body>
 
 </html>
