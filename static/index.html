@@ -374,6 +374,57 @@
 							</div>
 						</div>
 					</div>
+
+					<!-- Scheduled Tests Card -->
+					<div class="glass settings-card">
+						<div class="card-header">
+							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+							<h2 data-i18n="set_cron_title">Scheduled Tests</h2>
+						</div>
+						<div class="settings-content">
+							<!-- WAN Schedule -->
+							<div class="cron-group" style="margin-bottom: 1.5rem;">
+								<div class="toggle-group" style="margin-bottom: 0.5rem;">
+									<div class="toggle-info">
+										<span data-i18n="set_cron_wan_enable">Auto Internet Test</span>
+									</div>
+									<label class="switch">
+										<input type="checkbox" id="set-cron-wan-enable" onchange="updateSetting('cron_wan_enable', this.checked)">
+										<span class="slider round"></span>
+									</label>
+								</div>
+								<div class="input-group">
+									<label class="settings-desc" data-i18n="lbl_cron_expr">Cron Expression</label>
+									<input type="text" id="set-cron-wan-expr" class="settings-control" placeholder="e.g., 0 * * * *" oninput="updateSetting('cron_wan_expr', this.value)">
+								</div>
+							</div>
+							
+							<!-- LAN Schedule -->
+							<div class="cron-group">
+								<div class="toggle-group" style="margin-bottom: 0.5rem;">
+									<div class="toggle-info">
+										<span data-i18n="set_cron_lan_enable">Auto LAN Test</span>
+									</div>
+									<label class="switch">
+										<input type="checkbox" id="set-cron-lan-enable" onchange="updateSetting('cron_lan_enable', this.checked)">
+										<span class="slider round"></span>
+									</label>
+								</div>
+								<div class="input-group" style="margin-bottom: 0.5rem;">
+									<label class="settings-desc" data-i18n="lbl_cron_expr">Cron Expression</label>
+									<input type="text" id="set-cron-lan-expr" class="settings-control" placeholder="e.g., 30 * * * *" oninput="updateSetting('cron_lan_expr', this.value)">
+								</div>
+								<div class="input-group">
+									<label class="settings-desc" data-i18n="lbl_lan_target">Target IP</label>
+									<input type="text" id="set-cron-lan-target" class="settings-control" placeholder="192.168.1.10" oninput="updateSetting('cron_lan_target', this.value)">
+								</div>
+							</div>
+							<p class="settings-desc hint" style="margin-top: 1rem; opacity: 0.7; font-size: 0.75rem;">
+								<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+								<span data-i18n="cron_hint">Format: minute | hour | dom | month | dow</span>
+							</p>
+						</div>
+					</div>
 				</div>
 			</div>
 
