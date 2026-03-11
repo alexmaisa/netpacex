@@ -11,6 +11,7 @@
 	--accent-1: #3b82f6;     /* Blue 500 */
 	--accent-2: #10b981;     /* Emerald 500 */
 	--accent-success: #10b981; /* Emerald 500 */
+	--accent-ping: #fbbf24;    /* Amber 400 (Yellow) */
 	--glass-bg: rgba(30, 41, 59, 0.7); /* Slate 800 with opacity */
 	--glass-border: rgba(255, 255, 255, 0.1);
 	
@@ -175,15 +176,15 @@ body {
 }
 
 .btn.primary {
-	background: linear-gradient(135deg, var(--accent-2), #059669);
+	background: linear-gradient(135deg, #ec4899, #db2777); /* Pink */
 	color: white;
-	box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+	box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
 }
 
 .btn.secondary {
-	background: linear-gradient(135deg, var(--accent-1), #2563eb);
+	background: linear-gradient(135deg, #8b5cf6, #7c3aed); /* Violet */
 	color: white;
-	box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+	box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
 }
 
 .btn.secondary:hover {
@@ -678,34 +679,46 @@ footer a:hover {
 	border-color: rgba(59, 130, 246, 0.2);
 }
 
-.highlight-dl .value { 
-	color: var(--accent-1); 
-	text-shadow: 0 0 20px rgba(59, 130, 246, 0.3); 
+.highlight-dl .value {
+	color: var(--accent-1);
+	text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
 .highlight-dl svg { color: var(--accent-1); }
 
+.value.dl,
+.highlight-dl .value { color: var(--accent-1); }
+
+.value.ul,
+.highlight-ul .value { color: var(--accent-success); }
+
+.value.ping,
+.highlight-ping .value { color: var(--accent-ping); }
+
 .highlight-ul {
-	background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.02) 100%);
-	border-color: rgba(139, 92, 246, 0.2);
+	background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
+	border-color: rgba(16, 185, 129, 0.2);
 }
 
 .highlight-ul .value { 
-	color: var(--accent-2); 
-	text-shadow: 0 0 20px rgba(139, 92, 246, 0.3); 
+	color: var(--accent-success); 
+	text-shadow: 0 0 20px rgba(16, 185, 129, 0.3); 
 }
 
-.highlight-ul svg { color: var(--accent-2); }
+.highlight-ul svg { color: var(--accent-success); }
 
 .highlight-ping {
-	background: rgba(255, 255, 255, 0.01);
-	border-color: rgba(255, 255, 255, 0.04);
+	background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.02) 100%);
+	border-color: rgba(251, 191, 36, 0.2);
 }
 
 .highlight-ping .value {
 	font-size: 1.5rem;
-	color: #fff;
+	color: var(--accent-ping);
+	text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
 }
+
+.highlight-ping svg { color: var(--accent-ping); }
 
 .modal-item .value small {
 	font-size: 0.85rem;

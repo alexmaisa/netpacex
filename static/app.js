@@ -164,14 +164,12 @@ function renderHistoryChart() {
                     {
                         label: 'Upload (Mbps)',
                         data: sortedWan.map(d => d.upload_mbps),
-                        borderColor: '#3b82f6',
-                        borderDash: [5, 5],
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
                         label: 'Ping (ms)',
                         data: sortedWan.map(d => d.ping_ms),
-                        borderColor: '#10b981', // emerald
+                        borderColor: '#fbbf24', // Yellow
                         borderWidth: 2, tension: 0.3, yAxisID: 'y1'
                     }
                 ]
@@ -205,14 +203,12 @@ function renderHistoryChart() {
                     {
                         label: 'Upload (Mbps)',
                         data: sortedLan.map(d => d.upload_mbps),
-                        borderColor: '#10b981',
-                        borderDash: [5, 5],
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
                         label: 'Ping (ms)',
                         data: sortedLan.map(d => d.ping_ms),
-                        borderColor: '#10b981',
+                        borderColor: '#fbbf24', // Yellow
                         borderWidth: 2, tension: 0.3, yAxisID: 'y1'
                     }
                 ]
@@ -246,7 +242,7 @@ function getChartOptions(yTitle, yColor) {
             },
             y1: {
                 type: 'linear', display: true, position: 'right', beginAtZero: true,
-                title: { display: true, text: 'Ping (ms)', color: '#10b981' },
+                title: { display: true, text: 'Ping (ms)', color: '#fbbf24' },
                 ticks: { color: '#9ca3af' },
                 grid: { drawOnChartArea: false }
             }
