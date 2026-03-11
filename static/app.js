@@ -30,7 +30,8 @@ let appSettings = {
     timezone: 'UTC',
     wan_unit: 'Mbps',
     lan_unit: 'Mbps',
-    mask_mac: 'false'
+    mask_mac: 'false',
+    allow_delete: 'false'
 };
 
 let isPasswordProtected = false;
@@ -357,6 +358,13 @@ function renderHistoryTable() {
     const tbodyId = isWan ? 'history-body-wan' : 'history-body-lan';
     const tbody = document.getElementById(tbodyId);
     if (!tbody) return;
+
+    // Show/Hide Actions Column Header
+    const allowDelete = appSettings.allow_delete === 'true';
+    const actionHeaders = document.querySelectorAll('.column-actions');
+    actionHeaders.forEach(h => {
+        h.style.display = allowDelete ? 'table-cell' : 'none';
+    });
     
     tbody.innerHTML = '';
     
@@ -379,6 +387,7 @@ function renderHistoryTable() {
                 <td class="text-center">${formatSpeed(item.download_mbps, wanUnit)}</td>
                 <td class="text-center">${formatSpeed(item.upload_mbps, wanUnit)}</td>
                 <td class="text-center">${dateStr}</td>
+                ${allowDelete ? `<td class="text-center column-actions"><button class="btn-icon danger delete-btn" onclick="event.stopPropagation(); deleteHistoryItem('wan', ${item.id})"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>` : ''}
             `;
         } else {
             const displayMAC = appSettings.mask_mac === 'true' ? maskMAC(item.mac_address) : item.mac_address;
@@ -389,6 +398,7 @@ function renderHistoryTable() {
                 <td class="text-center">${formatSpeed(item.download_mbps, lanUnit)}</td>
                 <td class="text-center">${formatSpeed(item.upload_mbps, lanUnit)}</td>
                 <td class="text-center">${dateStr}</td>
+                ${allowDelete ? `<td class="text-center column-actions"><button class="btn-icon danger delete-btn" onclick="event.stopPropagation(); deleteHistoryItem('lan', ${item.id})"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>` : ''}
             `;
             
             if (appSettings.mask_mac === 'true') {
@@ -413,6 +423,28 @@ function renderHistoryTable() {
     document.getElementById('page-total').textContent = totalPages;
     document.getElementById('btn-prev').disabled = currentPage === 1;
     document.getElementById('btn-next').disabled = currentPage === totalPages;
+}
+
+async function deleteHistoryItem(type, id) {
+    const msg = currentTranslations['msg_delete_confirm'] || 'Are you sure you want to delete this test result?';
+    if (!confirm(msg)) return;
+
+    openSecurityModal(async () => {
+        try {
+            const res = await fetch(`/api/${type}/history/delete?id=${id}`, {
+                method: 'POST'
+            });
+            if (res.ok) {
+                showToast(currentTranslations['msg_delete_success'] || 'Test result deleted successfully');
+                await fetchHistory();
+            } else {
+                showToast('Error deleting record', 'error');
+            }
+        } catch (e) {
+            console.error('Deletion failed:', e);
+            showToast('Connection error', 'error');
+        }
+    });
 }
 
 function prevPage() {
@@ -834,6 +866,22 @@ function renderSettings() {
     lanRadios.forEach(r => r.checked = r.value === appSettings.lan_unit);
 
     maskMacToggle.checked = appSettings.mask_mac === 'true';
+
+    // Allow Delete Toggle (Conditional)
+    const deleteToggle = document.getElementById('set-allow-delete');
+    const deleteGroup = document.getElementById('switch-allow-delete').closest('.toggle-group');
+    
+    if (!isPasswordProtected) {
+        deleteToggle.disabled = true;
+        deleteToggle.checked = false;
+        deleteGroup.style.opacity = '0.5';
+        deleteGroup.title = 'Requires APP_PASSWORD set in Docker';
+    } else {
+        deleteToggle.disabled = false;
+        deleteToggle.checked = appSettings.allow_delete === 'true';
+        deleteGroup.style.opacity = '1';
+        deleteGroup.title = '';
+    }
 }
 
 function updateSetting(key, value) {

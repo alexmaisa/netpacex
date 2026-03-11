@@ -63,5 +63,12 @@
   "btn_confirm": "Konfirmasi",
   "msg_settings_saved": "Pengaturan berhasil disimpan",
   "btn_saving": "Menyimpan...",
-  "tip_unmask_mac": "Klik untuk menampilkan"
+  "tip_unmask_mac": "Klik untuk menampilkan",
+  "set_data_management_title": "Manajemen Data",
+  "set_allow_delete": "Izinkan Penghapusan Riwayat",
+  "set_allow_delete_desc": "Aktifkan opsi untuk menghapus hasil pengujian individual dari riwayat. Memerlukan APP_PASSWORD yang terkonfigurasi.",
+  "th_actions": "Aksi",
+  "btn_delete": "Hapus",
+  "msg_delete_confirm": "Apakah Anda yakin ingin menghapus hasil pengujian ini?",
+  "msg_delete_success": "Hasil pengujian berhasil dihapus"
 }

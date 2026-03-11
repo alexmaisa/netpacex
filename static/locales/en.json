@@ -63,5 +63,12 @@
   "btn_confirm": "Confirm",
   "msg_settings_saved": "Settings saved successfully",
   "btn_saving": "Saving...",
-  "tip_unmask_mac": "Click to unmask"
+  "tip_unmask_mac": "Click to unmask",
+  "set_data_management_title": "Data Management",
+  "set_allow_delete": "Allow History Deletion",
+  "set_allow_delete_desc": "Enable the option to delete individual test results from history. Requires APP_PASSWORD to be configured.",
+  "th_actions": "Actions",
+  "btn_delete": "Delete",
+  "msg_delete_confirm": "Are you sure you want to delete this test result?",
+  "msg_delete_success": "Test result deleted successfully"
 }

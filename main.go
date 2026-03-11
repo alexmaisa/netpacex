@@ -70,6 +70,7 @@ func initDB() {
 		"wan_unit": "Mbps",
 		"lan_unit": "Mbps",
 		"mask_mac": "false",
+		"allow_delete": "false",
 	}
 	for k, v := range defaults {
 		db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?);`, k, v)
@@ -108,6 +109,8 @@ func main() {
 	http.HandleFunc("/api/auth/check", handleAuthCheck)
 	http.HandleFunc("/api/auth/verify", handleAuthVerify)
 	http.HandleFunc("/api/timezones", handleTimezones)
+	http.HandleFunc("/api/wan/history/delete", handleWANHistoryDelete)
+	http.HandleFunc("/api/lan/history/delete", handleLANHistoryDelete)
 
 	port := "8080"
 	fmt.Printf("NetPaceX server started on port %s...\n", port)
@@ -524,6 +527,46 @@ func handleAuthVerify(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	}
+}
+
+func handleWANHistoryDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "Missing ID", http.StatusBadRequest)
+		return
+	}
+
+	_, err := db.Exec("DELETE FROM wan_history WHERE id = ?", id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func handleLANHistoryDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "Missing ID", http.StatusBadRequest)
+		return
+	}
+
+	_, err := db.Exec("DELETE FROM lan_history WHERE id = ?", id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func handleTimezones(w http.ResponseWriter, r *http.Request) {
