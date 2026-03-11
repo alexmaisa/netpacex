@@ -1070,3 +1070,59 @@ input:checked + .slider:before {
 .modal-actions .btn {
 	flex: 1;
 }
+
+/* Toast Notification */
+#toaster {
+	position: fixed;
+	bottom: 2rem;
+	right: 2rem;
+	z-index: 9999;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	pointer-events: none;
+}
+
+.toast {
+	background: var(--glass-bg);
+	border: 1px solid var(--glass-border);
+	color: var(--text-main);
+	padding: 1rem 1.5rem;
+	border-radius: 12px;
+	font-size: 0.9rem;
+	font-weight: 600;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	min-width: 280px;
+	pointer-events: auto;
+	animation: slideInRight 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28), fadeOut 0.5s ease 2.5s forwards;
+}
+
+.toast-icon {
+	color: var(--accent-success);
+}
+
+@keyframes slideInRight {
+	from { transform: translateX(100%); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+
+.error-shake {
+	animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+	10%, 90% { transform: translate3d(-1px, 0, 0); }
+	20%, 80% { transform: translate3d(2px, 0, 0); }
+	30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+	40%, 60% { transform: translate3d(4px, 0, 0); }
+}
