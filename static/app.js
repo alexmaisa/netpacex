@@ -58,7 +58,12 @@ changeLanguage(currentLang);
 function switchMainView(viewId) {
     // Update Tabs
     document.querySelectorAll('.main-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    
+    if (viewId === 'test') {
+        document.querySelectorAll('.main-tabs .tab-btn')[0].classList.add('active');
+    } else {
+        document.querySelectorAll('.main-tabs .tab-btn')[1].classList.add('active');
+    }
 
     // Toggle Views
     document.getElementById('view-test').style.display = viewId === 'test' ? 'block' : 'none';
@@ -71,7 +76,12 @@ function switchMainView(viewId) {
 
 function switchHistoryTab(tabId) {
     document.querySelectorAll('.history-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    
+    if (tabId === 'wan') {
+        document.querySelectorAll('.history-tabs .tab-btn')[0].classList.add('active');
+    } else {
+        document.querySelectorAll('.history-tabs .tab-btn')[1].classList.add('active');
+    }
 
     currentHistoryTab = tabId;
     currentPage = 1;
@@ -94,8 +104,14 @@ async function fetchHistory() {
             fetch('/api/lan/history')
         ]);
         
-        if (wanRes.ok) wanHistoryData = await wanRes.json();
-        if (lanRes.ok) lanHistoryData = await lanRes.json();
+        if (wanRes.ok) {
+            const data = await wanRes.json();
+            wanHistoryData = Array.isArray(data) ? data : [];
+        }
+        if (lanRes.ok) {
+            const data = await lanRes.json();
+            lanHistoryData = Array.isArray(data) ? data : [];
+        }
         
         renderHistoryTable();
     } catch (e) {
