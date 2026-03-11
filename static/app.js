@@ -446,6 +446,10 @@ function renderHistoryTable() {
 }
 
 async function deleteHistoryItem(type, id) {
+    if (!appSettings.allow_delete || appSettings.allow_delete === 'false') {
+        showToast(currentTranslations['msg_del_disabled'] || 'Deletion is disabled', 'error');
+        return;
+    }
     const title = currentTranslations['modal_confirm_title'] || 'Confirm Deletion';
     const msg = currentTranslations['msg_confirm_delete'] || 'Are you sure you want to delete this history item? This action cannot be undone.';
     
@@ -600,11 +604,11 @@ let connTypeCallback = null;
 
 function showConnTypeModal(callback) {
     connTypeCallback = callback;
-    document.getElementById('conn-modal').style.display = 'flex';
+    document.getElementById('conn-type-modal').style.display = 'flex';
 }
 
 function submitConnType(type) {
-    document.getElementById('conn-modal').style.display = 'none';
+    document.getElementById('conn-type-modal').style.display = 'none';
     if (connTypeCallback) {
         connTypeCallback(type);
         connTypeCallback = null;
@@ -1180,8 +1184,9 @@ function showConfirmModal(titleText, messageText, onConfirm) {
     cancelBtn.onclick = null;
 
     proceedBtn.onclick = () => {
+        const callback = confirmCallback;
         closeConfirmModal();
-        if (confirmCallback) confirmCallback();
+        if (callback) callback();
     };
 
     cancelBtn.onclick = closeConfirmModal;

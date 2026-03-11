@@ -24,7 +24,10 @@ NetPaceX measures two distinct types of network speeds:
     - **Language Lock**: Administrators can enforce a default language and hide the header language switcher.
     - Comprehensive **Timezone Support** (IANA list).
     - Toggle between **Mbps** and **Gbps** for all metrics.
-- **Ultra Lightweight & Modern UI**: Built with a Go backend and a dependency-free Vanilla JS/CSS frontend using a premium **Glassmorphism** design.
+- **Ultra Lightweight & Modern UI**: 
+    - Dependency-free Vanilla JS/CSS frontend with a premium **Glassmorphism** design.
+    - **Custom Confirmation Modals**: Beautiful, non-blocking UI dialogs instead of browser default alerts.
+- **Go Powered Backend**: High-performance, low-latency execution with SQLite persistence.
 
 ## 🛠 Tech Stack
 * **Backend:** Go (Golang)
