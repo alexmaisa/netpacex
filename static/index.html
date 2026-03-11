@@ -9,7 +9,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="style.css?v=3">
 </head>
 
 <body>
@@ -19,19 +19,22 @@
 	</div>
 
 	<main class="container">
-		<header>
-			<h1 class="logo" data-i18n="title">NetPaceX</h1>
-			<p class="subtitle" data-i18n="subtitle">Lightweight Network Speedtest</p>
+		<header class="app-header glass">
+			<div class="header-brand">
+				<h1 class="logo" data-i18n="title">NetPaceX</h1>
+				<p class="subtitle" data-i18n="subtitle">Lightweight Network Speedtest</p>
+			</div>
+			
+			<div class="main-tabs">
+				<button class="tab-btn active" onclick="switchMainView('test')" data-i18n="nav_test">Speed Test</button>
+				<button class="tab-btn" onclick="switchMainView('history')" data-i18n="nav_history">History</button>
+			</div>
+
 			<div class="lang-switcher">
 				<select id="lang-select" onchange="changeLanguage(this.value)">
 					<option value="en">English</option>
 					<option value="id">Bahasa Indonesia</option>
 				</select>
-			</div>
-
-			<div class="main-tabs">
-				<button class="tab-btn active" onclick="switchMainView('test')" data-i18n="nav_test">Speed Test</button>
-				<button class="tab-btn" onclick="switchMainView('history')" data-i18n="nav_history">History</button>
 			</div>
 		</header>
 
