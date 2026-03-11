@@ -412,3 +412,6 @@ function startWANTest() {
         [wanPing, wanDl, wanUl].forEach(el => el.classList.remove('testing-active'));
     };
 }
+
+// Ensure history is fetched at least once on startup
+fetchHistory();
