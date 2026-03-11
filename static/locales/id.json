@@ -90,5 +90,13 @@
   "btn_wifi": "Wi-Fi",
   "btn_ethernet": "Ethernet",
   "btn_localhost": "Localhost",
-  "footer_text": "&copy; 2026 <a href=\"https://github.com/alexmaisa\" target=\"_blank\" rel=\"noopener noreferrer\">Benny Maisa</a>. Hak Cipta Dilindungi. &bull; Dibuat dengan <a href=\"https://github.com/alexmaisa/netpacex\" target=\"_blank\" rel=\"noopener noreferrer\">NetPaceX Go Backend</a>"
+  "footer_text": "&copy; 2026 <a href=\"https://github.com/alexmaisa\" target=\"_blank\" rel=\"noopener noreferrer\">Benny Maisa</a>. Hak Cipta Dilindungi. &bull; Dibuat dengan <a href=\"https://github.com/alexmaisa/netpacex\" target=\"_blank\" rel=\"noopener noreferrer\">NetPaceX Go Backend</a>",
+  "lbl_cron_preset": "Frekuensi",
+  "cron_preset_15m": "Setiap 15 Menit",
+  "cron_preset_30m": "Setiap 30 Menit",
+  "cron_preset_1h": "Setiap Jam",
+  "cron_preset_6h": "Setiap 6 Jam",
+  "cron_preset_12h": "Setiap 12 Jam",
+  "cron_preset_24h": "Setiap Hari (Tengah Malam)",
+  "cron_preset_custom": "Ekspresi Kustom"
 }

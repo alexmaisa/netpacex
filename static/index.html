@@ -394,8 +394,20 @@
 										<span class="slider round"></span>
 									</label>
 								</div>
-								<div class="input-group">
-									<label class="settings-desc" data-i18n="lbl_cron_expr">Cron Expression</label>
+								<div class="input-group" style="margin-bottom: 0.5rem;">
+									<label class="settings-desc" data-i18n="lbl_cron_preset">Frequency</label>
+									<select id="set-cron-wan-preset" class="settings-control" onchange="handleCronPresetChange('wan', this.value)">
+										<option value="*/15 * * * *" data-i18n="cron_preset_15m">Every 15 Minutes</option>
+										<option value="*/30 * * * *" data-i18n="cron_preset_30m">Every 30 Minutes</option>
+										<option value="0 * * * *" data-i18n="cron_preset_1h">Hourly</option>
+										<option value="0 */6 * * *" data-i18n="cron_preset_6h">Every 6 Hours</option>
+										<option value="0 */12 * * *" data-i18n="cron_preset_12h">Every 12 Hours</option>
+										<option value="0 0 * * *" data-i18n="cron_preset_24h">Daily (Midnight)</option>
+										<option value="custom" data-i18n="cron_preset_custom">Custom Expression</option>
+									</select>
+								</div>
+								<div class="input-group" id="cron-wan-custom-wrapper" style="display: none;">
+									<label class="settings-desc" data-i18n="lbl_cron_expr">Custom Cron Expression</label>
 									<input type="text" id="set-cron-wan-expr" class="settings-control" placeholder="e.g., 0 * * * *" oninput="updateSetting('cron_wan_expr', this.value)">
 								</div>
 							</div>
@@ -412,7 +424,19 @@
 									</label>
 								</div>
 								<div class="input-group" style="margin-bottom: 0.5rem;">
-									<label class="settings-desc" data-i18n="lbl_cron_expr">Cron Expression</label>
+									<label class="settings-desc" data-i18n="lbl_cron_preset">Frequency</label>
+									<select id="set-cron-lan-preset" class="settings-control" onchange="handleCronPresetChange('lan', this.value)">
+										<option value="*/15 * * * *" data-i18n="cron_preset_15m">Every 15 Minutes</option>
+										<option value="*/30 * * * *" data-i18n="cron_preset_30m">Every 30 Minutes</option>
+										<option value="0 * * * *" data-i18n="cron_preset_1h">Hourly</option>
+										<option value="0 */6 * * *" data-i18n="cron_preset_6h">Every 6 Hours</option>
+										<option value="0 */12 * * *" data-i18n="cron_preset_12h">Every 12 Hours</option>
+										<option value="0 0 * * *" data-i18n="cron_preset_24h">Daily (Midnight)</option>
+										<option value="custom" data-i18n="cron_preset_custom">Custom Expression</option>
+									</select>
+								</div>
+								<div class="input-group" id="cron-lan-custom-wrapper" style="margin-bottom: 0.5rem; display: none;">
+									<label class="settings-desc" data-i18n="lbl_cron_expr">Custom Cron Expression</label>
 									<input type="text" id="set-cron-lan-expr" class="settings-control" placeholder="e.g., 30 * * * *" oninput="updateSetting('cron_lan_expr', this.value)">
 								</div>
 								<div class="input-group">

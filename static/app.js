@@ -975,17 +975,75 @@ function renderSettings() {
     }
 
     // Cron Settings
+    const CRON_PRESETS = [
+        '*/15 * * * *',
+        '*/30 * * * *',
+        '0 * * * *',
+        '0 */6 * * *',
+        '0 */12 * * *',
+        '0 0 * * *'
+    ];
+
     const cronWanEnable = document.getElementById('set-cron-wan-enable');
+    const cronWanPreset = document.getElementById('set-cron-wan-preset');
     const cronWanExpr = document.getElementById('set-cron-wan-expr');
+    const cronWanCustomWrapper = document.getElementById('cron-wan-custom-wrapper');
+
     const cronLanEnable = document.getElementById('set-cron-lan-enable');
+    const cronLanPreset = document.getElementById('set-cron-lan-preset');
     const cronLanExpr = document.getElementById('set-cron-lan-expr');
+    const cronLanCustomWrapper = document.getElementById('cron-lan-custom-wrapper');
     const cronLanTarget = document.getElementById('set-cron-lan-target');
 
     if (cronWanEnable) cronWanEnable.checked = appSettings.cron_wan_enable === 'true';
-    if (cronWanExpr) cronWanExpr.value = appSettings.cron_wan_expr || '';
+    if (cronWanExpr && cronWanPreset && cronWanCustomWrapper) {
+        cronWanExpr.value = appSettings.cron_wan_expr || '';
+        if (CRON_PRESETS.includes(appSettings.cron_wan_expr)) {
+            cronWanPreset.value = appSettings.cron_wan_expr;
+            cronWanCustomWrapper.style.display = 'none';
+        } else if (appSettings.cron_wan_expr) {
+            cronWanPreset.value = 'custom';
+            cronWanCustomWrapper.style.display = 'block';
+        } else {
+            cronWanPreset.value = '0 * * * *';
+            cronWanExpr.value = '0 * * * *';
+            cronWanCustomWrapper.style.display = 'none';
+            updateSetting('cron_wan_expr', '0 * * * *');
+        }
+    }
+
     if (cronLanEnable) cronLanEnable.checked = appSettings.cron_lan_enable === 'true';
-    if (cronLanExpr) cronLanExpr.value = appSettings.cron_lan_expr || '';
+    if (cronLanExpr && cronLanPreset && cronLanCustomWrapper) {
+        cronLanExpr.value = appSettings.cron_lan_expr || '';
+        if (CRON_PRESETS.includes(appSettings.cron_lan_expr)) {
+            cronLanPreset.value = appSettings.cron_lan_expr;
+            cronLanCustomWrapper.style.display = 'none';
+        } else if (appSettings.cron_lan_expr) {
+            cronLanPreset.value = 'custom';
+            cronLanCustomWrapper.style.display = 'block';
+        } else {
+            cronLanPreset.value = '0 * * * *';
+            cronLanExpr.value = '0 * * * *';
+            cronLanCustomWrapper.style.display = 'none';
+            updateSetting('cron_lan_expr', '0 * * * *');
+        }
+    }
     if (cronLanTarget) cronLanTarget.value = appSettings.cron_lan_target || '';
+}
+
+function handleCronPresetChange(type, value) {
+    const customWrapper = document.getElementById(`cron-${type}-custom-wrapper`);
+    const exprInput = document.getElementById(`set-cron-${type}-expr`);
+
+    if (value === 'custom') {
+        customWrapper.style.display = 'block';
+    } else {
+        customWrapper.style.display = 'none';
+        if (exprInput) {
+            exprInput.value = value;
+            updateSetting(`cron_${type}_expr`, value);
+        }
+    }
 }
 
 function updateSetting(key, value) {

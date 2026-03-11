@@ -90,5 +90,13 @@
   "btn_wifi": "Wi-Fi",
   "btn_ethernet": "Ethernet",
   "btn_localhost": "Localhost",
-  "footer_text": "&copy; 2026 <a href=\"https://github.com/alexmaisa\" target=\"_blank\" rel=\"noopener noreferrer\">Benny Maisa</a>. All rights reserved. &bull; Engineered with <a href=\"https://github.com/alexmaisa/netpacex\" target=\"_blank\" rel=\"noopener noreferrer\">NetPaceX Go Backend</a>"
+  "footer_text": "&copy; 2026 <a href=\"https://github.com/alexmaisa\" target=\"_blank\" rel=\"noopener noreferrer\">Benny Maisa</a>. All rights reserved. &bull; Engineered with <a href=\"https://github.com/alexmaisa/netpacex\" target=\"_blank\" rel=\"noopener noreferrer\">NetPaceX Go Backend</a>",
+  "lbl_cron_preset": "Frequency",
+  "cron_preset_15m": "Every 15 Minutes",
+  "cron_preset_30m": "Every 30 Minutes",
+  "cron_preset_1h": "Hourly",
+  "cron_preset_6h": "Every 6 Hours",
+  "cron_preset_12h": "Every 12 Hours",
+  "cron_preset_24h": "Daily (Midnight)",
+  "cron_preset_custom": "Custom Expression"
 }
