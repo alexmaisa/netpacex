@@ -33,6 +33,19 @@ var (
 func init() {
 	loadEnv()
 	appPassword = strings.Trim(os.Getenv("APP_PASSWORD"), " \t\n\r\"'")
+	envTZ := os.Getenv("TZ")
+
+	if appPassword != "" {
+		log.Printf("Security: APP_PASSWORD loaded (length: %d)", len(appPassword))
+	} else {
+		log.Println("Security: No APP_PASSWORD set, features will be disabled")
+	}
+
+	if envTZ != "" {
+		log.Printf("Config: TZ environment variable found: %s", envTZ)
+	} else {
+		log.Println("Config: No TZ environment variable found, using database/default")
+	}
 }
 
 func loadEnv() {
@@ -140,6 +153,17 @@ func initDB() {
 
 func main() {
 	initDB()
+
+	// Sync environment variables to database settings
+	envTZ := os.Getenv("TZ")
+	if envTZ != "" {
+		_, err := db.Exec(`UPDATE settings SET value = ? WHERE key = 'timezone'`, envTZ)
+		if err != nil {
+			log.Printf("Config: Failed to sync TZ to database: %v", err)
+		} else {
+			log.Printf("Config: Timezone synced to %s", envTZ)
+		}
+	}
 
 	mux := http.NewServeMux()
 
