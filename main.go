@@ -69,7 +69,7 @@ func initDB() {
 		"timezone": "UTC",
 		"wan_unit": "Mbps",
 		"lan_unit": "Mbps",
-		"mask_mac": "false",
+		"mask_mac": "true",
 		"allow_delete": "false",
 	}
 	for k, v := range defaults {
