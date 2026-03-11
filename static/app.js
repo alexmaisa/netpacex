@@ -157,19 +157,22 @@ function renderHistoryChart() {
                     {
                         label: 'Download (Mbps)',
                         data: sortedWan.map(d => d.download_mbps),
-                        borderColor: '#3b82f6',
+                        borderColor: '#3b82f6', // Blue
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
                         label: 'Upload (Mbps)',
                         data: sortedWan.map(d => d.upload_mbps),
+                        borderColor: '#10b981', // Emerald
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
                         label: 'Ping (ms)',
                         data: sortedWan.map(d => d.ping_ms),
                         borderColor: '#fbbf24', // Yellow
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y1'
                     }
                 ]
@@ -196,24 +199,27 @@ function renderHistoryChart() {
                     {
                         label: 'Download (Mbps)',
                         data: sortedLan.map(d => d.download_mbps),
-                        borderColor: '#10b981', // emerald
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderColor: '#3b82f6', // Blue
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
                         label: 'Upload (Mbps)',
                         data: sortedLan.map(d => d.upload_mbps),
+                        borderColor: '#10b981', // Emerald
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y'
                     },
                     {
                         label: 'Ping (ms)',
                         data: sortedLan.map(d => d.ping_ms),
                         borderColor: '#fbbf24', // Yellow
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
                         borderWidth: 2, tension: 0.3, yAxisID: 'y1'
                     }
                 ]
             },
-            options: getChartOptions('LAN Speed (Mbps)', '#10b981')
+            options: getChartOptions('LAN Speed (Mbps)', '#3b82f6')
         });
     } else {
         lanChartWrapper.style.display = 'none';
