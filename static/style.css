@@ -397,7 +397,7 @@ h2 {
 
 .metrics {
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
 	gap: 1rem;
 	text-align: center;
 	margin-bottom: 1.5rem;
@@ -430,8 +430,13 @@ h2 {
 }
 
 .testing-active {
-	color: var(--accent-1) !important;
+	filter: brightness(1.4) drop-shadow(0 0 8px currentColor);
 }
+
+.dl { color: var(--accent-1); }
+.ul { color: var(--accent-success); }
+.ping { color: var(--accent-ping); }
+.jitter { color: var(--accent-ping); }
 
 /* Progress Bar */
 .progress-bar-container {
@@ -939,15 +944,6 @@ footer a:hover {
 
 .highlight-dl svg { color: var(--accent-1); }
 
-.value.dl,
-.highlight-dl .value { color: var(--accent-1); }
-
-.value.ul,
-.highlight-ul .value { color: var(--accent-success); }
-
-.value.ping,
-.highlight-ping .value { color: var(--accent-ping); }
-
 .highlight-ul {
 	background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
 	border-color: rgba(16, 185, 129, 0.2);
@@ -987,6 +983,11 @@ footer a:hover {
 .highlight-ping .label {
 	margin-bottom: 0.4rem;
 }
+
+.modal-item .value .dl { color: var(--accent-1); }
+.modal-item .value .ul { color: var(--accent-success); }
+.modal-item .value .ping { color: var(--accent-ping); }
+.modal-item .value .jitter { color: var(--accent-ping); }
 
 /* Averages Section Styling */
 .averages-container {

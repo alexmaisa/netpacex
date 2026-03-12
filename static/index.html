@@ -157,6 +157,11 @@
 							<div class="value"><span id="wan-ping" class="ping">--</span> <span class="unit"
 									data-i18n="unit_ms">ms</span></div>
 						</div>
+						<div class="metric">
+							<span class="label" data-i18n="lbl_jitter">Jitter</span>
+							<div class="value"><span id="wan-jitter" class="jitter">--</span> <span class="unit"
+									data-i18n="unit_ms">ms</span></div>
+						</div>
 					</div>
 					<div class="progress-bar-container">
 						<div id="wan-progress" class="progress-bar"></div>
@@ -191,6 +196,11 @@
 						<div class="metric">
 							<span class="label" data-i18n="lbl_ping">Ping</span>
 							<div class="value"><span id="lan-ping" class="ping">--</span> <span class="unit"
+									data-i18n="unit_ms">ms</span></div>
+						</div>
+						<div class="metric">
+							<span class="label" data-i18n="lbl_jitter">Jitter</span>
+							<div class="value"><span id="lan-jitter-display" class="jitter">--</span> <span class="unit"
 									data-i18n="unit_ms">ms</span></div>
 						</div>
 					</div>
@@ -616,7 +626,7 @@
 						</svg>
 						<span class="label" data-i18n="lbl_download">Download</span>
 					</div>
-					<span class="value"><span id="modal-download">0.0</span> <small
+					<span class="value"><span id="modal-download" class="dl">0.0</span> <small
 							data-i18n="unit_mbps">Mbps</small></span>
 				</div>
 
@@ -631,7 +641,7 @@
 						</svg>
 						<span class="label" data-i18n="lbl_upload">Upload</span>
 					</div>
-					<span class="value"><span id="modal-upload">0.0</span> <small
+					<span class="value"><span id="modal-upload" class="ul">0.0</span> <small
 							data-i18n="unit_mbps">Mbps</small></span>
 				</div>
 
@@ -649,22 +659,22 @@
 
 				<div class="modal-item highlight-ping">
 					<span class="label" data-i18n="lbl_avg">Average</span>
-					<span class="value"><span id="modal-ping-avg">0.0</span> <small
+					<span class="value"><span id="modal-ping-avg" class="ping">0.0</span> <small
 							data-i18n="unit_ms">ms</small></span>
 				</div>
 				<div class="modal-item highlight-ping">
 					<span class="label" data-i18n="lbl_jitter">Jitter</span>
-					<span class="value"><span id="modal-ping-jitter">0.0</span> <small
+					<span class="value"><span id="modal-ping-jitter" class="jitter">0.0</span> <small
 							data-i18n="unit_ms">ms</small></span>
 				</div>
 				<div class="modal-item highlight-ping">
 					<span class="label" data-i18n="lbl_min">Minimum</span>
-					<span class="value"><span id="modal-ping-min">0.0</span> <small
+					<span class="value"><span id="modal-ping-min" class="ping">0.0</span> <small
 							data-i18n="unit_ms">ms</small></span>
 				</div>
 				<div class="modal-item highlight-ping">
 					<span class="label" data-i18n="lbl_max">Maximum</span>
-					<span class="value"><span id="modal-ping-max">0.0</span> <small
+					<span class="value"><span id="modal-ping-max" class="ping">0.0</span> <small
 							data-i18n="unit_ms">ms</small></span>
 				</div>
 			</div>

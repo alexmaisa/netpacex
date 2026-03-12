@@ -4,6 +4,7 @@
 const btnLan = document.getElementById('btn-lan');
 const lanStatus = document.getElementById('lan-status');
 const lanPing = document.getElementById('lan-ping');
+const lanJitterDisplay = document.getElementById('lan-jitter-display');
 const lanDl = document.getElementById('lan-dl');
 const lanUl = document.getElementById('lan-ul');
 const lanProgress = document.getElementById('lan-progress');
@@ -17,6 +18,7 @@ const btnWan = document.getElementById('btn-wan');
 const wanStatus = document.getElementById('wan-status');
 const wanServerInfo = document.getElementById('wan-server-info');
 const wanPing = document.getElementById('wan-ping');
+const wanJitter = document.getElementById('wan-jitter');
 const wanDl = document.getElementById('wan-dl');
 const wanUl = document.getElementById('wan-ul');
 const wanProgress = document.getElementById('wan-progress');
@@ -224,7 +226,9 @@ function renderHistoryChart() {
     // --- WAN Chart ---
     if (wanHistoryData.length > 0) {
         wanChartWrapper.style.display = currentHistoryTab === 'wan' ? 'block' : 'none';
-        const sortedWan = [...wanHistoryData].sort((a,b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime());
+        let sortedWan = [...wanHistoryData].sort((a,b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime());
+        // Limit to last 24 points
+        if (sortedWan.length > 24) sortedWan = sortedWan.slice(-24);
         const labels = sortedWan.map(d => formatDate(d.raw_date));
         
         if (wanChartInstance) wanChartInstance.destroy();
@@ -272,7 +276,9 @@ function renderHistoryChart() {
     // --- LAN Chart ---
     if (lanHistoryData.length > 0) {
         lanChartWrapper.style.display = currentHistoryTab === 'lan' ? 'block' : 'none';
-        const sortedLan = [...lanHistoryData].sort((a,b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime());
+        let sortedLan = [...lanHistoryData].sort((a,b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime());
+        // Limit to last 24 points
+        if (sortedLan.length > 24) sortedLan = sortedLan.slice(-24);
         const labels = sortedLan.map(d => formatDate(d.raw_date));
 
         if (lanChartInstance) lanChartInstance.destroy();
@@ -554,6 +560,7 @@ async function startLANTest() {
     lanStatus.className = 'status-badge testing';
     lanStatus.textContent = currentTranslations['status_testing'] || 'Testing';
     lanPing.textContent = '--';
+    if (lanJitterDisplay) lanJitterDisplay.textContent = '--';
     lanDl.textContent = '--';
     lanUl.textContent = '--';
     lanProgress.style.width = '0%';
@@ -626,7 +633,7 @@ function finishLANTestUI() {
     document.getElementById('btn-lan').disabled = false;
     document.getElementById('btn-wan').disabled = false;
     // Turn off active colors
-    [document.getElementById('lan-ping'), document.getElementById('lan-dl'), document.getElementById('lan-ul')].forEach(el => el.classList.remove('testing-active'));
+    [document.getElementById('lan-ping'), document.getElementById('lan-jitter-display'), document.getElementById('lan-dl'), document.getElementById('lan-ul')].forEach(el => el && el.classList.remove('testing-active'));
     setTimeout(() => document.getElementById('lan-progress').style.width = '0%', 2000);
 }
 
@@ -672,6 +679,7 @@ async function measureLANPing() {
         jitterSum += Math.abs(latencies[i] - latencies[i-1]);
     }
     lanJitter = pings > 1 ? (jitterSum / (pings - 1)) : 0;
+    if (lanJitterDisplay) lanJitterDisplay.textContent = lanJitter.toFixed(1);
 
     lanPing.classList.remove('testing-active');
 }
@@ -766,6 +774,7 @@ function startWANTest() {
     wanStatus.textContent = currentTranslations['status_testing'] || 'Testing';
     wanServerInfo.textContent = currentTranslations['msg_locating_server'] || 'Locating best server...';
     wanPing.textContent = '--';
+    if (wanJitter) wanJitter.textContent = '--';
     wanDl.textContent = '--';
     wanUl.textContent = '--';
     wanProgress.style.width = '10%';
@@ -796,8 +805,16 @@ function startWANTest() {
             case 'ping':
                 wanPing.textContent = data.value !== null ? data.value.toFixed(1) : '--';
                 wanPing.classList.remove('testing-active');
-                wanDl.classList.add('testing-active'); // Move active to next
+                if (wanJitter) wanJitter.classList.add('testing-active');
                 wanProgress.style.width = '40%';
+                break;
+            case 'jitter':
+                if (wanJitter) {
+                    wanJitter.textContent = data.value !== null ? data.value.toFixed(1) : '--';
+                    wanJitter.classList.remove('testing-active');
+                }
+                wanDl.classList.add('testing-active'); // Move active to next
+                wanProgress.style.width = '50%';
                 break;
             case 'download':
                 wanDl.textContent = data.value !== null ? data.value.toFixed(1) : '--';

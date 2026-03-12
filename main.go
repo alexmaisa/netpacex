@@ -713,18 +713,34 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 	
 	var finalDl float64
 	var minRTT uint32 = 0
+	var maxRTT uint32 = 0
+	var totalRTTVar uint32 = 0
+	var rttVarSamples int = 0
 	var serverIP string
 
 	for m := range dlResults {
 		if m.ConnectionInfo != nil && m.ConnectionInfo.Server != "" {
 			serverIP = m.ConnectionInfo.Server
 		}
-		if m.TCPInfo != nil && m.TCPInfo.MinRTT > 0 {
-			if minRTT == 0 || m.TCPInfo.MinRTT < minRTT {
-				minRTT = m.TCPInfo.MinRTT
+		if m.TCPInfo != nil {
+			if m.TCPInfo.MinRTT > 0 {
+				if minRTT == 0 || m.TCPInfo.MinRTT < minRTT {
+					minRTT = m.TCPInfo.MinRTT
+				}
 			}
-			// Send interim ping update if possible (in ms)
-			send(WANEvent{Type: "ping", Value: float64(minRTT) / 1000.0, Info: ""})
+			if m.TCPInfo.RTT > maxRTT {
+				maxRTT = m.TCPInfo.RTT
+			}
+			if m.TCPInfo.RTTVar > 0 {
+				totalRTTVar += m.TCPInfo.RTTVar
+				rttVarSamples++
+				// Send jitter update (in ms)
+				send(WANEvent{Type: "jitter", Value: float64(m.TCPInfo.RTTVar) / 1000.0})
+			}
+			if minRTT > 0 {
+				// Send interim ping update (in ms)
+				send(WANEvent{Type: "ping", Value: float64(minRTT) / 1000.0})
+			}
 		}
 		if m.AppInfo != nil {
 			elapsed := float64(m.AppInfo.ElapsedTime) / 1000000.0 // seconds
@@ -745,11 +761,23 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 
 	var finalUl float64
 	for m := range ulResults {
-		if m.TCPInfo != nil && m.TCPInfo.MinRTT > 0 {
-			if minRTT == 0 || m.TCPInfo.MinRTT < minRTT {
-				minRTT = m.TCPInfo.MinRTT
+		if m.TCPInfo != nil {
+			if m.TCPInfo.MinRTT > 0 {
+				if minRTT == 0 || m.TCPInfo.MinRTT < minRTT {
+					minRTT = m.TCPInfo.MinRTT
+				}
 			}
-			send(WANEvent{Type: "ping", Value: float64(minRTT) / 1000.0, Info: ""})
+			if m.TCPInfo.RTT > maxRTT {
+				maxRTT = m.TCPInfo.RTT
+			}
+			if m.TCPInfo.RTTVar > 0 {
+				totalRTTVar += m.TCPInfo.RTTVar
+				rttVarSamples++
+				send(WANEvent{Type: "jitter", Value: float64(m.TCPInfo.RTTVar) / 1000.0})
+			}
+			if minRTT > 0 {
+				send(WANEvent{Type: "ping", Value: float64(minRTT) / 1000.0})
+			}
 		}
 		if m.AppInfo != nil {
 			elapsed := float64(m.AppInfo.ElapsedTime) / 1000000.0
@@ -766,14 +794,27 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 		displayServer = fmt.Sprintf("%s (M-Lab NDT7)", serverIP)
 	}
 
+	avgJitter := 0.0
+	if rttVarSamples > 0 {
+		avgJitter = float64(totalRTTVar) / float64(rttVarSamples) / 1000.0
+	}
+
 	record := &WANHistory{
 		ServerName:   displayServer,
 		PingMs:       floatPtr(float64(minRTT) / 1000.0),
+		JitterMs:     floatPtr(avgJitter),
+		MinPingMs:    floatPtr(float64(minRTT) / 1000.0),
+		MaxPingMs:    floatPtr(float64(maxRTT) / 1000.0),
 		DownloadMbps: floatPtr(finalDl),
 		UploadMbps:   floatPtr(finalUl),
 	}
+
 	if minRTT == 0 {
 		record.PingMs = nil
+		record.MinPingMs = nil
+	}
+	if maxRTT == 0 {
+		record.MaxPingMs = nil
 	}
 	if finalDl == 0 {
 		record.DownloadMbps = nil
@@ -956,7 +997,8 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 		sendEvent("error", err.Error(), "Ping test failed")
 		return
 	}
-	sendEvent("ping", server.Latency.Milliseconds(), "")
+	sendEvent("ping", float64(server.Latency.Milliseconds()), "")
+	sendEvent("jitter", float64(server.Jitter.Milliseconds()), "")
 
 	// 4. Download Test
 	err = server.DownloadTest()
