@@ -98,8 +98,9 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 	var serverIP string
 
 	for m := range dlResults {
-		if m.ConnectionInfo != nil && m.ConnectionInfo.Server != "" {
+		if m.ConnectionInfo != nil && m.ConnectionInfo.Server != "" && serverIP == "" {
 			serverIP = m.ConnectionInfo.Server
+			send(WANEvent{Type: "info", Info: fmt.Sprintf("Connected to M-Lab: %s", serverIP)})
 		}
 		if m.TCPInfo != nil {
 			if m.TCPInfo.MinRTT > 0 {
@@ -333,7 +334,7 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 		if dbErr != nil {
 			log.Printf("Failed to insert M-Lab WAN history: %v", dbErr)
 		}
-		sendEvent("done", nil, "Test completed")
+		sendEvent("done", nil, fmt.Sprintf("Completed: %s", record.ServerName))
 		return
 	}
 
@@ -392,5 +393,5 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to insert history record: %v", dbErr)
 	}
 
-	sendEvent("done", nil, "Test completed")
+	sendEvent("done", nil, fmt.Sprintf("Completed: %s", serverName))
 }

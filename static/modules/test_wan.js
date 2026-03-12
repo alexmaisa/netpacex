@@ -66,6 +66,9 @@ export function startWANTest(currentTranslations, uiCallbacks, onFinish) {
                 wanUlEl.classList.remove('testing-active');
                 wanStatusEl.className = 'status-badge completed';
                 wanStatusEl.textContent = currentTranslations['status_completed'] || 'Completed';
+                if (data.info) {
+                    wanServerInfoEl.textContent = data.info;
+                }
                 wanProgressEl.style.width = '100%';
                 if (onFinish) onFinish();
                 break;
