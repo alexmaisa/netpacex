@@ -23,9 +23,8 @@ export async function handleAuthVerify(password) {
 }
 
 export function renderSettings(appSettings, isPasswordProtected) {
+    // 1. Generic Select/Input fields
     const sets = [
-        { id: 'set-wan-unit', key: 'wan_unit' },
-        { id: 'set-lan-unit', key: 'lan_unit' },
         { id: 'set-timezone', key: 'timezone' },
         { id: 'set-wan-engine', key: 'wan_engine' }
     ];
@@ -35,45 +34,56 @@ export function renderSettings(appSettings, isPasswordProtected) {
         if (el) el.value = appSettings[s.key] || '';
     });
 
+    // 2. Radio Units (WAN/LAN)
+    ['wan_unit', 'lan_unit'].forEach(key => {
+        const val = appSettings[key];
+        if (val) {
+            const radio = document.querySelector(`input[name="${key}"][value="${val}"]`);
+            if (radio) radio.checked = true;
+        }
+    });
+
+    // 3. Password Protected Toggles
     const deleteGroup = document.getElementById('group-allow-delete');
     const deleteToggle = document.getElementById('set-allow-delete');
     const maskGroup = document.getElementById('group-mask-mac');
     const maskToggle = document.getElementById('set-mask-mac');
 
-    if (!isPasswordProtected) {
-        deleteToggle.disabled = true;
-        deleteToggle.checked = false;
-        deleteGroup.style.opacity = '0.5';
-        deleteGroup.title = 'Requires APP_PASSWORD set in Docker';
+    const toggleStatus = (toggle, group, isEnabled, key) => {
+        if (!toggle) return;
+        if (!isPasswordProtected) {
+            toggle.disabled = true;
+            toggle.checked = false;
+            if (group) {
+                group.style.opacity = '0.5';
+                group.title = 'Requires APP_PASSWORD set in Docker';
+            }
+        } else {
+            toggle.disabled = false;
+            toggle.checked = String(appSettings[key]) === 'true';
+            if (group) {
+                group.style.opacity = '1';
+                group.title = '';
+            }
+        }
+    };
 
-        maskToggle.disabled = true;
-        maskToggle.checked = false;
-        maskGroup.style.opacity = '0.5';
-        maskGroup.title = 'Requires APP_PASSWORD set in Docker';
-    } else {
-        deleteToggle.disabled = false;
-        deleteToggle.checked = appSettings.allow_delete === 'true';
-        deleteGroup.style.opacity = '1';
-        deleteGroup.title = '';
+    toggleStatus(deleteToggle, deleteGroup, isPasswordProtected, 'allow_delete');
+    toggleStatus(maskToggle, maskGroup, isPasswordProtected, 'mask_mac');
 
-        maskToggle.disabled = false;
-        maskToggle.checked = appSettings.mask_mac === 'true';
-        maskGroup.style.opacity = '1';
-        maskGroup.title = '';
-    }
-
+    // 4. Other Toggles & Selects
     const defaultLangSelect = document.getElementById('set-default-lang');
     const lockLangToggle = document.getElementById('set-lock-lang');
     if (defaultLangSelect) defaultLangSelect.value = appSettings.default_lang || 'en';
-    if (lockLangToggle) lockLangToggle.checked = appSettings.lock_lang === 'true';
+    if (lockLangToggle) lockLangToggle.checked = String(appSettings.lock_lang) === 'true';
 
-    // Cron
+    // 5. Cron Settings
     const cronWanEnable = document.getElementById('set-cron-wan-enable');
     const cronWanExpr = document.getElementById('set-cron-wan-expr');
     const cronWanPreset = document.getElementById('set-cron-wan-preset');
     const cronWanCustomWrapper = document.getElementById('cron-wan-custom-wrapper');
 
-    if (cronWanEnable) cronWanEnable.checked = appSettings.cron_wan_enable === 'true';
+    if (cronWanEnable) cronWanEnable.checked = String(appSettings.cron_wan_enable) === 'true';
     if (cronWanExpr) cronWanExpr.value = appSettings.cron_wan_expr || '';
 
     const cronLanEnable = document.getElementById('set-cron-lan-enable');
@@ -82,31 +92,26 @@ export function renderSettings(appSettings, isPasswordProtected) {
     const cronLanCustomWrapper = document.getElementById('cron-lan-custom-wrapper');
     const cronLanTarget = document.getElementById('set-cron-lan-target');
 
-    if (cronLanEnable) cronLanEnable.checked = appSettings.cron_lan_enable === 'true';
+    if (cronLanEnable) cronLanEnable.checked = String(appSettings.cron_lan_enable) === 'true';
     if (cronLanExpr) cronLanExpr.value = appSettings.cron_lan_expr || '';
     if (cronLanTarget) cronLanTarget.value = appSettings.cron_lan_target || '';
 
+    // 6. Cron Presets Visibility
     const presets = ['*/15 * * * *', '*/30 * * * *', '0 * * * *', '0 */6 * * *', '0 */12 * * *', '0 0 * * *'];
     
-    if (cronWanPreset && cronWanCustomWrapper) {
-        if (presets.includes(appSettings.cron_wan_expr)) {
-            cronWanPreset.value = appSettings.cron_wan_expr;
-            cronWanCustomWrapper.style.display = 'none';
-        } else if (appSettings.cron_wan_expr) {
-            cronWanPreset.value = 'custom';
-            cronWanCustomWrapper.style.display = 'block';
+    const updateCronUI = (expr, presetEl, wrapperEl) => {
+        if (!presetEl || !wrapperEl) return;
+        if (presets.includes(expr)) {
+            presetEl.value = expr;
+            wrapperEl.style.display = 'none';
+        } else if (expr) {
+            presetEl.value = 'custom';
+            wrapperEl.style.display = 'block';
         }
-    }
+    };
 
-    if (cronLanPreset && cronLanCustomWrapper) {
-        if (presets.includes(appSettings.cron_lan_expr)) {
-            cronLanPreset.value = appSettings.cron_lan_expr;
-            cronLanCustomWrapper.style.display = 'none';
-        } else if (appSettings.cron_lan_expr) {
-            cronLanPreset.value = 'custom';
-            cronLanCustomWrapper.style.display = 'block';
-        }
-    }
+    updateCronUI(appSettings.cron_wan_expr, cronWanPreset, cronWanCustomWrapper);
+    updateCronUI(appSettings.cron_lan_expr, cronLanPreset, cronLanCustomWrapper);
 }
 
 export async function saveSettings(appSettings, currentTranslations, uiCallbacks) {
