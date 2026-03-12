@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/m-lab/ndt7-client-go"
@@ -211,8 +213,14 @@ func performWANTest() (*WANHistory, error) {
 	defer testMutex.Unlock()
 
 	engine := getWanEngine()
-	if engine == "mlab" {
-		record, err := runMLabTest(context.Background(), nil)
+	if engine == "mlab" || engine == "cloudflare" {
+		var record *WANHistory
+		var err error
+		if engine == "mlab" {
+			record, err = runMLabTest(context.Background(), nil)
+		} else {
+			record, err = runCloudflareTest(context.Background(), nil)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -221,7 +229,7 @@ func performWANTest() (*WANHistory, error) {
 			VALUES (?, ?, ?, ?, ?, ?, ?)
 		`, record.ServerName, record.PingMs, record.JitterMs, record.MinPingMs, record.MaxPingMs, record.DownloadMbps, record.UploadMbps)
 		if dbErr != nil {
-			log.Printf("Failed to insert scheduled M-Lab WAN history: %v", dbErr)
+			log.Printf("Failed to insert scheduled %s WAN history: %v", engine, dbErr)
 		}
 		return record, nil
 	}
@@ -319,12 +327,20 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 	defer testMutex.Unlock()
 
 	engine := getWanEngine()
-	if engine == "mlab" {
-		record, err := runMLabTest(r.Context(), func(e WANEvent) {
-			sendEvent(e.Type, e.Value, e.Info)
-		})
+	if engine == "mlab" || engine == "cloudflare" {
+		var record *WANHistory
+		var err error
+		if engine == "mlab" {
+			record, err = runMLabTest(r.Context(), func(e WANEvent) {
+				sendEvent(e.Type, e.Value, e.Info)
+			})
+		} else {
+			record, err = runCloudflareTest(r.Context(), func(e WANEvent) {
+				sendEvent(e.Type, e.Value, e.Info)
+			})
+		}
 		if err != nil {
-			sendEvent("error", err.Error(), "M-Lab test failed")
+			sendEvent("error", err.Error(), fmt.Sprintf("%s test failed", engine))
 			return
 		}
 		_, dbErr := db.Exec(`
@@ -332,7 +348,7 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 			VALUES (?, ?, ?, ?, ?, ?, ?)
 		`, record.ServerName, record.PingMs, record.JitterMs, record.MinPingMs, record.MaxPingMs, record.DownloadMbps, record.UploadMbps)
 		if dbErr != nil {
-			log.Printf("Failed to insert M-Lab WAN history: %v", dbErr)
+			log.Printf("Failed to insert %s WAN history: %v", engine, dbErr)
 		}
 		sendEvent("done", nil, fmt.Sprintf("Completed: %s", record.ServerName))
 		return
@@ -394,4 +410,134 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendEvent("done", nil, fmt.Sprintf("Completed: %s", serverName))
+}
+
+// runCloudflareTest performs a speed test using Cloudflare's infrastructure.
+func runCloudflareTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, error) {
+	send := func(e WANEvent) {
+		if sseHandler != nil {
+			sseHandler(e)
+		}
+	}
+
+	send(WANEvent{Type: "info", Info: "Connecting to Cloudflare..."})
+
+	// 1. Get PoP info
+	var serverName = "Cloudflare Edge"
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get("https://speed.cloudflare.com/cdn-cgi/trace")
+	if err == nil {
+		defer resp.Body.Close()
+		buf := make([]byte, 1024)
+		n, _ := resp.Body.Read(buf)
+		lines := string(buf[:n])
+		for _, line := range strings.Split(lines, "\n") {
+			if strings.HasPrefix(line, "colo=") {
+				colo := strings.TrimPrefix(line, "colo=")
+				serverName = fmt.Sprintf("Cloudflare (%s)", colo)
+				send(WANEvent{Type: "info", Info: fmt.Sprintf("Connected to Cloudflare PoP: %s", colo)})
+				break
+			}
+		}
+	}
+
+	// 2. Latency Test (Ping & Jitter)
+	send(WANEvent{Type: "info", Info: "Measuring latency..."})
+	var pings []float64
+	for i := 0; i < 10; i++ {
+		start := time.Now()
+		req, _ := http.NewRequestWithContext(ctx, "GET", "https://speed.cloudflare.com/__down?bytes=0", nil)
+		resp, err := client.Do(req)
+		if err == nil {
+			resp.Body.Close()
+			latency := float64(time.Since(start).Microseconds()) / 1000.0
+			pings = append(pings, latency)
+			send(WANEvent{Type: "ping", Value: latency})
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+
+	if len(pings) == 0 {
+		return nil, fmt.Errorf("failed to measure latency")
+	}
+
+	var minP, maxP, sumP float64
+	minP = pings[0]
+	for _, p := range pings {
+		if p < minP {
+			minP = p
+		}
+		if p > maxP {
+			maxP = p
+		}
+		sumP += p
+	}
+	avgP := sumP / float64(len(pings))
+	
+	// Simple jitter (average of absolute differences)
+	var sumJitter float64
+	for i := 1; i < len(pings); i++ {
+		diff := pings[i] - pings[i-1]
+		if diff < 0 {
+			diff = -diff
+		}
+		sumJitter += diff
+	}
+	avgJitter := sumJitter / float64(len(pings)-1)
+	send(WANEvent{Type: "jitter", Value: avgJitter})
+
+	// 3. Download Test
+	send(WANEvent{Type: "info", Info: "Starting Download test..."})
+	dlStart := time.Now()
+	// Download 20MB
+	dlReq, _ := http.NewRequestWithContext(ctx, "GET", "https://speed.cloudflare.com/__down?bytes=20000000", nil)
+	dlResp, err := client.Do(dlReq)
+	var finalDl float64
+	if err == nil {
+		defer dlResp.Body.Close()
+		buf := make([]byte, 32768)
+		var totalBytes int64
+		for {
+			n, err := dlResp.Body.Read(buf)
+			totalBytes += int64(n)
+			if n > 0 {
+				elapsed := time.Since(dlStart).Seconds()
+				if elapsed > 0 {
+					mbps := (float64(totalBytes) * 8 / 1000000.0) / elapsed
+					finalDl = mbps
+					send(WANEvent{Type: "download", Value: mbps})
+				}
+			}
+			if err != nil {
+				break
+			}
+		}
+	}
+
+	// 4. Upload Test
+	send(WANEvent{Type: "info", Info: "Starting Upload test..."})
+	ulStart := time.Now()
+	// Upload 5MB
+	dummyData := make([]byte, 5000000)
+	ulReq, _ := http.NewRequestWithContext(ctx, "POST", "https://speed.cloudflare.com/__up", bytes.NewReader(dummyData))
+	ulResp, err := client.Do(ulReq)
+	var finalUl float64
+	if err == nil {
+		ulResp.Body.Close()
+		elapsed := time.Since(ulStart).Seconds()
+		if elapsed > 0 {
+			finalUl = (float64(len(dummyData)) * 8 / 1000000.0) / elapsed
+			send(WANEvent{Type: "upload", Value: finalUl})
+		}
+	}
+
+	return &WANHistory{
+		ServerName:   serverName,
+		PingMs:       &avgP,
+		JitterMs:     &avgJitter,
+		MinPingMs:    &minP,
+		MaxPingMs:    &maxP,
+		DownloadMbps: &finalDl,
+		UploadMbps:   &finalUl,
+	}, nil
 }
