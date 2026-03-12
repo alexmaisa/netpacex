@@ -1,41 +1,39 @@
-# NetPaceX ⚡️ `v1.1`
+# NetPaceX ⚡️ `v1.2`
 
 NetPaceX is a lightweight, zero-telemetry network speed testing application optimized for home servers. It is specifically designed to bypass network-wide adblockers and firewalls (such as Pi-hole or OPNsense) that frequently block commercial speed test trackers.
 
 NetPaceX measures two distinct types of network speeds:
-1. **Internet (WAN):** Measures the internet speed from the home server to the outside world. This test runs directly from the Go backend to either **Ookla** or **M-Lab (NDT7)** servers, ensuring it is immune to frontend DNS blocking.
-2. **Local (LAN):** Measures the speed and latency between your web browser (client) and the local home server hosting NetPaceX. This is completely self-hosted and generates dummy payload data on the fly.
+1. **Internet (WAN):** Measures connection speed from the home server to the external internet. Tests run directly from the Go backend to **M-Lab (NDT7)** or **Ookla** servers, ensuring immunity to frontend DNS blocking.
+2. **Local (LAN):** Measures performance between the client browser and the server. This is a self-hosted test using on-the-fly generated dummy payloads.
 
 ![NetPaceX UI Preview](#) *(Feel free to add a screenshot of the UI here)*
 
 ## 🚀 Key Features
 
-- **Dual Testing**: Check both internal WiFi/LAN performance and external ISP internet performance from one dashboard.
-- **Multiple Engines**: Choose between **Ookla** and **M-Lab (NDT7)** for your internet speed tests.
-- **Scheduled Speed Tests (CRON)**: Automate your speed tests! Set custom schedules using standard Cron expressions for both Internet and LAN tests.
-- **Advanced Metrics**: Track not just Speed, but also **Jitter**, **Min Ping**, and **Max Ping** for a deeper understanding of network stability.
-- **History & Data Management**: 
-    - Full test history with interactive charts.
-    - **Allow History Deletion**: Option to remove individual test results (requires `APP_PASSWORD`).
-- **Privacy & Security**:
-    - **Mask MAC Address**: Protect device identity in logs (requires `APP_PASSWORD`).
-    - **APP_PASSWORD Protection**: Sensitive actions and configurations are protected by a secure backend verification flow.
-- **Localization & Customization**:
-    - Multi-language support (English & Indonesian).
-    - **Language Lock**: Administrators can enforce a default language and hide the header language switcher.
-    - Comprehensive **Timezone Support** (IANA list).
-    - Toggle between **Mbps** and **Gbps** for all metrics.
-- **Ultra Lightweight & Modern UI**: 
-    - Dependency-free Vanilla JS/CSS frontend with a premium **Glassmorphism** design.
-    - **Custom Confirmation Modals**: Beautiful, non-blocking UI dialogs instead of browser default alerts.
-- **Go Powered Backend**: High-performance, low-latency execution with SQLite persistence.
-- **Ultra-small Footprint**: The generated Docker image is **less than 30MB**, making it incredibly lightweight to deploy and maintain.
+### Performance & Testing
+- **Dual-Mode Testing**: Comprehensive performance metrics for both LAN (local network) and WAN (internet) environments.
+- **Multi-Engine Support**: Direct integration with **M-Lab (NDT7)** and **Ookla** speed test engines.
+- **Automated Scheduling**: Configurable automated testing via standard Cron expressions for both LAN and WAN.
+- **Comprehensive Metrics**: Real-time tracking of Download, Upload, **Jitter**, and Ping (Min/Max/Avg).
+
+### User Interface & Experience
+- **Modern Architecture**: Fully modularized codebase with a Go-powered backend and an ES6 module-based frontend.
+- **Premium Design**: Dependency-free Vanilla JS/CSS frontend featuring a high-performance Glassmorphism interface.
+- **Data Visualization**: Interactive historical charts displaying the last 24 test results for long-term monitoring.
+- **Custom Modals**: Integrated confirmation and security dialogs for a cohesive and modern user experience.
+
+### Privacy & Administration
+- **Zero Telemetry**: Completely private, self-hosted solution with no external data reporting.
+- **Security Protocols**: Critical administrative actions (MAC masking, history deletion) protected by `APP_PASSWORD`.
+- **Identity Protection**: Optional MAC address masking to preserve device anonymity in network logs.
+- **Global Localization**: Multi-language support (English, Indonesian) with administrative language locking capabilities.
+- **Flexible Units**: Toggleable metric displays for **Mbps** and **Gbps** across all testing modes.
 
 ## 🛠 Tech Stack
 * **Backend:** Go (Golang)
-* **Frontend:** Vanilla HTML, CSS, JavaScript
+* **Frontend:** Vanilla HTML, CSS, JavaScript (ES6 Modules)
 * **Database:** SQLite
-* **Deployment:** Docker
+* **Deployment:** Docker (Alpine branch < 30MB)
 
 ## ⚙️ Configuration (.env)
 
@@ -102,7 +100,7 @@ If you want to modify the code or build your own image locally:
    ```
 4. Run the Go server:
    ```bash
-   go run main.go
+   go run .
    ```
 5. Access the UI at `http://localhost:8080`.
 

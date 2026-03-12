@@ -39,13 +39,13 @@
 
 			<nav id="nav-menu" class="nav-menu">
 				<div class="main-tabs">
-					<button class="tab-btn active" onclick="switchMainView('test')" data-i18n="nav_test">Speed Test</button>
-					<button class="tab-btn" onclick="switchMainView('history')" data-i18n="nav_history">History</button>
-					<button class="tab-btn" onclick="switchMainView('settings')" data-i18n="nav_settings">Settings</button>
+					<button id="nav-test" class="tab-btn active" data-i18n="nav_test">Speed Test</button>
+					<button id="nav-history" class="tab-btn" data-i18n="nav_history">History</button>
+					<button id="nav-settings" class="tab-btn" data-i18n="nav_settings">Settings</button>
 				</div>
 
 				<div class="lang-switcher">
-					<select id="lang-select" onchange="changeLanguage(this.value)">
+					<select id="lang-select">
 						<option value="en">English</option>
 						<option value="id">Bahasa Indonesia</option>
 					</select>
@@ -108,7 +108,7 @@
 
 			<!-- Test Launcher Buttons (Visible when idle) -->
 			<div id="test-launcher" class="launcher-container">
-				<button id="btn-launcher-wan" class="btn-launcher secondary" onclick="startWANTest()">
+				<button id="btn-launcher-wan" class="btn-launcher secondary">
 					<div class="launcher-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
 							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 							stroke-linecap="round" stroke-linejoin="round">
@@ -118,7 +118,7 @@
 						</svg></div>
 					<span data-i18n="btn_wan">Test Internet Speed</span>
 				</button>
-				<button id="btn-launcher-lan" class="btn-launcher primary" onclick="startLANTest()">
+				<button id="btn-launcher-lan" class="btn-launcher primary">
 					<div class="launcher-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
 							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 							stroke-linecap="round" stroke-linejoin="round">
@@ -137,7 +137,7 @@
 							<h2 data-i18n="card_wan_title">Internet Speed</h2>
 							<span id="wan-status" class="status-badge idle" data-i18n="status_idle">Idle</span>
 						</div>
-						<button class="card-close-btn" onclick="closeTestCard('wan')"
+						<button id="btn-close-wan" class="card-close-btn"
 							data-i18n="btn_close">Tutup</button>
 					</div>
 					<div id="wan-server-info" class="server-info"></div>
@@ -167,7 +167,7 @@
 						<div id="wan-progress" class="progress-bar"></div>
 					</div>
 					<div class="card-action">
-						<button id="btn-wan" class="btn secondary full-width" onclick="startWANTest()"
+						<button id="btn-wan" class="btn secondary full-width"
 							data-i18n="btn_wan" style="display: none;">Test Internet Speed</button>
 					</div>
 				</div>
@@ -179,7 +179,7 @@
 							<h2 data-i18n="card_lan_title">LAN Speed</h2>
 							<span id="lan-status" class="status-badge idle" data-i18n="status_idle">Idle</span>
 						</div>
-						<button class="card-close-btn" onclick="closeTestCard('lan')"
+						<button id="btn-close-lan" class="card-close-btn"
 							data-i18n="btn_close">Tutup</button>
 					</div>
 					<div class="metrics">
@@ -208,7 +208,7 @@
 						<div id="lan-progress" class="progress-bar"></div>
 					</div>
 					<div class="card-action">
-						<button id="btn-lan" class="btn primary full-width" onclick="startLANTest()" data-i18n="btn_lan"
+						<button id="btn-lan" class="btn primary full-width" data-i18n="btn_lan"
 							style="display: none;">Test LAN Speed</button>
 					</div>
 				</div>
@@ -231,9 +231,9 @@
 
 				<div class="card-header history-header">
 					<div class="history-tabs">
-						<button class="tab-btn active" onclick="switchHistoryTab('wan')"
+						<button id="tab-wan-history" class="tab-btn active"
 							data-i18n="history_wan_title">Internet Speed Test History</button>
-						<button class="tab-btn" onclick="switchHistoryTab('lan')" data-i18n="history_lan_title">LAN
+						<button id="tab-lan-history" class="tab-btn" data-i18n="history_lan_title">LAN
 							Speed Test History</button>
 					</div>
 				</div>
@@ -286,11 +286,11 @@
 
 				<!-- Pagination Controls -->
 				<div class="pagination">
-					<button id="btn-prev" class="btn secondary pagination-btn" onclick="prevPage()" disabled
+					<button id="btn-prev" class="btn secondary pagination-btn" disabled
 						data-i18n="btn_prev">Previous</button>
 					<span class="page-info"><span data-i18n="lbl_page">Page</span> <span id="page-current">1</span> /
 						<span id="page-total">1</span></span>
-					<button id="btn-next" class="btn secondary pagination-btn" onclick="nextPage()" disabled
+					<button id="btn-next" class="btn secondary pagination-btn" disabled
 						data-i18n="btn_next">Next</button>
 				</div>
 			</div>
@@ -315,8 +315,7 @@
 						<div class="settings-content">
 							<p class="settings-desc" data-i18n="set_timezone_desc">Configure the display timezone for
 								your test history.</p>
-							<select id="set-timezone" class="settings-control"
-								onchange="updateSetting('timezone', this.value)"></select>
+							<select id="set-timezone" class="settings-control"></select>
 						</div>
 					</div>
 
@@ -337,13 +336,11 @@
 								<span data-i18n="unit_wan">Internet (WAN)</span>
 								<div class="radio-group" id="radio-wan-unit">
 									<label class="radio-item">
-										<input type="radio" name="wan_unit" value="Mbps"
-											onchange="updateSetting('wan_unit', this.value)">
+										<input type="radio" name="wan_unit" value="Mbps">
 										<span class="radio-label">Mbps</span>
 									</label>
 									<label class="radio-item">
-										<input type="radio" name="wan_unit" value="Gbps"
-											onchange="updateSetting('wan_unit', this.value)">
+										<input type="radio" name="wan_unit" value="Gbps">
 										<span class="radio-label">Gbps</span>
 									</label>
 								</div>
@@ -352,13 +349,11 @@
 								<span data-i18n="unit_lan">Local (LAN)</span>
 								<div class="radio-group" id="radio-lan-unit">
 									<label class="radio-item">
-										<input type="radio" name="lan_unit" value="Mbps"
-											onchange="updateSetting('lan_unit', this.value)">
+										<input type="radio" name="lan_unit" value="Mbps">
 										<span class="radio-label">Mbps</span>
 									</label>
 									<label class="radio-item">
-										<input type="radio" name="lan_unit" value="Gbps"
-											onchange="updateSetting('lan_unit', this.value)">
+										<input type="radio" name="lan_unit" value="Gbps">
 										<span class="radio-label">Gbps</span>
 									</label>
 								</div>
@@ -378,7 +373,7 @@
 									<span data-i18n="set_default_lang">Default Language</span>
 									<p class="settings-desc" data-i18n="set_default_lang_desc">Preferred language for the system.</p>
 								</div>
-								<select id="set-default-lang" class="settings-control" style="width: 120px;" onchange="updateSetting('default_lang', this.value)">
+								<select id="set-default-lang" class="settings-control" style="width: 120px;">
 									<option value="en">English</option>
 									<option value="id">Indonesia</option>
 								</select>
@@ -389,7 +384,7 @@
 									<p class="settings-desc" data-i18n="set_lock_lang_desc">Disable language selection in the header.</p>
 								</div>
 								<label class="switch">
-									<input type="checkbox" id="set-lock-lang" onchange="updateSetting('lock_lang', this.checked)">
+									<input type="checkbox" id="set-lock-lang">
 									<span class="slider round"></span>
 								</label>
 							</div>
@@ -398,7 +393,7 @@
 									<span data-i18n="set_wan_engine">Speed Test Engine</span>
 									<p class="settings-desc" data-i18n="set_wan_engine_desc">Choose the service used for Internet tests.</p>
 								</div>
-								<select id="set-wan-engine" class="settings-control" style="width: 120px;" onchange="updateSetting('wan_engine', this.value)">
+								<select id="set-wan-engine" class="settings-control" style="width: 120px;">
 									<option value="ookla">Ookla</option>
 									<option value="mlab">M-Lab</option>
 								</select>
@@ -420,13 +415,13 @@
 										<span data-i18n="set_cron_wan_enable">Auto Internet Test</span>
 									</div>
 									<label class="switch">
-										<input type="checkbox" id="set-cron-wan-enable" onchange="updateSetting('cron_wan_enable', this.checked)">
+										<input type="checkbox" id="set-cron-wan-enable">
 										<span class="slider round"></span>
 									</label>
 								</div>
 								<div class="input-group" style="margin-bottom: 0.5rem;">
 									<label class="settings-desc" data-i18n="lbl_cron_preset">Frequency</label>
-									<select id="set-cron-wan-preset" class="settings-control" onchange="handleCronPresetChange('wan', this.value)">
+									<select id="set-cron-wan-preset" class="settings-control">
 										<option value="*/15 * * * *" data-i18n="cron_preset_15m">Every 15 Minutes</option>
 										<option value="*/30 * * * *" data-i18n="cron_preset_30m">Every 30 Minutes</option>
 										<option value="0 * * * *" data-i18n="cron_preset_1h">Hourly</option>
@@ -438,7 +433,7 @@
 								</div>
 								<div class="input-group" id="cron-wan-custom-wrapper" style="display: none;">
 									<label class="settings-desc" data-i18n="lbl_cron_expr">Custom Cron Expression</label>
-									<input type="text" id="set-cron-wan-expr" class="settings-control" placeholder="e.g., 0 * * * *" oninput="updateSetting('cron_wan_expr', this.value)">
+									<input type="text" id="set-cron-wan-expr" class="settings-control" placeholder="e.g., 0 * * * *">
 								</div>
 							</div>
 							
@@ -449,13 +444,13 @@
 										<span data-i18n="set_cron_lan_enable">Auto LAN Test</span>
 									</div>
 									<label class="switch">
-										<input type="checkbox" id="set-cron-lan-enable" onchange="updateSetting('cron_lan_enable', this.checked)">
+										<input type="checkbox" id="set-cron-lan-enable">
 										<span class="slider round"></span>
 									</label>
 								</div>
 								<div class="input-group" style="margin-bottom: 0.5rem;">
 									<label class="settings-desc" data-i18n="lbl_cron_preset">Frequency</label>
-									<select id="set-cron-lan-preset" class="settings-control" onchange="handleCronPresetChange('lan', this.value)">
+									<select id="set-cron-lan-preset" class="settings-control">
 										<option value="*/15 * * * *" data-i18n="cron_preset_15m">Every 15 Minutes</option>
 										<option value="*/30 * * * *" data-i18n="cron_preset_30m">Every 30 Minutes</option>
 										<option value="0 * * * *" data-i18n="cron_preset_1h">Hourly</option>
@@ -467,11 +462,11 @@
 								</div>
 								<div class="input-group" id="cron-lan-custom-wrapper" style="margin-bottom: 0.5rem; display: none;">
 									<label class="settings-desc" data-i18n="lbl_cron_expr">Custom Cron Expression</label>
-									<input type="text" id="set-cron-lan-expr" class="settings-control" placeholder="e.g., 30 * * * *" oninput="updateSetting('cron_lan_expr', this.value)">
+									<input type="text" id="set-cron-lan-expr" class="settings-control" placeholder="e.g., 30 * * * *">
 								</div>
 								<div class="input-group">
 									<label class="settings-desc" data-i18n="lbl_lan_target">Target IP</label>
-									<input type="text" id="set-cron-lan-target" class="settings-control" placeholder="192.168.1.10" oninput="updateSetting('cron_lan_target', this.value)">
+									<input type="text" id="set-cron-lan-target" class="settings-control" placeholder="192.168.1.10">
 								</div>
 							</div>
 							<p class="settings-desc hint" style="margin-top: 1rem; opacity: 0.7; font-size: 0.75rem;">
@@ -505,7 +500,7 @@
 										by default. Requires APP_PASSWORD to be configured during installation.</p>
 								</div>
 								<label class="switch">
-									<input type="checkbox" id="set-mask-mac" onchange="updateSetting('mask_mac', this.checked)">
+									<input type="checkbox" id="set-mask-mac">
 									<span class="slider round"></span>
 								</label>
 							</div>
@@ -535,7 +530,7 @@
 										configured during installation.</p>
 								</div>
 								<label class="switch">
-									<input type="checkbox" id="set-allow-delete" onchange="updateSetting('allow_delete', this.checked)">
+									<input type="checkbox" id="set-allow-delete">
 									<span class="slider round"></span>
 								</label>
 							</div>
@@ -545,7 +540,7 @@
 			</div>
 
 			<div class="settings-footer">
-				<button class="btn primary" onclick="saveAllSettings()" data-i18n="btn_save_settings">Save</button>
+				<button id="btn-save-settings" class="btn primary" data-i18n="btn_save_settings">Save</button>
 			</div>
 		</div>
 	</main>
@@ -569,7 +564,7 @@
 			</div>
 
 			<div class="modal-actions">
-				<button class="btn secondary" onclick="closeSecurityModal()" data-i18n="btn_cancel">Cancel</button>
+				<button id="btn-security-cancel" class="btn secondary" data-i18n="btn_cancel">Cancel</button>
 				<button id="btn-security-confirm" class="btn primary" data-i18n="btn_confirm">Confirm</button>
 			</div>
 		</div>
@@ -585,18 +580,17 @@
 			<p data-i18n="modal_conn_desc">How are you connected to the network?</p>
 
 			<div class="modal-actions" style="margin-top: 2rem;">
-				<button class="btn secondary" onclick="submitConnType('Wi-Fi')" data-i18n="btn_wifi" style="background: rgba(30, 41, 59, 0.8);">Wi-Fi</button>
-				<button class="btn primary" onclick="submitConnType('Ethernet')" data-i18n="btn_ethernet">Ethernet</button>
-				<button class="btn secondary" onclick="submitConnType('Localhost')" data-i18n="btn_localhost" style="background: rgba(30, 41, 59, 0.8);">Localhost</button>
+				<button id="btn-conn-wifi" class="btn secondary" data-i18n="btn_wifi" style="background: rgba(30, 41, 59, 0.8);">Wi-Fi</button>
+				<button id="btn-conn-ethernet" class="btn primary" data-i18n="btn_ethernet">Ethernet</button>
+				<button id="btn-conn-localhost" class="btn secondary" data-i18n="btn_localhost" style="background: rgba(30, 41, 59, 0.8);">Localhost</button>
 			</div>
 		</div>
 	</div>
 
 	<!-- History Details Modal -->
-	<div id="details-modal" class="modal-overlay" style="display: none;"
-		onclick="if(event.target === this) closeDetailsModal()">
+	<div id="details-modal" class="modal-overlay" style="display: none;">
 		<div class="modal-content glass">
-			<button class="close-btn" onclick="closeDetailsModal()">&times;</button>
+			<button id="btn-close-details" class="close-btn">&times;</button>
 
 			<div class="modal-header">
 				<div>
@@ -704,7 +698,7 @@
 		<p id="footer-text"></p>
 	</footer>
 
-	<script src="app.js?v=6"></script>
+	<script type="module" src="app.js?v=7"></script>
 </body>
 
 </html>

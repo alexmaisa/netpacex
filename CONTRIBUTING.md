@@ -43,7 +43,7 @@ Please use one of the following prefixes based on the nature of your change:
 5. Open a Pull Request.
 ## Development Setup
 NetPaceX consists of a Go backend and a Vanilla JS frontend.
-1. `go run main.go` to start the backend during development.
+1. `go run .` to start the backend during development.
 2. The UI is served statically by the backend. modifying files in the `static/` directory will require a page refresh in the browser.
 
 ## Bug Reports and Feature Requests
