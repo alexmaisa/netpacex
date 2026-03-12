@@ -143,7 +143,7 @@ func initDB() {
 		"cron_lan_enable": "false",
 		"cron_lan_expr": "30 * * * *",
 		"cron_lan_target": "",
-		"wan_engine": "ookla",
+		"wan_engine": "mlab",
 	}
 	for k, v := range defaults {
 		db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?);`, k, v)

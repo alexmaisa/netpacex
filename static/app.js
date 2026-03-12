@@ -41,7 +41,7 @@ let appSettings = {
     cron_lan_enable: 'false',
     cron_lan_expr: '30 * * * *',
     cron_lan_target: '',
-    wan_engine: 'ookla'
+    wan_engine: 'mlab'
 };
 
 let isPasswordProtected = false;

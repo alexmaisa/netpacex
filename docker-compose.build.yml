@@ -6,6 +6,7 @@ services:
       - "8080:8080"
     environment:
       - TZ=${TZ:-Asia/Jakarta}
+      - WAN_ENGINE=${WAN_ENGINE:-mlab}
       # - APP_PASSWORD=${APP_PASSWORD:-} # Uncomment to enable security features
     env_file:
       - .env
