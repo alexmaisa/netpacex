@@ -69,21 +69,32 @@ TZ=Asia/Jakarta
 
 ## 📦 Installation & Running
 
-### 1. Using Pre-built Image (Recommended)
+### Deployment with Docker (Recommended)
 
-The easiest way to run NetPaceX is by using our official image from the GitHub Container Registry (GHCR).
+The easiest way to run NetPaceX is using Docker. Our official images are automatically built and published to GitHub Container Registry (GHCR) for every new release.
 
-1. Download the `docker-compose.yml` file or clone this repo.
-2. Create your `.env` file from the example:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your preferred password and timezone
+1. **Create a `docker-compose.yml` file**:
+   ```yaml
+   services:
+     netpacex:
+       image: ghcr.io/alexmaisa/netpacex:latest
+       container_name: netpacex
+       ports:
+         - "8080:8080"
+       environment:
+         - TZ=Asia/Jakarta
+       volumes:
+         - ./data:/app/data
+       restart: unless-stopped
    ```
-3. Start the application:
+
+2. **Run the application**:
    ```bash
    docker compose up -d
    ```
-4. Access the UI at `http://<your-server-ip>:8080`.
+
+3. **Access the application**: 
+   Open your browser and navigate to `http://localhost:8080`.
 
 ### 2. Building from Source
 
