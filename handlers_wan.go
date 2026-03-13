@@ -227,9 +227,7 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 
 // performWANTest executes a speedtest and returns results. Does NOT use flusher/SSE.
 func performWANTest() (*WANHistory, error) {
-	if !testMutex.TryLock() {
-		return nil, fmt.Errorf("another test is already in progress")
-	}
+	testMutex.Lock()
 	defer testMutex.Unlock()
 
 	engine := getWanEngine()

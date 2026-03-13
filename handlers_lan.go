@@ -161,10 +161,7 @@ func handleLANHistory(w http.ResponseWriter, r *http.Request) {
 
 // performLANTest executes a full LAN test suite to a target IP
 func performLANTest(targetIP string) {
-	if !testMutex.TryLock() {
-		log.Printf("Cron: Skipping LAN test to %s because another test is already in progress", targetIP)
-		return
-	}
+	testMutex.Lock()
 	defer testMutex.Unlock()
 
 	startTest := time.Now()

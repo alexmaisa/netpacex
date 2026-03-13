@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/robfig/cron/v3"
 )
@@ -58,6 +59,7 @@ func updateCron() {
 		targetIP := settings["cron_lan_target"]
 		_, err := globalCron.AddFunc(settings["cron_lan_expr"], func() {
 			log.Printf("Cron: Starting scheduled LAN test to %s...", targetIP)
+			time.Sleep(1 * time.Second) // Small delay to favor WAN test if both start at same minute
 			performLANTest(targetIP)
 		})
 		if err != nil {
