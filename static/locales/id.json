@@ -102,5 +102,11 @@
   "cron_preset_6h": "Setiap 6 Jam",
   "cron_preset_12h": "Setiap 12 Jam",
   "cron_preset_24h": "Setiap Hari (Tengah Malam)",
-  "cron_preset_custom": "Ekspresi Kustom"
+  "cron_preset_custom": "Ekspresi Kustom",
+  "set_history_retention": "Retensi Riwayat",
+  "set_history_retention_desc": "Hapus otomatis hasil pengujian yang lebih lama dari periode yang dipilih.",
+  "opt_forever": "Selamanya",
+  "opt_7_days": "7 Hari",
+  "opt_30_days": "30 Hari",
+  "opt_90_days": "90 Hari"
 }

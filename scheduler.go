@@ -10,6 +10,15 @@ func initScheduler() {
 	globalCron = cron.New()
 	globalCron.Start()
 	updateCron()
+
+	// Daily cleanup job at 00:00
+	_, err := globalCron.AddFunc("0 0 * * *", func() {
+		log.Println("Cron: Starting daily history cleanup...")
+		CleanupHistory()
+	})
+	if err != nil {
+		log.Printf("Cron: Failed to schedule history cleanup: %v", err)
+	}
 }
 
 func updateCron() {

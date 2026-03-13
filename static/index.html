@@ -535,6 +535,18 @@
 									<span class="slider round"></span>
 								</label>
 							</div>
+							<div class="toggle-group" style="margin-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 1.5rem;">
+								<div class="toggle-info">
+									<span data-i18n="set_history_retention">History Retention</span>
+									<p class="settings-desc" data-i18n="set_history_retention_desc">Auto-delete test results older than the selected period.</p>
+								</div>
+								<select id="set-history-retention" class="settings-control" style="width: 150px;">
+									<option value="0" data-i18n="opt_forever">Forever</option>
+									<option value="7" data-i18n="opt_7_days">7 Days</option>
+									<option value="30" data-i18n="opt_30_days">30 Days</option>
+									<option value="90" data-i18n="opt_90_days">90 Days</option>
+								</select>
+							</div>
 						</div>
 					</div>
 				</div>

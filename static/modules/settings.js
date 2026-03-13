@@ -26,7 +26,8 @@ export function renderSettings(appSettings, isPasswordProtected) {
     // 1. Generic Select/Input fields
     const sets = [
         { id: 'set-timezone', key: 'timezone' },
-        { id: 'set-wan-engine', key: 'wan_engine' }
+        { id: 'set-wan-engine', key: 'wan_engine' },
+        { id: 'set-history-retention', key: 'history_retention' }
     ];
 
     sets.forEach(s => {

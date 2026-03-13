@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"strconv"
 
 	_ "modernc.org/sqlite"
 )
@@ -68,6 +69,7 @@ func initDB() {
 		"cron_lan_expr":   "30 * * * *",
 		"cron_lan_target": "",
 		"wan_engine":      "mlab",
+		"history_retention": "0",
 	}
 	for k, v := range defaults {
 		db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?);`, k, v)
@@ -82,4 +84,39 @@ func initDB() {
 	db.Exec(`ALTER TABLE lan_history ADD COLUMN min_ping_ms REAL DEFAULT 0;`)
 	db.Exec(`ALTER TABLE lan_history ADD COLUMN max_ping_ms REAL DEFAULT 0;`)
 	db.Exec(`ALTER TABLE lan_history ADD COLUMN conn_type TEXT DEFAULT 'Unknown';`)
+}
+
+// CleanupHistory deletes test results older than the retention period
+func CleanupHistory() {
+	var retentionStr string
+	err := db.QueryRow("SELECT value FROM settings WHERE key = 'history_retention'").Scan(&retentionStr)
+	if err != nil {
+		log.Printf("Cleanup: Failed to get retention setting: %v", err)
+		return
+	}
+
+	days, err := strconv.Atoi(retentionStr)
+	if err != nil || days <= 0 {
+		return
+	}
+
+	resWAN, err := db.Exec(`DELETE FROM wan_history WHERE test_date < datetime('now', '-' || ? || ' days')`, days)
+	if err == nil {
+		rows, _ := resWAN.RowsAffected()
+		if rows > 0 {
+			log.Printf("Cleanup: Removed %d old WAN history records", rows)
+		}
+	} else {
+		log.Printf("Cleanup: WAN error: %v", err)
+	}
+
+	resLAN, err := db.Exec(`DELETE FROM lan_history WHERE test_date < datetime('now', '-' || ? || ' days')`, days)
+	if err == nil {
+		rows, _ := resLAN.RowsAffected()
+		if rows > 0 {
+			log.Printf("Cleanup: Removed %d old LAN history records", rows)
+		}
+	} else {
+		log.Printf("Cleanup: LAN error: %v", err)
+	}
 }

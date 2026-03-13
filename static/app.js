@@ -35,7 +35,8 @@ let appSettings = {
     cron_lan_enable: 'false',
     cron_lan_expr: '30 * * * *',
     cron_lan_target: '',
-    wan_engine: 'mlab'
+    wan_engine: 'mlab',
+    history_retention: '0'
 };
 
 let isPasswordProtected = false;
@@ -156,7 +157,7 @@ function setupEventListeners() {
     };
 
     // Settings Inputs
-    const setIds = ['set-timezone', 'set-wan-engine', 'set-default-lang', 'set-lock-lang', 'set-cron-wan-enable', 'set-cron-wan-preset', 'set-cron-wan-expr', 'set-cron-lan-enable', 'set-cron-lan-preset', 'set-cron-lan-expr', 'set-cron-lan-target', 'set-mask-mac', 'set-allow-delete'];
+    const setIds = ['set-timezone', 'set-wan-engine', 'set-default-lang', 'set-lock-lang', 'set-cron-wan-enable', 'set-cron-wan-preset', 'set-cron-wan-expr', 'set-cron-lan-enable', 'set-cron-lan-preset', 'set-cron-lan-expr', 'set-cron-lan-target', 'set-mask-mac', 'set-allow-delete', 'set-history-retention'];
     setIds.forEach(id => {
         const el = document.getElementById(id);
         if (el) {

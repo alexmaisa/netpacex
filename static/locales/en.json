@@ -102,5 +102,11 @@
   "cron_preset_6h": "Every 6 Hours",
   "cron_preset_12h": "Every 12 Hours",
   "cron_preset_24h": "Daily (Midnight)",
-  "cron_preset_custom": "Custom Expression"
+  "cron_preset_custom": "Custom Expression",
+  "set_history_retention": "History Retention",
+  "set_history_retention_desc": "Auto-delete test results older than the selected period.",
+  "opt_forever": "Forever",
+  "opt_7_days": "7 Days",
+  "opt_30_days": "30 Days",
+  "opt_90_days": "90 Days"
 }
