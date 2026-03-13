@@ -10,9 +10,17 @@ NetPaceX measures two distinct types of network speeds:
 1. **Internet (WAN):** Measures connection speed from the home server to the external internet. Tests run directly from the Go backend to **Cloudflare**, **M-Lab (NDT7)**, or **Ookla** servers, ensuring immunity to frontend DNS blocking. **M-Lab tests now feature automatic server location discovery (City, Country).**
 2. **Local (LAN):** Measures performance between the client browser and the server. This is a self-hosted test using on-the-fly generated dummy payloads.
 
-**Version 1.3.7 features the official integrated logo and favicon.**
+**This version features official integrated logo, favicon, and M-Lab location discovery.**
 
-![NetPaceX UI Preview](#) *(Feel free to add a screenshot of the UI here)*
+<p align="center">
+  <img src="static/images/screenshots/Speedtest_page.webp" width="800" alt="Speedtest Page">
+</p>
+<p align="center">
+  <img src="static/images/screenshots/History_page.webp" width="800" alt="History Page">
+</p>
+<p align="center">
+  <img src="static/images/screenshots/Settings_page.webp" width="800" alt="Settings Page">
+</p>
 
 ## 🚀 Key Features
 
