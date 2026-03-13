@@ -1,9 +1,9 @@
-# NetPaceX ⚡️ `v1.3.1`
+# NetPaceX ⚡️ `v1.3.6`
 
 NetPaceX is a lightweight, zero-telemetry network speed testing application optimized for home servers. It is specifically designed to bypass network-wide adblockers and firewalls (such as Pi-hole or OPNsense) that frequently block commercial speed test trackers.
 
 NetPaceX measures two distinct types of network speeds:
-1. **Internet (WAN):** Measures connection speed from the home server to the external internet. Tests run directly from the Go backend to **Cloudflare**, **M-Lab (NDT7)**, or **Ookla** servers, ensuring immunity to frontend DNS blocking.
+1. **Internet (WAN):** Measures connection speed from the home server to the external internet. Tests run directly from the Go backend to **Cloudflare**, **M-Lab (NDT7)**, or **Ookla** servers, ensuring immunity to frontend DNS blocking. **M-Lab tests now feature automatic server location discovery (City, Country).**
 2. **Local (LAN):** Measures performance between the client browser and the server. This is a self-hosted test using on-the-fly generated dummy payloads.
 
 ![NetPaceX UI Preview](#) *(Feel free to add a screenshot of the UI here)*
@@ -12,7 +12,8 @@ NetPaceX measures two distinct types of network speeds:
 
 ### Performance & Testing
 - **Dual-Mode Testing**: Comprehensive performance metrics for both LAN (local network) and WAN (internet) environments.
-- **Multi-Engine Support**: Direct integration with **M-Lab (NDT7)** and **Ookla** speed test engines.
+- **Multi-Engine Support**: Direct integration with **Cloudflare**, **M-Lab (NDT7)**, and **Ookla** speed test engines.
+- **Intelligent Discovery**: Automatic geographic location identification for M-Lab servers.
 - **Automated Scheduling**: Configurable automated testing via standard Cron expressions for both LAN and WAN.
 - **Comprehensive Metrics**: Real-time tracking of Download, Upload, **Jitter**, and Ping (Min/Max/Avg).
 
@@ -88,7 +89,7 @@ If you want to modify the code or build your own image locally:
    docker compose -f docker-compose.build.yml up -d --build
    ```
 
-*(Note: For the most accurate WAN results without Docker NAT overhead, add `network_mode: host` to your compose file.)*
+*(Note: For the most accurate WAN results without Docker NAT overhead, add `network_mode: host` to your compose file. If using host mode, you can change the `PORT` in your `.env` file to avoid conflicts with other services.)*
 
 ### Manual Development Setup
 

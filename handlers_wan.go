@@ -76,6 +76,20 @@ func getWanEngine() string {
 // runMLabTest performs a speed test using the M-Lab NDT7 protocol.
 func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, error) {
 	c := ndt7.NewClient("netpacex", "1.0.0")
+	var serverLocation string
+	
+	// Try to discover server location
+	targets, err := c.Locate.Nearest(ctx, "ndt/ndt7")
+	if err == nil && len(targets) > 0 {
+		target := targets[0]
+		if target.Location.City != "" && target.Location.Country != "" {
+			serverLocation = fmt.Sprintf("%s, %s", target.Location.City, target.Location.Country)
+		} else if target.Location.City != "" {
+			serverLocation = target.Location.City
+		} else if target.Location.Country != "" {
+			serverLocation = target.Location.Country
+		}
+	}
 	
 	send := func(e WANEvent) {
 		if sseHandler != nil {
@@ -102,7 +116,11 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 	for m := range dlResults {
 		if m.ConnectionInfo != nil && m.ConnectionInfo.Server != "" && serverIP == "" {
 			serverIP = m.ConnectionInfo.Server
-			send(WANEvent{Type: "info", Info: fmt.Sprintf("Connected to M-Lab: %s", serverIP)})
+			displayCity := serverIP
+			if serverLocation != "" {
+				displayCity = serverLocation
+			}
+			send(WANEvent{Type: "info", Info: fmt.Sprintf("Connected to M-Lab: %s", displayCity)})
 		}
 		if m.TCPInfo != nil {
 			if m.TCPInfo.MinRTT > 0 {
@@ -170,7 +188,9 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 	}
 
 	displayServer := "M-Lab NDT7 Server"
-	if serverIP != "" {
+	if serverLocation != "" {
+		displayServer = fmt.Sprintf("%s (M-Lab NDT7)", serverLocation)
+	} else if serverIP != "" {
 		displayServer = fmt.Sprintf("%s (M-Lab NDT7)", serverIP)
 	}
 
