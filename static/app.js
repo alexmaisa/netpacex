@@ -437,16 +437,14 @@ async function deleteHistoryItem(type, id) {
     const title = currentTranslations['modal_confirm_title'] || 'Confirm Deletion';
     const msg = currentTranslations['msg_confirm_delete'] || 'Are you sure you want to delete this item?';
     
-    showConfirmModal(title, msg, () => {
-        openSecurityModal(async () => {
-            const res = await fetch(`/api/${type}/history/delete?id=${id}`, { method: 'POST' });
-            if (res.ok) {
-                showToast(currentTranslations['msg_delete_success'] || 'Deleted successfully');
-                await fetchHistory(renderAllHistory, () => updateAverages(appSettings));
-            } else {
-                showToast('Error deleting record', 'error');
-            }
-        });
+    showConfirmModal(title, msg, async () => {
+        const res = await fetch(`/api/${type}/history/delete?id=${id}`, { method: 'POST' });
+        if (res.ok) {
+            showToast(currentTranslations['msg_delete_success'] || 'Deleted successfully');
+            await fetchHistory(renderAllHistory, () => updateAverages(appSettings));
+        } else {
+            showToast('Error deleting record', 'error');
+        }
     });
 }
 
