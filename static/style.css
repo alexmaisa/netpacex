@@ -84,11 +84,11 @@ body {
 .container {
 	width: 100%;
 	max-width: 1350px;
-	padding: 3rem 1.5rem;
+	padding: 1.5rem 1.5rem;
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	gap: 2.5rem;
+	gap: 1.5rem;
 }
 
 /* Header Navigation */
@@ -97,7 +97,6 @@ body {
 	justify-content: space-between;
 	align-items: center;
 	padding: 1rem 2rem;
-	margin-bottom: 1rem;
 	gap: 1.5rem;
 	position: relative;
 	z-index: 1001;
@@ -1084,7 +1083,6 @@ footer a:hover {
     display: flex;
     gap: 1.5rem;
     min-height: 600px;
-    margin-top: 1rem;
     height: calc(85vh - 100px); /* Fill most of the viewport */
 }
 
