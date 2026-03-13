@@ -1,5 +1,7 @@
 package main
 
+const version = "v1.3.7"
+
 import (
 	"context"
 	"fmt"
