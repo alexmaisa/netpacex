@@ -1,7 +1,5 @@
 package main
 
-const version = "v1.3.7"
-
 import (
 	"context"
 	"fmt"
@@ -13,6 +11,8 @@ import (
 	"syscall"
 	"time"
 )
+
+const version = "v1.3.7"
 
 func init() {
 	loadEnv()
