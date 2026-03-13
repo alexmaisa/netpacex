@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="static/images/logo/NetPaceX.jpg" width="128" alt="NetPaceX Logo">
+</p>
+
 # NetPaceX ⚡️ `v1.3.6`
 
 NetPaceX is a lightweight, zero-telemetry network speed testing application optimized for home servers. It is specifically designed to bypass network-wide adblockers and firewalls (such as Pi-hole or OPNsense) that frequently block commercial speed test trackers.
@@ -5,6 +9,8 @@ NetPaceX is a lightweight, zero-telemetry network speed testing application opti
 NetPaceX measures two distinct types of network speeds:
 1. **Internet (WAN):** Measures connection speed from the home server to the external internet. Tests run directly from the Go backend to **Cloudflare**, **M-Lab (NDT7)**, or **Ookla** servers, ensuring immunity to frontend DNS blocking. **M-Lab tests now feature automatic server location discovery (City, Country).**
 2. **Local (LAN):** Measures performance between the client browser and the server. This is a self-hosted test using on-the-fly generated dummy payloads.
+
+**Version 1.3.7 features the official integrated logo and favicon.**
 
 ![NetPaceX UI Preview](#) *(Feel free to add a screenshot of the UI here)*
 
