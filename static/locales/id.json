@@ -55,7 +55,7 @@
   "set_loc_title": "Lokalisasi",
   "set_default_lang": "Bahasa Default",
   "set_default_lang_desc": "Atur bahasa utama untuk sistem.",
-  "set_lock_lang": "Kunci Penukar Bahasa",
+  "set_lock_lang": "Sembunyikan Penukar Bahasa",
   "set_lock_lang_desc": "Sembunyikan pilihan bahasa di header.",
   "set_wan_engine": "Mesin Uji Kecepatan",
   "set_wan_engine_desc": "Pilih layanan yang digunakan untuk pengujian Internet.",
@@ -108,5 +108,10 @@
   "opt_forever": "Selamanya",
   "opt_7_days": "7 Hari",
   "opt_30_days": "30 Hari",
-  "opt_90_days": "90 Hari"
+  "opt_90_days": "90 Hari",
+  "set_cat_general": "Umum",
+  "set_cat_engine": "Uji Kecepatan",
+  "set_cat_scheduling": "Penjadwalan",
+  "set_cat_security": "Keamanan & Data",
+  "set_cat_localization": "Lokalisasi"
 }

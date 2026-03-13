@@ -55,7 +55,7 @@
   "set_loc_title": "Localization",
   "set_default_lang": "Default Language",
   "set_default_lang_desc": "Set the default language for everyone.",
-  "set_lock_lang": "Lock Switcher",
+  "set_lock_lang": "Hide Language Switcher",
   "set_lock_lang_desc": "Hide language selector in header.",
   "set_wan_engine": "Speed Test Engine",
   "set_wan_engine_desc": "Choose the service used for Internet tests.",
@@ -108,5 +108,10 @@
   "opt_forever": "Forever",
   "opt_7_days": "7 Days",
   "opt_30_days": "30 Days",
-  "opt_90_days": "90 Days"
+  "opt_90_days": "90 Days",
+  "set_cat_general": "General",
+  "set_cat_engine": "Speed Test",
+  "set_cat_scheduling": "Scheduling",
+  "set_cat_security": "Security & Data",
+  "set_cat_localization": "Localization"
 }

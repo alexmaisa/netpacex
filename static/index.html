@@ -297,263 +297,297 @@
 		</div>
 		<!-- SETTINGS VIEW -->
 		<div id="view-settings" style="display: none;">
-			<!-- Section: General -->
-			<div class="settings-section">
-				<h3 class="settings-section-title" data-i18n="set_sec_general">General Configuration</h3>
-				<div class="settings-grid">
-					<!-- Timezone Card -->
-					<div class="glass settings-card">
-						<div class="card-header">
-							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-									viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									stroke-linecap="round" stroke-linejoin="round">
-									<circle cx="12" cy="12" r="10" />
-									<polyline points="12 6 12 12 16 14" />
-								</svg></div>
-							<h2 data-i18n="set_timezone_title">Timezone</h2>
-						</div>
-						<div class="settings-content">
-							<p class="settings-desc" data-i18n="set_timezone_desc">Configure the display timezone for
-								your test history.</p>
-							<select id="set-timezone" class="settings-control"></select>
-						</div>
-					</div>
+			<div class="settings-container">
+				<!-- Settings Sidebar -->
+				<aside class="settings-sidebar glass">
+					<nav class="settings-nav">
+						<button class="settings-nav-btn active" data-tab="set-gen">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+							<span data-i18n="set_cat_general">General</span>
+						</button>
+						<button class="settings-nav-btn" data-tab="set-engine">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m17 7-5-5-5 5"/><path d="m17 17-5 5-5-5"/></svg>
+							<span data-i18n="set_cat_engine">Speed Test</span>
+						</button>
+						<button class="settings-nav-btn" data-tab="set-cron">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+							<span data-i18n="set_cat_scheduling">Scheduling</span>
+						</button>
+						<button class="settings-nav-btn" data-tab="set-data">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+							<span data-i18n="set_cat_security">Security & Data</span>
+						</button>
+						<button class="settings-nav-btn" data-tab="set-loc">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+							<span data-i18n="set_cat_localization">Localization</span>
+						</button>
+					</nav>
+				</aside>
 
-					<!-- Units Card -->
-					<div class="glass settings-card">
-						<div class="card-header">
-							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-									viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									stroke-linecap="round" stroke-linejoin="round">
-									<path d="M12 2v20" />
-									<path d="m17 7-5-5-5 5" />
-									<path d="m17 17-5 5-5-5" />
-								</svg></div>
-							<h2 data-i18n="set_units_title">Speed Units</h2>
-						</div>
-						<div class="settings-content">
-							<div class="unit-group">
-								<span data-i18n="unit_wan">Internet (WAN)</span>
-								<div class="radio-group" id="radio-wan-unit">
-									<label class="radio-item">
-										<input type="radio" name="wan_unit" value="Mbps">
-										<span class="radio-label">Mbps</span>
-									</label>
-									<label class="radio-item">
-										<input type="radio" name="wan_unit" value="Gbps">
-										<span class="radio-label">Gbps</span>
-									</label>
+				<!-- Settings Content Area -->
+				<div class="settings-content-area glass">
+					<div class="settings-scroll-container">
+						<!-- General Tab -->
+						<div id="set-gen" class="settings-tab-content active">
+							<div class="settings-group">
+								<div class="settings-group-header">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+									<h3 data-i18n="set_sec_general">Regional & Display</h3>
 								</div>
-							</div>
-							<div class="unit-group">
-								<span data-i18n="unit_lan">Local (LAN)</span>
-								<div class="radio-group" id="radio-lan-unit">
-									<label class="radio-item">
-										<input type="radio" name="lan_unit" value="Mbps">
-										<span class="radio-label">Mbps</span>
-									</label>
-									<label class="radio-item">
-										<input type="radio" name="lan_unit" value="Gbps">
-										<span class="radio-label">Gbps</span>
-									</label>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- Localization Card -->
-					<div class="glass settings-card">
-						<div class="card-header">
-							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></div>
-							<h2 data-i18n="set_loc_title">Localization</h2>
-						</div>
-						<div class="settings-content">
-							<div class="toggle-group">
-								<div class="toggle-info">
-									<span data-i18n="set_default_lang">Default Language</span>
-									<p class="settings-desc" data-i18n="set_default_lang_desc">Preferred language for the system.</p>
-								</div>
-								<select id="set-default-lang" class="settings-control" style="width: 150px;">
-									<option value="en">English</option>
-									<option value="id">Indonesia</option>
-								</select>
-							</div>
-							<div class="toggle-group">
-								<div class="toggle-info">
-									<span data-i18n="set_lock_lang">Lock Language Switcher</span>
-									<p class="settings-desc" data-i18n="set_lock_lang_desc">Disable language selection in the header.</p>
-								</div>
-								<label class="switch">
-									<input type="checkbox" id="set-lock-lang">
-									<span class="slider round"></span>
-								</label>
-							</div>
-							<div class="toggle-group">
-								<div class="toggle-info">
-									<span data-i18n="set_wan_engine">Speed Test Engine</span>
-									<p class="settings-desc" data-i18n="set_wan_engine_desc">Choose the service used for Internet tests.</p>
-								</div>
-								<select id="set-wan-engine" class="settings-control" style="width: 150px;">
-									<option value="ookla">Ookla</option>
-									<option value="mlab">M-Lab</option>
-									<option value="cloudflare">Cloudflare</option>
-								</select>
-							</div>
-						</div>
-					</div>
-
-					<!-- Scheduled Tests Card -->
-					<div class="glass settings-card">
-						<div class="card-header">
-							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-							<h2 data-i18n="set_cron_title">Scheduled Tests</h2>
-						</div>
-						<div class="settings-content">
-							<!-- WAN Schedule -->
-							<div class="cron-group" style="margin-bottom: 1.5rem;">
-								<div class="toggle-group" style="margin-bottom: 0.5rem;">
-									<div class="toggle-info">
-										<span data-i18n="set_cron_wan_enable">Auto Internet Test</span>
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="set_timezone_title">Timezone</label>
+										<p class="settings-desc" data-i18n="set_timezone_desc">Display timezone for test history.</p>
 									</div>
-									<label class="switch">
-										<input type="checkbox" id="set-cron-wan-enable">
-										<span class="slider round"></span>
-									</label>
+									<div class="settings-row-control">
+										<select id="set-timezone" class="settings-control"></select>
+									</div>
 								</div>
-								<div class="input-group" style="margin-bottom: 0.5rem;">
-									<label class="settings-desc" data-i18n="lbl_cron_preset">Frequency</label>
-									<select id="set-cron-wan-preset" class="settings-control">
-										<option value="*/15 * * * *" data-i18n="cron_preset_15m">Every 15 Minutes</option>
-										<option value="*/30 * * * *" data-i18n="cron_preset_30m">Every 30 Minutes</option>
-										<option value="0 * * * *" data-i18n="cron_preset_1h">Hourly</option>
-										<option value="0 */6 * * *" data-i18n="cron_preset_6h">Every 6 Hours</option>
-										<option value="0 */12 * * *" data-i18n="cron_preset_12h">Every 12 Hours</option>
-										<option value="0 0 * * *" data-i18n="cron_preset_24h">Daily (Midnight)</option>
-										<option value="custom" data-i18n="cron_preset_custom">Custom Expression</option>
-									</select>
+							</div>
+						</div>
+
+						<!-- Speed Test Tab -->
+						<div id="set-engine" class="settings-tab-content">
+							<div class="settings-group">
+								<div class="settings-group-header">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m17 7-5-5-5 5"/><path d="m17 17-5 5-5-5"/></svg>
+									<h3 data-i18n="set_cat_engine">Engine Configuration</h3>
 								</div>
-								<div class="input-group" id="cron-wan-custom-wrapper" style="display: none;">
-									<label class="settings-desc" data-i18n="lbl_cron_expr">Custom Cron Expression</label>
-									<input type="text" id="set-cron-wan-expr" class="settings-control" placeholder="e.g., 0 * * * *">
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="set_wan_engine">Speed Test Engine</label>
+										<p class="settings-desc" data-i18n="set_wan_engine_desc">Service provider used for WAN tests.</p>
+									</div>
+									<div class="settings-row-control">
+										<select id="set-wan-engine" class="settings-control">
+											<option value="ookla">Ookla</option>
+											<option value="mlab">M-Lab</option>
+											<option value="cloudflare">Cloudflare</option>
+										</select>
+									</div>
+								</div>
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="set_units_title">Speed Units</label>
+										<p class="settings-desc">Choose how speed results are displayed.</p>
+									</div>
+									<div class="settings-row-control vertical">
+										<div class="unit-group-ref">
+											<span data-i18n="unit_wan" class="mini-label">Internet (WAN)</span>
+											<div class="segmented-control" id="radio-wan-unit">
+												<input type="radio" name="wan_unit" value="Mbps" id="wan-mbps">
+												<label for="wan-mbps">Mbps</label>
+												<input type="radio" name="wan_unit" value="Gbps" id="wan-gbps">
+												<label for="wan-gbps">Gbps</label>
+												<div class="segmented-slider"></div>
+											</div>
+										</div>
+										<div class="unit-group-ref">
+											<span data-i18n="unit_lan" class="mini-label">Local (LAN)</span>
+											<div class="segmented-control" id="radio-lan-unit">
+												<input type="radio" name="lan_unit" value="Mbps" id="lan-mbps">
+												<label for="lan-mbps">Mbps</label>
+												<input type="radio" name="lan_unit" value="Gbps" id="lan-gbps">
+												<label for="lan-gbps">Gbps</label>
+												<div class="segmented-slider"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Scheduling Tab -->
+						<div id="set-cron" class="settings-tab-content">
+							<!-- WAN Card -->
+							<div class="settings-group">
+								<div class="settings-group-header">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+									<h3 data-i18n="set_cron_wan_enable">Auto Internet Test</h3>
+								</div>
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label>Enable Schedule</label>
+									</div>
+									<div class="settings-row-control">
+										<label class="switch">
+											<input type="checkbox" id="set-cron-wan-enable">
+											<span class="slider round"></span>
+										</label>
+									</div>
+								</div>
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="lbl_cron_preset">Frequency</label>
+									</div>
+									<div class="settings-row-control">
+										<select id="set-cron-wan-preset" class="settings-control">
+											<option value="*/15 * * * *" data-i18n="cron_preset_15m">Every 15 Minutes</option>
+											<option value="*/30 * * * *" data-i18n="cron_preset_30m">Every 30 Minutes</option>
+											<option value="0 * * * *" data-i18n="cron_preset_1h">Hourly</option>
+											<option value="0 */6 * * *" data-i18n="cron_preset_6h">Every 6 Hours</option>
+											<option value="0 */12 * * *" data-i18n="cron_preset_12h">Every 12 Hours</option>
+											<option value="0 0 * * *" data-i18n="cron_preset_24h">Daily (Midnight)</option>
+											<option value="custom" data-i18n="cron_preset_custom">Custom Expression</option>
+										</select>
+									</div>
+								</div>
+								<div class="settings-row" id="cron-wan-custom-wrapper" style="display: none;">
+									<div class="settings-row-info">
+										<label data-i18n="lbl_cron_expr">Cron Expression</label>
+									</div>
+									<div class="settings-row-control">
+										<input type="text" id="set-cron-wan-expr" class="settings-control" placeholder="e.g., 0 * * * *">
+									</div>
+								</div>
+							</div>
+
+							<!-- LAN Card -->
+							<div class="settings-group" style="margin-top: 1.5rem;">
+								<div class="settings-group-header">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+									<h3 data-i18n="set_cron_lan_enable">Auto LAN Test</h3>
+								</div>
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label>Enable Schedule</label>
+									</div>
+									<div class="settings-row-control">
+										<label class="switch">
+											<input type="checkbox" id="set-cron-lan-enable">
+											<span class="slider round"></span>
+										</label>
+									</div>
+								</div>
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="lbl_cron_preset">Frequency</label>
+									</div>
+									<div class="settings-row-control">
+										<select id="set-cron-lan-preset" class="settings-control">
+											<option value="*/15 * * * *" data-i18n="cron_preset_15m">Every 15 Minutes</option>
+											<option value="*/30 * * * *" data-i18n="cron_preset_30m">Every 30 Minutes</option>
+											<option value="0 * * * *" data-i18n="cron_preset_1h">Hourly</option>
+											<option value="0 */6 * * *" data-i18n="cron_preset_6h">Every 6 Hours</option>
+											<option value="0 */12 * * *" data-i18n="cron_preset_12h">Every 12 Hours</option>
+											<option value="0 0 * * *" data-i18n="cron_preset_24h">Daily (Midnight)</option>
+											<option value="custom" data-i18n="cron_preset_custom">Custom Expression</option>
+										</select>
+									</div>
+								</div>
+								<div class="settings-row" id="cron-lan-custom-wrapper" style="display: none;">
+									<div class="settings-row-info">
+										<label data-i18n="lbl_cron_expr">Cron Expression</label>
+									</div>
+									<div class="settings-row-control">
+										<input type="text" id="set-cron-lan-expr" class="settings-control" placeholder="e.g., 30 * * * *">
+									</div>
+								</div>
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="lbl_lan_target">Target IP</label>
+									</div>
+									<div class="settings-row-control">
+										<input type="text" id="set-cron-lan-target" class="settings-control" placeholder="192.168.1.10">
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Data Tab -->
+						<div id="set-data" class="settings-tab-content">
+							<div class="settings-group">
+								<div class="settings-group-header">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+									<h3 data-i18n="set_privacy_title">Security & Privacy</h3>
+								</div>
+								<div id="group-mask-mac" class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="set_mask_mac">Mask MAC Address</label>
+										<p class="settings-desc" data-i18n="set_mask_mac_desc">Hide MAC addresses in history.</p>
+									</div>
+									<div class="settings-row-control">
+										<label class="switch">
+											<input type="checkbox" id="set-mask-mac">
+											<span class="slider round"></span>
+										</label>
+									</div>
 								</div>
 							</div>
 							
-							<!-- LAN Schedule -->
-							<div class="cron-group">
-								<div class="toggle-group" style="margin-bottom: 0.5rem;">
-									<div class="toggle-info">
-										<span data-i18n="set_cron_lan_enable">Auto LAN Test</span>
+							<div class="settings-group" style="margin-top: 1.5rem;">
+								<div class="settings-group-header">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+									<h3 data-i18n="set_data_management_title">Data Management</h3>
+								</div>
+								<div id="group-allow-delete" class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="set_allow_delete">Allow History Deletion</label>
+										<p class="settings-desc" data-i18n="set_allow_delete_desc">Enable manual deletion of results.</p>
 									</div>
-									<label class="switch">
-										<input type="checkbox" id="set-cron-lan-enable">
-										<span class="slider round"></span>
-									</label>
+									<div class="settings-row-control">
+										<label class="switch">
+											<input type="checkbox" id="set-allow-delete">
+											<span class="slider round"></span>
+										</label>
+									</div>
 								</div>
-								<div class="input-group" style="margin-bottom: 0.5rem;">
-									<label class="settings-desc" data-i18n="lbl_cron_preset">Frequency</label>
-									<select id="set-cron-lan-preset" class="settings-control">
-										<option value="*/15 * * * *" data-i18n="cron_preset_15m">Every 15 Minutes</option>
-										<option value="*/30 * * * *" data-i18n="cron_preset_30m">Every 30 Minutes</option>
-										<option value="0 * * * *" data-i18n="cron_preset_1h">Hourly</option>
-										<option value="0 */6 * * *" data-i18n="cron_preset_6h">Every 6 Hours</option>
-										<option value="0 */12 * * *" data-i18n="cron_preset_12h">Every 12 Hours</option>
-										<option value="0 0 * * *" data-i18n="cron_preset_24h">Daily (Midnight)</option>
-										<option value="custom" data-i18n="cron_preset_custom">Custom Expression</option>
-									</select>
-								</div>
-								<div class="input-group" id="cron-lan-custom-wrapper" style="margin-bottom: 0.5rem; display: none;">
-									<label class="settings-desc" data-i18n="lbl_cron_expr">Custom Cron Expression</label>
-									<input type="text" id="set-cron-lan-expr" class="settings-control" placeholder="e.g., 30 * * * *">
-								</div>
-								<div class="input-group">
-									<label class="settings-desc" data-i18n="lbl_lan_target">Target IP</label>
-									<input type="text" id="set-cron-lan-target" class="settings-control" placeholder="192.168.1.10">
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="set_history_retention">History Retention</label>
+										<p class="settings-desc" data-i18n="set_history_retention_desc">Auto-cleanup policy.</p>
+									</div>
+									<div class="settings-row-control">
+										<select id="set-history-retention" class="settings-control">
+											<option value="0" data-i18n="opt_forever">Forever</option>
+											<option value="7" data-i18n="opt_7_days">7 Days</option>
+											<option value="30" data-i18n="opt_30_days">30 Days</option>
+											<option value="90" data-i18n="opt_90_days">90 Days</option>
+										</select>
+									</div>
 								</div>
 							</div>
-							<p class="settings-desc hint" style="margin-top: 1rem; opacity: 0.7; font-size: 0.75rem;">
-								<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-								<span data-i18n="cron_hint">Format: minute | hour | dom | month | dow</span>
-							</p>
 						</div>
+
+						<!-- Localization Tab -->
+						<div id="set-loc" class="settings-tab-content">
+							<div class="settings-group">
+								<div class="settings-group-header">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+									<h3 data-i18n="set_loc_title">Localization</h3>
+								</div>
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="set_default_lang">Default Language</label>
+									</div>
+									<div class="settings-row-control">
+										<select id="set-default-lang" class="settings-control">
+											<option value="en">English</option>
+											<option value="id">Indonesia</option>
+										</select>
+									</div>
+								</div>
+								<div class="settings-row">
+									<div class="settings-row-info">
+										<label data-i18n="set_lock_lang">Lock Switcher</label>
+										<p class="settings-desc" data-i18n="set_lock_lang_desc">Hide language choice in header.</p>
+									</div>
+									<div class="settings-row-control">
+										<label class="switch">
+											<input type="checkbox" id="set-lock-lang">
+											<span class="slider round"></span>
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Settings Action Bar -->
+					<div class="settings-action-bar">
+						<button id="btn-save-settings" class="btn primary" data-i18n="btn_save_settings">Save Changes</button>
 					</div>
 				</div>
-			</div>
-
-			<!-- Section: Security & Data -->
-			<div class="settings-section">
-				<h3 class="settings-section-title" data-i18n="set_sec_security">Security & Data Management</h3>
-				<div class="settings-grid">
-					<!-- Privacy Card -->
-					<div class="glass settings-card">
-						<div class="card-header">
-							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-									viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									stroke-linecap="round" stroke-linejoin="round">
-									<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-								</svg></div>
-							<h2 data-i18n="set_privacy_title">Privacy & Security</h2>
-						</div>
-						<div class="settings-content">
-							<div id="group-mask-mac" class="toggle-group">
-								<div class="toggle-info">
-									<span data-i18n="set_mask_mac">Mask MAC Address</span>
-									<p class="settings-desc" data-i18n="set_mask_mac_desc">Hide MAC addresses in history
-										by default. Requires APP_PASSWORD to be configured during installation.</p>
-								</div>
-								<label class="switch">
-									<input type="checkbox" id="set-mask-mac">
-									<span class="slider round"></span>
-								</label>
-							</div>
-						</div>
-					</div>
-
-					<!-- Data Management Card -->
-					<div class="glass settings-card">
-						<div class="card-header">
-							<div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-									viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									stroke-linecap="round" stroke-linejoin="round">
-									<path
-										d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-									</path>
-									<polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-									<line x1="12" y1="22.08" x2="12" y2="12"></line>
-								</svg></div>
-							<h2 data-i18n="set_data_management_title">Data Management</h2>
-						</div>
-						<div class="settings-content">
-							<div id="group-allow-delete" class="toggle-group">
-								<div class="toggle-info">
-									<span data-i18n="set_allow_delete">Allow History Deletion</span>
-									<p class="settings-desc" data-i18n="set_allow_delete_desc">Enable the option to
-										delete individual test results from history. Requires APP_PASSWORD to be
-										configured during installation.</p>
-								</div>
-								<label class="switch">
-									<input type="checkbox" id="set-allow-delete">
-									<span class="slider round"></span>
-								</label>
-							</div>
-							<div class="toggle-group" style="margin-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 1.5rem;">
-								<div class="toggle-info">
-									<span data-i18n="set_history_retention">History Retention</span>
-									<p class="settings-desc" data-i18n="set_history_retention_desc">Auto-delete test results older than the selected period.</p>
-								</div>
-								<select id="set-history-retention" class="settings-control" style="width: 150px;">
-									<option value="0" data-i18n="opt_forever">Forever</option>
-									<option value="7" data-i18n="opt_7_days">7 Days</option>
-									<option value="30" data-i18n="opt_30_days">30 Days</option>
-									<option value="90" data-i18n="opt_90_days">90 Days</option>
-								</select>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="settings-footer">
-				<button id="btn-save-settings" class="btn primary" data-i18n="btn_save_settings">Save</button>
 			</div>
 		</div>
 	</main>

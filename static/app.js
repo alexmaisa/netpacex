@@ -209,6 +209,14 @@ function setupEventListeners() {
                 tzSelect.value = appSettings.timezone;
             }
         });
+
+    // Settings Sidebar Tabs
+    document.querySelectorAll('.settings-nav-btn').forEach(btn => {
+        btn.onclick = () => {
+            const tabId = btn.getAttribute('data-tab');
+            switchSettingsTab(tabId);
+        };
+    });
 }
 
 function handleCronPresetChange(type, value) {
@@ -258,6 +266,18 @@ async function performSave() {
 
     btn.disabled = false;
     btn.textContent = originalText;
+}
+
+function switchSettingsTab(tabId) {
+    // Buttons active state
+    document.querySelectorAll('.settings-nav-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+    });
+
+    // Content area visibility
+    document.querySelectorAll('.settings-tab-content').forEach(content => {
+        content.classList.toggle('active', content.id === tabId);
+    });
 }
 
 function applyHeaderSwitcher() {
