@@ -41,7 +41,9 @@ let appSettings = {
 
 let isPasswordProtected = false;
 let originalSettings = {};
+let currentView = 'test';
 let securityCallback = null;
+let securityCancelCallback = null;
 let connTypeCallback = null;
 
 // Initialization
@@ -85,9 +87,20 @@ function renderAllHistory() {
 
 function setupEventListeners() {
     // Nav Tabs
-    document.getElementById('nav-test').onclick = () => switchMainView('test', { onHistory: renderAllHistory, onSettings: () => renderSettings(appSettings, isPasswordProtected) });
-    document.getElementById('nav-history').onclick = () => switchMainView('history', { onHistory: renderAllHistory, onSettings: () => renderSettings(appSettings, isPasswordProtected) });
-    document.getElementById('nav-settings').onclick = () => switchMainView('settings', { onHistory: renderAllHistory, onSettings: () => renderSettings(appSettings, isPasswordProtected) });
+    const navigate = (viewId) => {
+        if (currentView === 'settings' && viewId !== 'settings') {
+            appSettings = { ...originalSettings };
+        }
+        currentView = viewId;
+        switchMainView(viewId, { 
+            onHistory: renderAllHistory, 
+            onSettings: () => renderSettings(appSettings, isPasswordProtected) 
+        });
+    };
+
+    document.getElementById('nav-test').onclick = () => navigate('test');
+    document.getElementById('nav-history').onclick = () => navigate('history');
+    document.getElementById('nav-settings').onclick = () => navigate('settings');
 
     // Menu Toggle
     const menuToggle = document.getElementById('menu-toggle');
@@ -238,10 +251,15 @@ async function saveAllSettings() {
     const maskChanged = appSettings.mask_mac !== originalSettings.mask_mac;
     const deleteChanged = appSettings.allow_delete !== originalSettings.allow_delete;
 
+    const rollback = () => {
+        appSettings = { ...originalSettings };
+        renderSettings(appSettings, isPasswordProtected);
+    };
+
     if (isPasswordProtected && (maskChanged || deleteChanged)) {
         openSecurityModal(() => {
             performSave();
-        });
+        }, rollback);
     } else {
         await performSave();
     }
@@ -432,8 +450,9 @@ async function deleteHistoryItem(type, id) {
     });
 }
 
-function openSecurityModal(onConfirm) {
+function openSecurityModal(onConfirm, onCancel) {
     securityCallback = onConfirm;
+    securityCancelCallback = onCancel;
     const modal = document.getElementById('security-modal');
     const pwdContainer = document.getElementById('password-field-container');
     const pwdInput = document.getElementById('security-password');
@@ -448,21 +467,25 @@ function openSecurityModal(onConfirm) {
             const ok = await handleAuthVerify(pwdInput.value);
             if (ok) {
                 if (securityCallback) securityCallback();
-                closeSecurityModal();
+                closeSecurityModal(false);
             } else {
                 pwdInput.classList.add('error-shake');
                 setTimeout(() => pwdInput.classList.remove('error-shake'), 500);
             }
         } else {
             if (securityCallback) securityCallback();
-            closeSecurityModal();
+            closeSecurityModal(false);
         }
     };
 }
 
-function closeSecurityModal() {
+function closeSecurityModal(isCancel = true) {
     document.getElementById('security-modal').style.display = 'none';
+    if (isCancel && securityCancelCallback) {
+        securityCancelCallback();
+    }
     securityCallback = null;
+    securityCancelCallback = null;
 }
 
 function handleUnmaskMAC(fullMAC, cellEl) {
