@@ -79,14 +79,24 @@ The easiest way to run NetPaceX is using Docker. Our official images are automat
      netpacex:
        image: ghcr.io/alexmaisa/netpacex:latest
        container_name: netpacex
+       # network_mode: host # Uncomment for Synology/Host Network mode
        ports:
          - "8080:8080"
        environment:
          - TZ=Asia/Jakarta
+         - PORT=8080 # Match this with your mapped port if using bridge mode
        volumes:
          - ./data:/app/data
        restart: unless-stopped
+       healthcheck:
+         test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:$${PORT:-8080} || exit 1"]
+         interval: 30s
+         timeout: 10s
+         retries: 3
    ```
+
+   > [!TIP]
+   > If you are using **Synology NAS** with `network_mode: host`, ensure the `PORT` environment variable matches your desired port to prevent healthcheck conflicts (e.g., DSM on 5000/5001 or other apps on 8080).
 
 2. **Run the application**:
    ```bash
