@@ -12,8 +12,8 @@
 	<!-- Chart.js for data visualization -->
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<link rel="icon" type="image/jpeg" href="/images/logo/NetPaceX.jpg">
-  <script type="module" crossorigin src="/assets/index-SzB5N0nU.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-C8PTIc_R.css">
+  <script type="module" crossorigin src="/assets/index-BNXHqEkq.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CLhyt7zy.css">
 </head>
 
 <body>
@@ -24,39 +24,40 @@
 
 	<div id="toaster"></div>
 
-	<main class="container">
-		<header class="app-header glass">
-			<div class="header-brand">
-				<img src="/images/logo/NetPaceX.jpg" alt="NetPaceX Logo" class="nav-logo">
-				<div class="brand-text">
-					<h1 class="logo" data-i18n="title">NetPaceX</h1>
-					<p class="subtitle" data-i18n="subtitle">Lightweight Network Speedtest</p>
-				</div>
+	<header class="app-header glass">
+		<div class="header-brand">
+			<img src="/images/logo/NetPaceX.jpg" alt="NetPaceX Logo" class="nav-logo">
+			<div class="brand-text">
+				<h1 class="logo" data-i18n="title">NetPaceX</h1>
+				<p class="subtitle" data-i18n="subtitle">Lightweight Network Speedtest</p>
+			</div>
+		</div>
+
+		<button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<line x1="3" y1="12" x2="21" y2="12"></line>
+				<line x1="3" y1="6" x2="21" y2="6"></line>
+				<line x1="3" y1="18" x2="21" y2="18"></line>
+			</svg>
+		</button>
+
+		<nav id="nav-menu" class="nav-menu">
+			<div class="main-tabs">
+				<button id="nav-test" class="tab-btn active" data-i18n="nav_test">Speed Test</button>
+				<button id="nav-history" class="tab-btn" data-i18n="nav_history">History</button>
+				<button id="nav-settings" class="tab-btn" data-i18n="nav_settings">Settings</button>
 			</div>
 
-			<button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<line x1="3" y1="12" x2="21" y2="12"></line>
-					<line x1="3" y1="6" x2="21" y2="6"></line>
-					<line x1="3" y1="18" x2="21" y2="18"></line>
-				</svg>
-			</button>
+			<div class="lang-switcher">
+				<select id="lang-select">
+					<option value="en">English</option>
+					<option value="id">Bahasa Indonesia</option>
+				</select>
+			</div>
+		</nav>
+	</header>
 
-			<nav id="nav-menu" class="nav-menu">
-				<div class="main-tabs">
-					<button id="nav-test" class="tab-btn active" data-i18n="nav_test">Speed Test</button>
-					<button id="nav-history" class="tab-btn" data-i18n="nav_history">History</button>
-					<button id="nav-settings" class="tab-btn" data-i18n="nav_settings">Settings</button>
-				</div>
-
-				<div class="lang-switcher">
-					<select id="lang-select">
-						<option value="en">English</option>
-						<option value="id">Bahasa Indonesia</option>
-					</select>
-				</div>
-			</nav>
-		</header>
+	<main class="container">
 
 		<!-- TEST VIEW -->
 		<div id="view-test">
