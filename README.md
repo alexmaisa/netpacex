@@ -2,7 +2,7 @@
   <img src="static/images/logo/NetPaceX.jpg" width="128" alt="NetPaceX Logo">
 </p>
 
-# NetPaceX ⚡️ `v1.3.6`
+# NetPaceX ⚡️ `v1.5.0`
 
 NetPaceX is a lightweight, zero-telemetry network speed testing application optimized for home servers. It is specifically designed to bypass network-wide adblockers and firewalls (such as Pi-hole or OPNsense) that frequently block commercial speed test trackers.
 

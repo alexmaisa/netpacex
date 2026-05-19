@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const version = "v1.3.7"
+const version = "v1.5.0"
 
 func init() {
 	loadEnv()
