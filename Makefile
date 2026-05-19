@@ -16,8 +16,9 @@ help:
 dev:
 	@echo "Building frontend production assets..."
 	pnpm run build
-	@echo "Starting Go backend server..."
-	go run .
+	@echo "Starting Go backend server in the background..."
+	@nohup go run . > /dev/null 2>&1 &
+	@echo "NetPaceX started successfully. Use 'make stop' to shut it down."
 
 build:
 	@echo "Building production Docker image 'netpacex:latest'..."
