@@ -53,11 +53,7 @@ export function updateAverages(appSettings: any) {
                 avgDl: '--',
                 avgUl: '--',
                 avgPing: '--',
-                avgJitter: '--',
-                peakDl: '--',
-                peakUl: '--',
-                bestPing: '--',
-                totalRuns: '0'
+                avgJitter: '--'
             };
         }
 
@@ -71,21 +67,11 @@ export function updateAverages(appSettings: any) {
         const avgPing = sumPing / data.length;
         const avgJitter = sumJitter / data.length;
 
-        const peakDl = Math.max(...data.map(d => d.download_mbps));
-        const peakUl = Math.max(...data.map(d => d.upload_mbps));
-        
-        const validPings = data.map(d => d.ping_ms).filter((p): p is number => p !== null && p > 0);
-        const bestPing = validPings.length > 0 ? Math.min(...validPings) : '--';
-
         return {
             avgDl: avgDl.toFixed(1),
             avgUl: avgUl.toFixed(1),
             avgPing: avgPing.toFixed(1),
-            avgJitter: avgJitter.toFixed(1),
-            peakDl: peakDl.toFixed(1),
-            peakUl: peakUl.toFixed(1),
-            bestPing: typeof bestPing === 'number' ? bestPing.toFixed(1) : bestPing,
-            totalRuns: String(data.length)
+            avgJitter: avgJitter.toFixed(1)
         };
     };
 
@@ -102,18 +88,6 @@ export function updateAverages(appSettings: any) {
 
     const avgWanJitter = document.getElementById('avg-wan-jitter');
     if (avgWanJitter) avgWanJitter.textContent = wanStats.avgJitter;
-
-    const peakWanDl = document.getElementById('peak-wan-download');
-    if (peakWanDl) peakWanDl.textContent = wanStats.peakDl;
-
-    const peakWanUl = document.getElementById('peak-wan-upload');
-    if (peakWanUl) peakWanUl.textContent = wanStats.peakUl;
-
-    const bestWanPing = document.getElementById('best-wan-ping');
-    if (bestWanPing) bestWanPing.textContent = wanStats.bestPing;
-
-    const totalWanRuns = document.getElementById('total-wan-runs');
-    if (totalWanRuns) totalWanRuns.textContent = wanStats.totalRuns;
 }
 
 export function renderHistoryTable(

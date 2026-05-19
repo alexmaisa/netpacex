@@ -322,12 +322,9 @@ function applyHeaderSwitcher() {
 function updateUnitLabels() {
     document.querySelectorAll('#wan-card [data-i18n="unit_mbps"]').forEach(el => el.textContent = appSettings.wan_unit);
     
-    // Average cards
     const units = {
         'avg-wan-download': appSettings.wan_unit,
-        'avg-wan-upload': appSettings.wan_unit,
-        'peak-wan-download': appSettings.wan_unit,
-        'peak-wan-upload': appSettings.wan_unit
+        'avg-wan-upload': appSettings.wan_unit
     };
     for (const [id, unit] of Object.entries(units)) {
         const el = document.getElementById(id);
