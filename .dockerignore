@@ -1,0 +1,11 @@
+.git
+.forgejo
+.github
+node_modules
+static
+data
+*.db
+*.out
+.env
+.DS_Store
+netpacex
