@@ -2,38 +2,35 @@
   <img src="static/images/logo/NetPaceX.jpg" width="128" alt="NetPaceX Logo">
 </p>
 
-# NetPaceX ⚡️ `v1.5.0`
+<h1 align="center">NetPaceX ⚡️</h1>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/UI-Premium-a855f7" alt="UI-Premium">
+  <img src="https://img.shields.io/badge/version-v1.5.0-f97316" alt="Version">
+  <img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial-ef4444" alt="License">
+  <img src="https://img.shields.io/badge/Status-Active-22c55e" alt="Status">
+  <img src="https://img.shields.io/badge/Platform-Web-64748b" alt="Platform">
+  <img src="https://img.shields.io/badge/Tech-Go%20%7C%20TypeScript%20%7C%20SQLite%20%7C%20Docker-3b82f6" alt="Tech">
+  <img src="https://img.shields.io/badge/Engine-Cloudflare%20%7C%20M--Lab%20%7C%20Ookla-00bcd4" alt="Engine">
+</p>
 
 NetPaceX is a lightweight, zero-telemetry network speed testing application optimized for home servers. It is specifically designed to bypass network-wide adblockers and firewalls (such as Pi-hole or OPNsense) that frequently block commercial speed test trackers.
 
-NetPaceX measures two distinct types of network speeds:
-1. **Internet (WAN):** Measures connection speed from the home server to the external internet. Tests run directly from the Go backend to **Cloudflare**, **M-Lab (NDT7)**, or **Ookla** servers, ensuring immunity to frontend DNS blocking. **M-Lab tests now feature automatic server location discovery (City, Country).**
-2. **Local (LAN):** Measures performance between the client browser and the server. This is a self-hosted test using on-the-fly generated dummy payloads.
+NetPaceX measures connection speed from your home server to the external internet (WAN). Tests run directly from the Go backend to **Cloudflare**, **M-Lab (NDT7)**, or **Ookla** servers, ensuring immunity to frontend DNS blocking. **M-Lab tests feature automatic server location discovery (City, Country), and the dashboard renders three premium diagnostic charts in real-time.**
 
 **This version features official integrated logo, favicon, and M-Lab location discovery.**
-
-<p align="center">
-  <img src="static/images/screenshots/Speedtest_page.webp" width="800" alt="Speedtest Page">
-</p>
-<p align="center">
-  <img src="static/images/screenshots/History_page.webp" width="800" alt="History Page">
-</p>
-<p align="center">
-  <img src="static/images/screenshots/Settings_page.webp" width="800" alt="Settings Page">
-</p>
 
 ## 🚀 Key Features
 
 ### Performance & Testing
-- **Dual-Mode Testing**: Comprehensive performance metrics for both LAN (local network) and WAN (internet) environments.
 - **Multi-Engine Support**: Direct integration with **Cloudflare**, **M-Lab (NDT7)**, and **Ookla** speed test engines.
 - **Intelligent Discovery**: Automatic geographic location identification for M-Lab servers.
-- **Automated Scheduling**: Configurable automated testing via standard Cron expressions for both LAN and WAN.
+- **Automated Scheduling**: Configurable automated testing via standard Cron expressions.
 - **Comprehensive Metrics**: Real-time tracking of Download, Upload, **Jitter**, and Ping (Min/Max/Avg).
 
 ### User Interface & Experience
 - **Modern Architecture**: Fully modularized codebase with a Go-powered backend and an ES6 module-based frontend.
-- **Premium Design**: Dependency-free Vanilla JS/CSS frontend featuring a high-performance Glassmorphism interface.
+- **Premium Design**: Dependency-free Vanilla TypeScript/CSS frontend featuring a high-performance Glassmorphism interface.
 - **Data Visualization**: Interactive historical charts displaying the last 24 test results for long-term monitoring.
 - **Custom Modals**: Integrated confirmation and security dialogs for a cohesive and modern user experience.
 
@@ -46,7 +43,7 @@ NetPaceX measures two distinct types of network speeds:
 
 ## 🛠 Tech Stack
 * **Backend:** Go (Golang)
-* **Frontend:** Vanilla HTML, CSS, JavaScript (ES6 Modules)
+* **Frontend:** Vanilla HTML, CSS, TypeScript (ES6 Modules)
 * **Database:** SQLite
 * **Deployment:** Docker (Alpine branch < 30MB)
 
@@ -59,7 +56,7 @@ NetPaceX can be configured via environment variables. The easiest way is to crea
 | `APP_PASSWORD` | Password for sensitive actions (Mask MAC, Delete History) | (Empty) |
 | `TZ` | System timezone (e.g., `Asia/Jakarta`) | `UTC` |
 | `PORT` | Port the application runs on inside the container | `8080` |
-| `WAN_ENGINE` | Speed test engine to use (`ookla` or `mlab`) | `ookla` |
+| `WAN_ENGINE` | Speed test engine to use (`ookla`, `mlab`, or `cloudflare`) | `ookla` |
 
 ### Example `.env` file:
 ```bash
@@ -147,6 +144,6 @@ We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for 
 
 ## 📜 License
 
-This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)** License.
-You are free to share and adapt the material for non-commercial purposes, provided you give appropriate credit.
+This project is licensed under the **PolyForm Noncommercial License 1.0.0**.
+You are free to share and adapt the material for non-commercial purposes, provided you give appropriate credit and keep all notices intact.
 See the [LICENSE](LICENSE) file for more information.
