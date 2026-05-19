@@ -96,7 +96,7 @@ body {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 1rem 2rem;
+	padding: 0.5rem 1.25rem;
 	gap: 1.5rem;
 	position: relative;
 	z-index: 1001;
@@ -129,14 +129,14 @@ body {
 .header-brand {
 	display: flex;
 	align-items: center;
-	gap: 0.8rem;
+	gap: 0.6rem;
 }
 
 .nav-logo {
-	height: 38px;
-	width: 38px;
+	height: 32px;
+	width: 32px;
 	object-fit: cover;
-	border-radius: 8px;
+	border-radius: 6px;
 	border: 1px solid rgba(255, 255, 255, 0.1);
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 	flex-shrink: 0;
@@ -150,21 +150,21 @@ body {
 
 .subtitle {
 	color: var(--text-muted);
-	font-size: 0.9rem;
-	margin-top: -0.1rem;
+	font-size: 0.75rem;
+	margin-top: -0.05rem;
 	line-height: 1;
 }
 
 .logo {
-	font-size: 2.2rem;
+	font-size: 1.4rem;
 	font-weight: 800;
 	background: linear-gradient(135deg, #fff, var(--text-muted));
 	background-clip: text;
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
-	margin-bottom: 0.2rem;
-	letter-spacing: -1px;
-	line-height: 1;
+	margin-bottom: 0;
+	letter-spacing: -0.5px;
+	line-height: 1.1;
 }
 
 /* Buttons */
@@ -628,10 +628,10 @@ footer a:hover {
 	background: var(--glass-bg);
 	color: var(--text-main);
 	border: 1px solid var(--glass-border);
-	padding: 0.5rem 1rem;
+	padding: 0.35rem 0.75rem;
 	border-radius: 8px;
 	font-family: inherit;
-	font-size: 0.9rem;
+	font-size: 0.8rem;
 	outline: none;
 	cursor: pointer;
 	backdrop-filter: blur(10px);
@@ -723,11 +723,11 @@ footer a:hover {
 	background: transparent;
 	color: var(--text-muted);
 	border: none;
-	padding: 0.5rem 1.5rem;
+	padding: 0.4rem 1rem;
 	border-radius: 8px;
 	font-family: inherit;
 	font-weight: 600;
-	font-size: 0.9rem;
+	font-size: 0.85rem;
 	cursor: pointer;
 	transition: var(--transition);
 }
