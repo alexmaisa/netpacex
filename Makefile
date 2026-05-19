@@ -36,7 +36,7 @@ stop:
 		echo "Killing processes on ports 8080/5173: $$PIDS"; \
 		kill -9 $$PIDS 2>/dev/null || true; \
 	fi
-	@# Also kill by process name to be thorough
-	@pkill -f "netpacex" 2>/dev/null || true
-	@pkill -f "vite" 2>/dev/null || true
+	@# Also kill by process name to be thorough (exact match to protect runner processes)
+	@pkill -x "netpacex" 2>/dev/null || true
+	@pkill -x "vite" 2>/dev/null || true
 	@echo "Processes stopped successfully."
