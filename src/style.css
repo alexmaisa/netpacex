@@ -84,7 +84,7 @@ body {
 .container {
 	width: 100%;
 	max-width: 1350px;
-	padding: 5.5rem 1.5rem 1.5rem 1.5rem;
+	padding: 5.5rem 1.5rem 3.5rem 1.5rem;
 	flex: 1;
 	display: flex;
 	flex-direction: column;
@@ -481,10 +481,23 @@ h2 {
 
 /* Footer */
 footer {
-	padding: 2rem;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	padding: 0.4rem 1.5rem;
 	text-align: center;
 	color: var(--text-muted);
-	font-size: 0.9rem;
+	font-size: 0.8rem;
+	background: var(--glass-bg);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border: 1px solid var(--glass-border);
+	border-bottom: none;
+	border-radius: 12px 12px 0 0 !important;
+	box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+	z-index: 1001;
+	box-sizing: border-box;
 }
 
 footer a {
@@ -582,7 +595,7 @@ footer a:hover {
 	}
 
 	.container {
-		padding: 4.5rem 0.5rem 1rem 0.5rem;
+		padding: 4.5rem 0.5rem 2.5rem 0.5rem;
 	}
 	.metrics {
 		grid-template-columns: 1fr;
