@@ -236,6 +236,10 @@ func performWANTest() (*WANHistory, error) {
 		var err error
 		if engine == "mlab" {
 			record, err = runMLabTest(context.Background(), nil)
+			if err != nil {
+				log.Printf("Scheduled M-Lab test failed: %v. Falling back to Cloudflare...", err)
+				record, err = runCloudflareTest(context.Background(), nil)
+			}
 		} else {
 			record, err = runCloudflareTest(context.Background(), nil)
 		}
@@ -352,13 +356,20 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 			record, err = runMLabTest(r.Context(), func(e WANEvent) {
 				sendEvent(e.Type, e.Value, e.Info)
 			})
+			if err != nil {
+				log.Printf("Interactive M-Lab test failed: %v. Falling back to Cloudflare...", err)
+				sendEvent("info", nil, "M-Lab server location failed. Falling back to Cloudflare...")
+				record, err = runCloudflareTest(r.Context(), func(e WANEvent) {
+					sendEvent(e.Type, e.Value, e.Info)
+				})
+			}
 		} else {
 			record, err = runCloudflareTest(r.Context(), func(e WANEvent) {
 				sendEvent(e.Type, e.Value, e.Info)
 			})
 		}
 		if err != nil {
-			sendEvent("error", err.Error(), fmt.Sprintf("%s test failed", engine))
+			sendEvent("error", err.Error(), "Speed test failed")
 			return
 		}
 		_, dbErr := db.Exec(`
