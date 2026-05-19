@@ -70,7 +70,7 @@ TZ=Asia/Jakarta
 
 The easiest way to run NetPaceX is using Docker. Our official images are automatically built and published to GitHub Container Registry (GHCR) for every new release.
 
-1. **Create a `docker-compose.yml` file**:
+1. **Create a `compose.yaml` file**:
    ```yaml
    services:
      netpacex:
@@ -91,6 +91,12 @@ The easiest way to run NetPaceX is using Docker. Our official images are automat
          timeout: 10s
          retries: 3
    ```
+
+   > [!TIP]
+   > If you are deploying NetPaceX using images published by your private **Forgejo Package Registry**, you can use the pre-configured [compose.forgejo.yaml](compose.forgejo.yaml) instead:
+   > ```bash
+   > docker compose -f compose.forgejo.yaml up -d
+   > ```
 
    > [!TIP]
    > If you are using **Synology NAS** with `network_mode: host`, ensure the `PORT` environment variable matches your desired port to prevent healthcheck conflicts (e.g., DSM on 5000/5001 or other apps on 8080).
@@ -118,7 +124,7 @@ If you want to modify the code or build your own image locally:
    ```
 3. Start using the build-focused compose file:
    ```bash
-   docker compose -f docker-compose.build.yml up -d --build
+   docker compose -f compose.build.yaml up -d --build
    ```
 
 *(Note: For the most accurate WAN results without Docker NAT overhead, add `network_mode: host` to your compose file. If using host mode, you can change the `PORT` in your `.env` file to avoid conflicts with other services.)*
