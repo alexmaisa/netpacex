@@ -90,25 +90,7 @@ func handleWANHistoryDelete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func handleLANHistoryDelete(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
-	id := r.URL.Query().Get("id")
-	if id == "" {
-		http.Error(w, "Missing ID", http.StatusBadRequest)
-		return
-	}
-
-	_, err := db.Exec("DELETE FROM lan_history WHERE id = ?", id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-}
 
 func handleTimezones(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")

@@ -1007,18 +1007,21 @@ footer a:hover {
 .modal-item .value .jitter { color: var(--accent-ping); }
 
 /* Averages Section Styling */
-.averages-container {
+.dashboard-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 1.5rem;
+	align-items: stretch; /* Make both columns equal in height */
 }
 
 .averages-card {
 	padding: 1.25rem !important;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 
 .averages-card.wan { border-left: 4px solid var(--accent-1); }
-.averages-card.lan { border-left: 4px solid var(--accent-2); }
 
 .averages-card .card-header {
 	justify-content: flex-start;
@@ -1031,11 +1034,10 @@ footer a:hover {
 }
 
 .averages-card.wan .card-icon { background: rgba(59, 130, 246, 0.1); color: var(--accent-1); }
-.averages-card.lan .card-icon { background: rgba(139, 92, 246, 0.1); color: var(--accent-2); }
 
 .averages-grid {
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: repeat(2, 1fr); /* 2 columns for a neat 4x2 vertical layout */
 	gap: 1rem;
 	margin-top: 1rem;
 }
@@ -1083,9 +1085,9 @@ footer a:hover {
 }
 
 @media (max-width: 1024px) {
-	.averages-container {
+	.dashboard-grid {
 		grid-template-columns: 1fr;
-		gap: 1rem;
+		gap: 1.5rem;
 	}
 }
 

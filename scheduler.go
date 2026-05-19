@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/robfig/cron/v3"
 )
@@ -51,21 +50,6 @@ func updateCron() {
 			log.Printf("Cron: Failed to schedule WAN: %v", err)
 		} else {
 			log.Printf("Cron: WAN scheduled with expr: %s", settings["cron_wan_expr"])
-		}
-	}
-
-	// Schedule LAN
-	if settings["cron_lan_enable"] == "true" && settings["cron_lan_expr"] != "" && settings["cron_lan_target"] != "" {
-		targetIP := settings["cron_lan_target"]
-		_, err := globalCron.AddFunc(settings["cron_lan_expr"], func() {
-			log.Printf("Cron: Starting scheduled LAN test to %s...", targetIP)
-			time.Sleep(1 * time.Second) // Small delay to favor WAN test if both start at same minute
-			performLANTest(targetIP)
-		})
-		if err != nil {
-			log.Printf("Cron: Failed to schedule LAN: %v", err)
-		} else {
-			log.Printf("Cron: LAN scheduled to %s with expr: %s", targetIP, settings["cron_lan_expr"])
 		}
 	}
 }

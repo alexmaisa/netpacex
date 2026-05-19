@@ -66,11 +66,6 @@ func main() {
 	mux.Handle("/", securityMiddleware(fs))
 
 	// API Endpoints - Wrapped with security middleware
-	registerHandler(mux, "/api/lan/ping", handleLANPing)
-	registerHandler(mux, "/api/lan/download", handleLANDownload)
-	registerHandler(mux, "/api/lan/upload", handleLANUpload)
-	registerHandler(mux, "/api/lan/save", handleLANSave)
-	registerHandler(mux, "/api/lan/history", handleLANHistory)
 	registerHandler(mux, "/api/wan/test", handleWANTest)
 	registerHandler(mux, "/api/wan/history", handleWANHistory)
 	registerHandler(mux, "/api/settings", handleSettings)
@@ -78,7 +73,6 @@ func main() {
 	registerHandler(mux, "/api/auth/verify", rateLimitMiddleware(handleAuthVerify, 2*time.Second)) // Rate limit auth
 	registerHandler(mux, "/api/timezones", handleTimezones)
 	registerHandler(mux, "/api/wan/history/delete", handleWANHistoryDelete)
-	registerHandler(mux, "/api/lan/history/delete", handleLANHistoryDelete)
 
 	initScheduler()
 

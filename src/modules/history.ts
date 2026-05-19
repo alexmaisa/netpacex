@@ -1,25 +1,15 @@
 /**
  * History data fetching, table rendering, and averages
  */
-import { formatSpeed, maskMAC } from './utils';
+import { formatSpeed } from './utils';
 
 export interface WANHistoryItem {
     id: number;
     server_name: string;
     ping_ms: number | null;
-    download_mbps: number;
-    upload_mbps: number;
-    test_date: string;
-    raw_date: string;
-    [key: string]: any;
-}
-
-export interface LANHistoryItem {
-    id: number;
-    ip_address: string;
-    mac_address: string;
-    conn_type: string;
-    ping_ms: number | null;
+    jitter_ms: number | null;
+    min_ping_ms: number | null;
+    max_ping_ms: number | null;
     download_mbps: number;
     upload_mbps: number;
     test_date: string;
@@ -28,25 +18,16 @@ export interface LANHistoryItem {
 }
 
 export let wanHistoryData: WANHistoryItem[] = [];
-export let lanHistoryData: LANHistoryItem[] = [];
-export let currentHistoryTab: 'wan' | 'lan' | string = 'wan';
 export let currentPage: number = 1;
 export const ITEMS_PER_PAGE: number = 5;
 
 export async function fetchHistory(renderCallback?: () => void, averagesCallback?: () => void) {
     try {
-        const [wanRes, lanRes] = await Promise.all([
-            fetch('/api/wan/history'),
-            fetch('/api/lan/history')
-        ]);
+        const wanRes = await fetch('/api/wan/history');
         
         if (wanRes.ok) {
             const data = await wanRes.json();
             wanHistoryData = Array.isArray(data) ? data : [];
-        }
-        if (lanRes.ok) {
-            const data = await lanRes.json();
-            lanHistoryData = Array.isArray(data) ? data : [];
         }
         
         if (averagesCallback) averagesCallback();
@@ -65,36 +46,74 @@ export function updateAverages(appSettings: any) {
     };
 
     const wan24 = filterLast24h(wanHistoryData);
-    const lan24 = filterLast24h(lanHistoryData);
 
-    const calcAvg = (data: Array<{ download_mbps: number; upload_mbps: number; ping_ms: number | null }>) => {
-        if (data.length === 0) return { dl: '--', ul: '--', ping: '--' };
-        const dl = data.reduce((sum, d) => sum + d.download_mbps, 0) / data.length;
-        const ul = data.reduce((sum, d) => sum + d.upload_mbps, 0) / data.length;
-        const ping = data.reduce((sum, d) => sum + (d.ping_ms || 0), 0) / data.length;
-        return { dl: dl.toFixed(1), ul: ul.toFixed(1), ping: ping.toFixed(1) };
+    const calcStats = (data: WANHistoryItem[]) => {
+        if (data.length === 0) {
+            return {
+                avgDl: '--',
+                avgUl: '--',
+                avgPing: '--',
+                avgJitter: '--',
+                peakDl: '--',
+                peakUl: '--',
+                bestPing: '--',
+                totalRuns: '0'
+            };
+        }
+
+        const sumDl = data.reduce((sum, d) => sum + d.download_mbps, 0);
+        const sumUl = data.reduce((sum, d) => sum + d.upload_mbps, 0);
+        const sumPing = data.reduce((sum, d) => sum + (d.ping_ms || 0), 0);
+        const sumJitter = data.reduce((sum, d) => sum + (d.jitter_ms || 0), 0);
+
+        const avgDl = sumDl / data.length;
+        const avgUl = sumUl / data.length;
+        const avgPing = sumPing / data.length;
+        const avgJitter = sumJitter / data.length;
+
+        const peakDl = Math.max(...data.map(d => d.download_mbps));
+        const peakUl = Math.max(...data.map(d => d.upload_mbps));
+        
+        const validPings = data.map(d => d.ping_ms).filter((p): p is number => p !== null && p > 0);
+        const bestPing = validPings.length > 0 ? Math.min(...validPings) : '--';
+
+        return {
+            avgDl: avgDl.toFixed(1),
+            avgUl: avgUl.toFixed(1),
+            avgPing: avgPing.toFixed(1),
+            avgJitter: avgJitter.toFixed(1),
+            peakDl: peakDl.toFixed(1),
+            peakUl: peakUl.toFixed(1),
+            bestPing: typeof bestPing === 'number' ? bestPing.toFixed(1) : bestPing,
+            totalRuns: String(data.length)
+        };
     };
 
-    const wanStats = calcAvg(wan24);
-    const lanStats = calcAvg(lan24);
+    const wanStats = calcStats(wan24);
 
     const avgWanDl = document.getElementById('avg-wan-download');
-    if (avgWanDl) avgWanDl.textContent = wanStats.dl;
+    if (avgWanDl) avgWanDl.textContent = wanStats.avgDl;
     
     const avgWanUl = document.getElementById('avg-wan-upload');
-    if (avgWanUl) avgWanUl.textContent = wanStats.ul;
+    if (avgWanUl) avgWanUl.textContent = wanStats.avgUl;
     
     const avgWanPing = document.getElementById('avg-wan-ping');
-    if (avgWanPing) avgWanPing.textContent = wanStats.ping;
+    if (avgWanPing) avgWanPing.textContent = wanStats.avgPing;
 
-    const avgLanDl = document.getElementById('avg-lan-download');
-    if (avgLanDl) avgLanDl.textContent = lanStats.dl;
-    
-    const avgLanUl = document.getElementById('avg-lan-upload');
-    if (avgLanUl) avgLanUl.textContent = lanStats.ul;
-    
-    const avgLanPing = document.getElementById('avg-lan-ping');
-    if (avgLanPing) avgLanPing.textContent = lanStats.ping;
+    const avgWanJitter = document.getElementById('avg-wan-jitter');
+    if (avgWanJitter) avgWanJitter.textContent = wanStats.avgJitter;
+
+    const peakWanDl = document.getElementById('peak-wan-download');
+    if (peakWanDl) peakWanDl.textContent = wanStats.peakDl;
+
+    const peakWanUl = document.getElementById('peak-wan-upload');
+    if (peakWanUl) peakWanUl.textContent = wanStats.peakUl;
+
+    const bestWanPing = document.getElementById('best-wan-ping');
+    if (bestWanPing) bestWanPing.textContent = wanStats.bestPing;
+
+    const totalWanRuns = document.getElementById('total-wan-runs');
+    if (totalWanRuns) totalWanRuns.textContent = wanStats.totalRuns;
 }
 
 export function renderHistoryTable(
@@ -104,17 +123,7 @@ export function renderHistoryTable(
     deleteCallback: (type: 'wan' | 'lan' | string, id: number) => void,
     unmaskCallback: (mac: string, cell: HTMLElement) => void
 ) {
-    const isWan = currentHistoryTab === 'wan';
-    const data = isWan ? wanHistoryData : lanHistoryData;
-    
-    const tableWanContainer = document.getElementById('history-table-wan-container');
-    if (tableWanContainer) tableWanContainer.style.display = isWan ? 'block' : 'none';
-    
-    const tableLanContainer = document.getElementById('history-table-lan-container');
-    if (tableLanContainer) tableLanContainer.style.display = !isWan ? 'block' : 'none';
-    
-    const tbodyId = isWan ? 'history-body-wan' : 'history-body-lan';
-    const tbody = document.getElementById(tbodyId);
+    const tbody = document.getElementById('history-body-wan');
     if (!tbody) return;
 
     const allowDelete = appSettings.allow_delete === 'true';
@@ -125,75 +134,37 @@ export function renderHistoryTable(
     
     tbody.innerHTML = '';
     
-    const totalPages = Math.max(1, Math.ceil(data.length / ITEMS_PER_PAGE));
+    const totalPages = Math.max(1, Math.ceil(wanHistoryData.length / ITEMS_PER_PAGE));
     if (currentPage > totalPages) currentPage = totalPages;
     
     const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-    const paginatedData = data.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+    const paginatedData = wanHistoryData.slice(startIdx, startIdx + ITEMS_PER_PAGE);
     
     paginatedData.forEach(item => {
         const tr = document.createElement('tr');
         const dateStr = item.test_date; 
         const wanUnit = appSettings.wan_unit || 'Mbps';
-        const lanUnit = appSettings.lan_unit || 'Mbps';
 
-        if (isWan) {
-            tr.innerHTML = `
-                <td>${item.server_name}</td>
-                <td class="text-center">${item.ping_ms !== null ? item.ping_ms.toFixed(1) : '--'}</td>
-                <td class="text-center">${formatSpeed(item.download_mbps, wanUnit)}</td>
-                <td class="text-center">${formatSpeed(item.upload_mbps, wanUnit)}</td>
-                <td class="text-center">${dateStr}</td>
-                ${allowDelete ? `<td class="text-center column-actions"><button class="btn-icon danger delete-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>` : ''}
-            `;
-            if (allowDelete) {
-                const btn = tr.querySelector('.delete-btn');
-                if (btn instanceof HTMLElement) {
-                    btn.onclick = (e) => {
-                        e.stopPropagation();
-                        deleteCallback('wan', item.id);
-                    };
-                }
-            }
-        } else {
-            const displayMAC = appSettings.mask_mac === 'true' ? maskMAC(item.mac_address) : item.mac_address;
-            const connIcon = item.conn_type === 'Wi-Fi' ? '📶' : (item.conn_type === 'Ethernet' ? '🔌' : (item.conn_type === 'Localhost' ? '💻' : '❓'));
-            tr.innerHTML = `
-                <td>${item.ip_address}</td>
-                <td class="mac-cell">${displayMAC}</td>
-                <td class="text-center" title="${item.conn_type}">${connIcon}</td>
-                <td class="text-center">${item.ping_ms !== null ? item.ping_ms.toFixed(1) : '--'}</td>
-                <td class="text-center">${formatSpeed(item.download_mbps, lanUnit)}</td>
-                <td class="text-center">${formatSpeed(item.upload_mbps, lanUnit)}</td>
-                <td class="text-center">${dateStr}</td>
-                ${allowDelete ? `<td class="text-center column-actions"><button class="btn-icon danger delete-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>` : ''}
-            `;
-            
-            if (allowDelete) {
-                const btn = tr.querySelector('.delete-btn');
-                if (btn instanceof HTMLElement) {
-                    btn.onclick = (e) => {
-                        e.stopPropagation();
-                        deleteCallback('lan', item.id);
-                    };
-                }
-            }
-
-            if (appSettings.mask_mac === 'true') {
-                 const macCell = tr.querySelector('.mac-cell');
-                 if (macCell instanceof HTMLElement) {
-                     macCell.style.cursor = 'pointer';
-                     macCell.title = currentTranslations['tip_unmask_mac'] || 'Click to unmask';
-                     macCell.onclick = (e) => {
-                         e.stopPropagation();
-                         unmaskCallback(item.mac_address, macCell);
-                     };
-                 }
+        tr.innerHTML = `
+            <td>${item.server_name}</td>
+            <td class="text-center">${item.ping_ms !== null ? item.ping_ms.toFixed(1) : '--'}</td>
+            <td class="text-center">${formatSpeed(item.download_mbps, wanUnit)}</td>
+            <td class="text-center">${formatSpeed(item.upload_mbps, wanUnit)}</td>
+            <td class="text-center">${dateStr}</td>
+            ${allowDelete ? `<td class="text-center column-actions"><button class="btn-icon danger delete-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>` : ''}
+        `;
+        if (allowDelete) {
+            const btn = tr.querySelector('.delete-btn');
+            if (btn instanceof HTMLElement) {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteCallback('wan', item.id);
+                };
             }
         }
         
         tr.style.cursor = 'pointer';
-        tr.onclick = () => detailsCallback(item, isWan);
+        tr.onclick = () => detailsCallback(item, true);
         
         tbody.appendChild(tr);
     });
@@ -213,8 +184,4 @@ export function renderHistoryTable(
 
 export function setCurrentPage(page: number) {
     currentPage = page;
-}
-
-export function setCurrentHistoryTab(tab: 'wan' | 'lan' | string) {
-    currentHistoryTab = tab;
 }
