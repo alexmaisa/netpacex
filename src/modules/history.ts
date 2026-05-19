@@ -1,15 +1,39 @@
 /**
  * History data fetching, table rendering, and averages
  */
-import { formatSpeed, maskMAC } from './utils.js';
+import { formatSpeed, maskMAC } from './utils';
 
-export let wanHistoryData = [];
-export let lanHistoryData = [];
-export let currentHistoryTab = 'wan';
-export let currentPage = 1;
-export const ITEMS_PER_PAGE = 5;
+export interface WANHistoryItem {
+    id: number;
+    server_name: string;
+    ping_ms: number | null;
+    download_mbps: number;
+    upload_mbps: number;
+    test_date: string;
+    raw_date: string;
+    [key: string]: any;
+}
 
-export async function fetchHistory(renderCallback, averagesCallback) {
+export interface LANHistoryItem {
+    id: number;
+    ip_address: string;
+    mac_address: string;
+    conn_type: string;
+    ping_ms: number | null;
+    download_mbps: number;
+    upload_mbps: number;
+    test_date: string;
+    raw_date: string;
+    [key: string]: any;
+}
+
+export let wanHistoryData: WANHistoryItem[] = [];
+export let lanHistoryData: LANHistoryItem[] = [];
+export let currentHistoryTab: 'wan' | 'lan' | string = 'wan';
+export let currentPage: number = 1;
+export const ITEMS_PER_PAGE: number = 5;
+
+export async function fetchHistory(renderCallback?: () => void, averagesCallback?: () => void) {
     try {
         const [wanRes, lanRes] = await Promise.all([
             fetch('/api/wan/history'),
@@ -32,43 +56,62 @@ export async function fetchHistory(renderCallback, averagesCallback) {
     }
 }
 
-export function updateAverages(appSettings) {
+export function updateAverages(appSettings: any) {
     const now = new Date();
     const twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
 
-    const filterLast24h = (data) => {
+    const filterLast24h = <T extends { raw_date: string }>(data: T[]): T[] => {
         return data.filter(d => new Date(d.raw_date).getTime() >= twentyFourHoursAgo);
     };
 
     const wan24 = filterLast24h(wanHistoryData);
     const lan24 = filterLast24h(lanHistoryData);
 
-    const calcAvg = (data) => {
+    const calcAvg = (data: Array<{ download_mbps: number; upload_mbps: number; ping_ms: number | null }>) => {
         if (data.length === 0) return { dl: '--', ul: '--', ping: '--' };
         const dl = data.reduce((sum, d) => sum + d.download_mbps, 0) / data.length;
         const ul = data.reduce((sum, d) => sum + d.upload_mbps, 0) / data.length;
-        const ping = data.reduce((sum, d) => sum + d.ping_ms, 0) / data.length;
+        const ping = data.reduce((sum, d) => sum + (d.ping_ms || 0), 0) / data.length;
         return { dl: dl.toFixed(1), ul: ul.toFixed(1), ping: ping.toFixed(1) };
     };
 
     const wanStats = calcAvg(wan24);
     const lanStats = calcAvg(lan24);
 
-    document.getElementById('avg-wan-download').textContent = wanStats.dl;
-    document.getElementById('avg-wan-upload').textContent = wanStats.ul;
-    document.getElementById('avg-wan-ping').textContent = wanStats.ping;
+    const avgWanDl = document.getElementById('avg-wan-download');
+    if (avgWanDl) avgWanDl.textContent = wanStats.dl;
+    
+    const avgWanUl = document.getElementById('avg-wan-upload');
+    if (avgWanUl) avgWanUl.textContent = wanStats.ul;
+    
+    const avgWanPing = document.getElementById('avg-wan-ping');
+    if (avgWanPing) avgWanPing.textContent = wanStats.ping;
 
-    document.getElementById('avg-lan-download').textContent = lanStats.dl;
-    document.getElementById('avg-lan-upload').textContent = lanStats.ul;
-    document.getElementById('avg-lan-ping').textContent = lanStats.ping;
+    const avgLanDl = document.getElementById('avg-lan-download');
+    if (avgLanDl) avgLanDl.textContent = lanStats.dl;
+    
+    const avgLanUl = document.getElementById('avg-lan-upload');
+    if (avgLanUl) avgLanUl.textContent = lanStats.ul;
+    
+    const avgLanPing = document.getElementById('avg-lan-ping');
+    if (avgLanPing) avgLanPing.textContent = lanStats.ping;
 }
 
-export function renderHistoryTable(appSettings, currentTranslations, detailsCallback, deleteCallback, unmaskCallback) {
+export function renderHistoryTable(
+    appSettings: any,
+    currentTranslations: Record<string, string>,
+    detailsCallback: (item: any, isWan: boolean) => void,
+    deleteCallback: (type: 'wan' | 'lan' | string, id: number) => void,
+    unmaskCallback: (mac: string, cell: HTMLElement) => void
+) {
     const isWan = currentHistoryTab === 'wan';
     const data = isWan ? wanHistoryData : lanHistoryData;
     
-    document.getElementById('history-table-wan-container').style.display = isWan ? 'block' : 'none';
-    document.getElementById('history-table-lan-container').style.display = !isWan ? 'block' : 'none';
+    const tableWanContainer = document.getElementById('history-table-wan-container');
+    if (tableWanContainer) tableWanContainer.style.display = isWan ? 'block' : 'none';
+    
+    const tableLanContainer = document.getElementById('history-table-lan-container');
+    if (tableLanContainer) tableLanContainer.style.display = !isWan ? 'block' : 'none';
     
     const tbodyId = isWan ? 'history-body-wan' : 'history-body-lan';
     const tbody = document.getElementById(tbodyId);
@@ -77,7 +120,7 @@ export function renderHistoryTable(appSettings, currentTranslations, detailsCall
     const allowDelete = appSettings.allow_delete === 'true';
     const actionHeaders = document.querySelectorAll('.column-actions');
     actionHeaders.forEach(h => {
-        h.style.display = allowDelete ? 'table-cell' : 'none';
+        if (h instanceof HTMLElement) h.style.display = allowDelete ? 'table-cell' : 'none';
     });
     
     tbody.innerHTML = '';
@@ -104,10 +147,13 @@ export function renderHistoryTable(appSettings, currentTranslations, detailsCall
                 ${allowDelete ? `<td class="text-center column-actions"><button class="btn-icon danger delete-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>` : ''}
             `;
             if (allowDelete) {
-                tr.querySelector('.delete-btn').onclick = (e) => {
-                    e.stopPropagation();
-                    deleteCallback('wan', item.id);
-                };
+                const btn = tr.querySelector('.delete-btn');
+                if (btn instanceof HTMLElement) {
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteCallback('wan', item.id);
+                    };
+                }
             }
         } else {
             const displayMAC = appSettings.mask_mac === 'true' ? maskMAC(item.mac_address) : item.mac_address;
@@ -124,20 +170,25 @@ export function renderHistoryTable(appSettings, currentTranslations, detailsCall
             `;
             
             if (allowDelete) {
-                tr.querySelector('.delete-btn').onclick = (e) => {
-                    e.stopPropagation();
-                    deleteCallback('lan', item.id);
-                };
+                const btn = tr.querySelector('.delete-btn');
+                if (btn instanceof HTMLElement) {
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteCallback('lan', item.id);
+                    };
+                }
             }
 
             if (appSettings.mask_mac === 'true') {
                  const macCell = tr.querySelector('.mac-cell');
-                 macCell.style.cursor = 'pointer';
-                 macCell.title = currentTranslations['tip_unmask_mac'] || 'Click to unmask';
-                 macCell.onclick = (e) => {
-                     e.stopPropagation();
-                     unmaskCallback(item.mac_address, macCell);
-                 };
+                 if (macCell instanceof HTMLElement) {
+                     macCell.style.cursor = 'pointer';
+                     macCell.title = currentTranslations['tip_unmask_mac'] || 'Click to unmask';
+                     macCell.onclick = (e) => {
+                         e.stopPropagation();
+                         unmaskCallback(item.mac_address, macCell);
+                     };
+                 }
             }
         }
         
@@ -147,16 +198,23 @@ export function renderHistoryTable(appSettings, currentTranslations, detailsCall
         tbody.appendChild(tr);
     });
 
-    document.getElementById('page-current').textContent = currentPage;
-    document.getElementById('page-total').textContent = totalPages;
-    document.getElementById('btn-prev').disabled = currentPage === 1;
-    document.getElementById('btn-next').disabled = currentPage === totalPages;
+    const pageCurrent = document.getElementById('page-current');
+    if (pageCurrent) pageCurrent.textContent = String(currentPage);
+    
+    const pageTotal = document.getElementById('page-total');
+    if (pageTotal) pageTotal.textContent = String(totalPages);
+    
+    const btnPrev = document.getElementById('btn-prev') as HTMLButtonElement | null;
+    if (btnPrev) btnPrev.disabled = currentPage === 1;
+    
+    const btnNext = document.getElementById('btn-next') as HTMLButtonElement | null;
+    if (btnNext) btnNext.disabled = currentPage === totalPages;
 }
 
-export function setCurrentPage(page) {
+export function setCurrentPage(page: number) {
     currentPage = page;
 }
 
-export function setCurrentHistoryTab(tab) {
+export function setCurrentHistoryTab(tab: 'wan' | 'lan' | string) {
     currentHistoryTab = tab;
 }

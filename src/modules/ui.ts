@@ -2,16 +2,26 @@
  * DOM elements, view switching, and modal management
  */
 
-export function switchMainView(viewId, callbacks = {}) {
+export interface ViewCallbacks {
+    onHistory?: () => void;
+    onSettings?: () => void;
+}
+
+export function switchMainView(viewId: 'test' | 'history' | 'settings' | string, callbacks: ViewCallbacks = {}) {
     document.querySelectorAll('.main-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
     
     const tabIndex = viewId === 'test' ? 0 : (viewId === 'history' ? 1 : 2);
     const targetTab = document.querySelectorAll('.main-tabs .tab-btn')[tabIndex];
     if (targetTab) targetTab.classList.add('active');
 
-    document.getElementById('view-test').style.display = viewId === 'test' ? 'block' : 'none';
-    document.getElementById('view-history').style.display = viewId === 'history' ? 'block' : 'none';
-    document.getElementById('view-settings').style.display = viewId === 'settings' ? 'block' : 'none';
+    const testView = document.getElementById('view-test');
+    if (testView) testView.style.display = viewId === 'test' ? 'block' : 'none';
+
+    const historyView = document.getElementById('view-history');
+    if (historyView) historyView.style.display = viewId === 'history' ? 'block' : 'none';
+
+    const settingsView = document.getElementById('view-settings');
+    if (settingsView) settingsView.style.display = viewId === 'settings' ? 'block' : 'none';
 
     if (viewId === 'history' && callbacks.onHistory) {
         callbacks.onHistory();
@@ -23,7 +33,7 @@ export function switchMainView(viewId, callbacks = {}) {
     if (navMenu) navMenu.classList.remove('active');
 }
 
-export function showToast(msg, type = 'success') {
+export function showToast(msg: string, type: 'success' | 'error' | string = 'success') {
     const toaster = document.getElementById('toaster');
     if (!toaster) return;
 
@@ -50,24 +60,28 @@ export function showToast(msg, type = 'success') {
     }, 3000);
 }
 
-export function showConfirmModal(titleText, messageText, onConfirm) {
+export function showConfirmModal(titleText: string, messageText: string, onConfirm?: () => void) {
     const modal = document.getElementById('confirm-modal');
     const title = document.getElementById('confirm-title');
     const message = document.getElementById('confirm-message');
     const cancelBtn = document.getElementById('btn-confirm-cancel');
     const proceedBtn = document.getElementById('btn-confirm-proceed');
 
-    title.textContent = titleText;
-    message.textContent = messageText;
+    if (title) title.textContent = titleText;
+    if (message) message.textContent = messageText;
     
-    proceedBtn.onclick = () => {
-        modal.style.display = 'none';
-        if (onConfirm) onConfirm();
-    };
+    if (proceedBtn && modal) {
+        proceedBtn.onclick = () => {
+            modal.style.display = 'none';
+            if (onConfirm) onConfirm();
+        };
+    }
 
-    cancelBtn.onclick = () => {
-        modal.style.display = 'none';
-    };
+    if (cancelBtn && modal) {
+        cancelBtn.onclick = () => {
+            modal.style.display = 'none';
+        };
+    }
 
-    modal.style.display = 'flex';
+    if (modal) modal.style.display = 'flex';
 }

@@ -2,7 +2,12 @@
  * Settings page logic and authentication
  */
 
-export async function handleAuthCheck() {
+export interface SaveSettingsCallbacks {
+    onSuccess?: () => void;
+    onError?: (msg: string) => void;
+}
+
+export async function handleAuthCheck(): Promise<boolean> {
     try {
         const res = await fetch('/api/auth/check');
         const data = await res.json();
@@ -13,7 +18,7 @@ export async function handleAuthCheck() {
     }
 }
 
-export async function handleAuthVerify(password) {
+export async function handleAuthVerify(password: string): Promise<boolean> {
     const res = await fetch('/api/auth/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -22,7 +27,7 @@ export async function handleAuthVerify(password) {
     return res.ok;
 }
 
-export function renderSettings(appSettings, isPasswordProtected) {
+export function renderSettings(appSettings: any, isPasswordProtected: boolean) {
     // 1. Generic Select/Input fields
     const sets = [
         { id: 'set-timezone', key: 'timezone' },
@@ -31,7 +36,7 @@ export function renderSettings(appSettings, isPasswordProtected) {
     ];
 
     sets.forEach(s => {
-        const el = document.getElementById(s.id);
+        const el = document.getElementById(s.id) as HTMLInputElement | HTMLSelectElement | null;
         if (el) el.value = appSettings[s.key] || '';
     });
 
@@ -39,20 +44,25 @@ export function renderSettings(appSettings, isPasswordProtected) {
     ['wan_unit', 'lan_unit'].forEach(key => {
         const val = appSettings[key];
         if (val) {
-            const radio = document.querySelector(`input[name="${key}"][value="${val}"]`);
+            const radio = document.querySelector(`input[name="${key}"][value="${val}"]`) as HTMLInputElement | null;
             if (radio) radio.checked = true;
         }
     });
 
     // 3. Password Protected Toggles
     const deleteGroup = document.getElementById('group-allow-delete');
-    const deleteToggle = document.getElementById('set-allow-delete');
+    const deleteToggle = document.getElementById('set-allow-delete') as HTMLInputElement | null;
     const maskGroup = document.getElementById('group-mask-mac');
-    const maskToggle = document.getElementById('set-mask-mac');
+    const maskToggle = document.getElementById('set-mask-mac') as HTMLInputElement | null;
 
-    const toggleStatus = (toggle, group, isEnabled, key) => {
+    const toggleStatus = (
+        toggle: HTMLInputElement | null,
+        group: HTMLElement | null,
+        isEnabled: boolean,
+        key: string
+    ) => {
         if (!toggle) return;
-        if (!isPasswordProtected) {
+        if (!isEnabled) {
             toggle.disabled = true;
             toggle.checked = false;
             if (group) {
@@ -73,25 +83,25 @@ export function renderSettings(appSettings, isPasswordProtected) {
     toggleStatus(maskToggle, maskGroup, isPasswordProtected, 'mask_mac');
 
     // 4. Other Toggles & Selects
-    const defaultLangSelect = document.getElementById('set-default-lang');
-    const lockLangToggle = document.getElementById('set-lock-lang');
+    const defaultLangSelect = document.getElementById('set-default-lang') as HTMLSelectElement | null;
+    const lockLangToggle = document.getElementById('set-lock-lang') as HTMLInputElement | null;
     if (defaultLangSelect) defaultLangSelect.value = appSettings.default_lang || 'en';
     if (lockLangToggle) lockLangToggle.checked = String(appSettings.lock_lang) === 'true';
 
     // 5. Cron Settings
-    const cronWanEnable = document.getElementById('set-cron-wan-enable');
-    const cronWanExpr = document.getElementById('set-cron-wan-expr');
-    const cronWanPreset = document.getElementById('set-cron-wan-preset');
+    const cronWanEnable = document.getElementById('set-cron-wan-enable') as HTMLInputElement | null;
+    const cronWanExpr = document.getElementById('set-cron-wan-expr') as HTMLInputElement | null;
+    const cronWanPreset = document.getElementById('set-cron-wan-preset') as HTMLSelectElement | null;
     const cronWanCustomWrapper = document.getElementById('cron-wan-custom-wrapper');
 
     if (cronWanEnable) cronWanEnable.checked = String(appSettings.cron_wan_enable) === 'true';
     if (cronWanExpr) cronWanExpr.value = appSettings.cron_wan_expr || '';
 
-    const cronLanEnable = document.getElementById('set-cron-lan-enable');
-    const cronLanExpr = document.getElementById('set-cron-lan-expr');
-    const cronLanPreset = document.getElementById('set-cron-lan-preset');
+    const cronLanEnable = document.getElementById('set-cron-lan-enable') as HTMLInputElement | null;
+    const cronLanExpr = document.getElementById('set-cron-lan-expr') as HTMLInputElement | null;
+    const cronLanPreset = document.getElementById('set-cron-lan-preset') as HTMLSelectElement | null;
     const cronLanCustomWrapper = document.getElementById('cron-lan-custom-wrapper');
-    const cronLanTarget = document.getElementById('set-cron-lan-target');
+    const cronLanTarget = document.getElementById('set-cron-lan-target') as HTMLInputElement | null;
 
     if (cronLanEnable) cronLanEnable.checked = String(appSettings.cron_lan_enable) === 'true';
     if (cronLanExpr) cronLanExpr.value = appSettings.cron_lan_expr || '';
@@ -100,7 +110,11 @@ export function renderSettings(appSettings, isPasswordProtected) {
     // 6. Cron Presets Visibility
     const presets = ['*/15 * * * *', '*/30 * * * *', '0 * * * *', '0 */6 * * *', '0 */12 * * *', '0 0 * * *'];
     
-    const updateCronUI = (expr, presetEl, wrapperEl) => {
+    const updateCronUI = (
+        expr: string,
+        presetEl: HTMLSelectElement | null,
+        wrapperEl: HTMLElement | null
+    ) => {
         if (!presetEl || !wrapperEl) return;
         if (presets.includes(expr)) {
             presetEl.value = expr;
@@ -115,7 +129,11 @@ export function renderSettings(appSettings, isPasswordProtected) {
     updateCronUI(appSettings.cron_lan_expr, cronLanPreset, cronLanCustomWrapper);
 }
 
-export async function saveSettings(appSettings, currentTranslations, uiCallbacks) {
+export async function saveSettings(
+    appSettings: any,
+    currentTranslations: Record<string, string>,
+    uiCallbacks: SaveSettingsCallbacks
+) {
     try {
         const res = await fetch('/api/settings', {
             method: 'POST',

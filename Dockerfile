@@ -1,22 +1,40 @@
-# Build stage
-FROM golang:1.25-alpine AS builder
+# Stage 1: Build the frontend assets
+FROM node:22-alpine AS frontend-builder
+WORKDIR /frontend
 
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files and install dependencies
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# Copy frontend source files and build
+COPY tsconfig.json vite.config.ts index.html ./
+COPY src/ ./src/
+COPY public/ ./public/
+RUN pnpm run build
+
+# Stage 2: Build the Go backend
+FROM golang:1.25-alpine AS builder
 WORKDIR /app
 
-# Download dependencies
+# Download Go dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy source code
+# Copy backend source code
 COPY . .
+
+# Copy built frontend assets from Stage 1 into the Go build directory
+COPY --from=frontend-builder /frontend/static ./static
 
 # Build the Go app statically
 # CGO_ENABLED=0 ensures a fully static binary
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o netpacex .
 
-# Final stage
+# Stage 3: Final runtime environment
 FROM alpine:latest
-
 WORKDIR /app
 
 # Install timezone data so the TZ environment variable is supported

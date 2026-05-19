@@ -1,13 +1,38 @@
 /**
  * LAN speed test implementation
  */
-import { sleep, generatePayload } from './utils.js';
+import { sleep, generatePayload } from './utils';
 
 let lanJitter = 0;
 let lanMinPing = 0;
 let lanMaxPing = 0;
 
-export async function startLANTest(lanSettings, currentTranslations, uiCallbacks, saveCallback) {
+export interface LANTestSettings {
+    DL_SIZE_MB: number;
+    UL_SIZE_MB: number;
+}
+
+export interface LANTestUICallbacks {
+    onStart?: () => void;
+    onError?: (err: any) => void;
+    onEnd?: () => void;
+}
+
+export interface LANTestResults {
+    ping: number;
+    jitter: number;
+    min_ping: number;
+    max_ping: number;
+    download: number;
+    upload: number;
+}
+
+export async function startLANTest(
+    lanSettings: LANTestSettings,
+    currentTranslations: Record<string, string>,
+    uiCallbacks: LANTestUICallbacks,
+    saveCallback?: (results: LANTestResults) => Promise<void> | void
+) {
     const lanPingEl = document.getElementById('lan-ping');
     const lanJitterDisplayEl = document.getElementById('lan-jitter-display');
     const lanDlEl = document.getElementById('lan-dl');
@@ -15,62 +40,74 @@ export async function startLANTest(lanSettings, currentTranslations, uiCallbacks
     const lanProgressEl = document.getElementById('lan-progress');
     const lanStatusEl = document.getElementById('lan-status');
 
-    // Reset UI
-    lanStatusEl.className = 'status-badge testing';
-    lanStatusEl.textContent = currentTranslations['status_testing'] || 'Testing';
-    lanPingEl.textContent = '--';
+    // Reset UI and safeguard against null
+    if (lanStatusEl) {
+        lanStatusEl.className = 'status-badge testing';
+        lanStatusEl.textContent = currentTranslations['status_testing'] || 'Testing';
+    }
+    if (lanPingEl) lanPingEl.textContent = '--';
     if (lanJitterDisplayEl) lanJitterDisplayEl.textContent = '--';
-    lanDlEl.textContent = '--';
-    lanUlEl.textContent = '--';
-    lanProgressEl.style.width = '0%';
+    if (lanDlEl) lanDlEl.textContent = '--';
+    if (lanUlEl) lanUlEl.textContent = '--';
+    if (lanProgressEl) lanProgressEl.style.width = '0%';
     
     if (uiCallbacks.onStart) uiCallbacks.onStart();
 
     try {
         // 1. measure Ping
-        lanProgressEl.style.width = '10%';
-        await measureLANPing(lanPingEl, lanJitterDisplayEl);
-        lanProgressEl.style.width = '33%';
+        if (lanProgressEl) lanProgressEl.style.width = '10%';
+        if (lanPingEl) {
+            await measureLANPing(lanPingEl, lanJitterDisplayEl);
+        }
+        if (lanProgressEl) lanProgressEl.style.width = '33%';
         
         // 2. measure Download
         await sleep(500);
-        await measureLANDownload(lanDlEl, lanSettings.DL_SIZE_MB);
-        lanProgressEl.style.width = '66%';
+        if (lanDlEl) {
+            await measureLANDownload(lanDlEl, lanSettings.DL_SIZE_MB);
+        }
+        if (lanProgressEl) lanProgressEl.style.width = '66%';
         
         // 3. measure Upload
         await sleep(500);
-        await measureLANUpload(lanUlEl, lanSettings.UL_SIZE_MB);
-        lanProgressEl.style.width = '100%';
+        if (lanUlEl) {
+            await measureLANUpload(lanUlEl, lanSettings.UL_SIZE_MB);
+        }
+        if (lanProgressEl) lanProgressEl.style.width = '100%';
 
-        lanStatusEl.className = 'status-badge completed';
-        lanStatusEl.textContent = currentTranslations['status_completed'] || 'Completed';
+        if (lanStatusEl) {
+            lanStatusEl.className = 'status-badge completed';
+            lanStatusEl.textContent = currentTranslations['status_completed'] || 'Completed';
+        }
 
-        if (saveCallback) {
+        if (saveCallback && lanPingEl && lanDlEl && lanUlEl) {
             await saveCallback({
-                ping: parseFloat(lanPingEl.textContent) || 0,
+                ping: parseFloat(lanPingEl.textContent || '0') || 0,
                 jitter: lanJitter,
                 min_ping: lanMinPing,
                 max_ping: lanMaxPing,
-                download: parseFloat(lanDlEl.textContent) || 0,
-                upload: parseFloat(lanUlEl.textContent) || 0
+                download: parseFloat(lanDlEl.textContent || '0') || 0,
+                upload: parseFloat(lanUlEl.textContent || '0') || 0
             });
         }
 
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        lanStatusEl.className = 'status-badge error';
-        lanStatusEl.textContent = currentTranslations['status_error'] || 'Error';
+        if (lanStatusEl) {
+            lanStatusEl.className = 'status-badge error';
+            lanStatusEl.textContent = currentTranslations['status_error'] || 'Error';
+        }
         if (uiCallbacks.onError) uiCallbacks.onError(e);
     } finally {
         if (uiCallbacks.onEnd) uiCallbacks.onEnd();
     }
 }
 
-async function measureLANPing(pingEl, jitterEl) {
+async function measureLANPing(pingEl: HTMLElement, jitterEl: HTMLElement | null) {
     pingEl.classList.add('testing-active');
     let totalLatency = 0;
     const pings = 5;
-    let latencies = [];
+    let latencies: number[] = [];
 
     for (let i = 0; i < pings; i++) {
         const start = performance.now();
@@ -97,7 +134,7 @@ async function measureLANPing(pingEl, jitterEl) {
     pingEl.classList.remove('testing-active');
 }
 
-async function measureLANDownload(dlEl, sizeMB) {
+async function measureLANDownload(dlEl: HTMLElement, sizeMB: number) {
     dlEl.classList.add('testing-active');
     const start = performance.now();
     const response = await fetch(`/api/lan/download?size=${sizeMB}`, { cache: 'no-store' });
@@ -107,13 +144,16 @@ async function measureLANDownload(dlEl, sizeMB) {
     }
     if (!response.ok) throw new Error('Download failed');
     
+    if (!response.body) throw new Error('Response body is null');
     const reader = response.body.getReader();
     let receivedLength = 0;
 
     while(true) {
         const {done, value} = await reader.read();
         if (done) break;
-        receivedLength += value.length;
+        if (value) {
+            receivedLength += value.length;
+        }
     }
 
     const end = performance.now();
@@ -125,7 +165,7 @@ async function measureLANDownload(dlEl, sizeMB) {
     dlEl.classList.remove('testing-active');
 }
 
-async function measureLANUpload(ulEl, sizeMB) {
+async function measureLANUpload(ulEl: HTMLElement, sizeMB: number) {
     ulEl.classList.add('testing-active');
     const payload = generatePayload(sizeMB);
     const start = performance.now();
