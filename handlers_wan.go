@@ -266,23 +266,13 @@ func performWANTest() (*WANHistory, error) {
 	if engine == "mlab" || engine == "cloudflare" {
 		var record *WANHistory
 		var err error
-		var mlabErr error
 		if engine == "mlab" {
 			record, err = runMLabTest(context.Background(), nil)
-			if err != nil {
-				mlabErr = err
-				log.Printf("Scheduled M-Lab test failed: %v. Falling back to Cloudflare...", err)
-				record, err = runCloudflareTest(context.Background(), nil)
-			}
 		} else {
 			record, err = runCloudflareTest(context.Background(), nil)
 		}
 		if err != nil {
-			errMsg := err.Error()
-			if engine == "mlab" && mlabErr != nil {
-				errMsg = fmt.Sprintf("M-Lab error: %v. Fallback Cloudflare error: %v", mlabErr, err)
-			}
-			logWANTestResult(engine, "failed", nil, errMsg)
+			logWANTestResult(engine, "failed", nil, err.Error())
 			return nil, err
 		}
 		logWANTestResult(engine, "success", record, "")
@@ -392,13 +382,6 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 			record, err = runMLabTest(r.Context(), func(e WANEvent) {
 				sendEvent(e.Type, e.Value, e.Info)
 			})
-			if err != nil {
-				log.Printf("Interactive M-Lab test failed: %v. Falling back to Cloudflare...", err)
-				sendEvent("info", nil, "M-Lab server location failed. Falling back to Cloudflare...")
-				record, err = runCloudflareTest(r.Context(), func(e WANEvent) {
-					sendEvent(e.Type, e.Value, e.Info)
-				})
-			}
 		} else {
 			record, err = runCloudflareTest(r.Context(), func(e WANEvent) {
 				sendEvent(e.Type, e.Value, e.Info)
