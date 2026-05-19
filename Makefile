@@ -14,10 +14,10 @@ help:
 	@echo "  make help   - Show this help message"
 
 dev:
-	@echo "Building frontend production assets..."
-	pnpm run build
-	@echo "Starting Go backend server..."
-	go run .
+	@echo "Starting NetPaceX development servers in parallel..."
+	@echo "Go Backend: http://localhost:8080"
+	@echo "Vite Frontend (with Auto-Reload): http://localhost:5173"
+	@(trap 'kill 0' SIGINT; pnpm run dev & go run . & wait)
 
 build:
 	@echo "Building production Docker image 'netpacex:latest'..."
