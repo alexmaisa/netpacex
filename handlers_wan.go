@@ -32,10 +32,13 @@ type WANHistory struct {
 	UploadMbps   *float64 `json:"upload_mbps"`
 	TestDate     string   `json:"test_date"`
 	RawDate      string   `json:"raw_date"`
+	Engine       string   `json:"engine"`
+	Status       string   `json:"status"`
+	ErrorMessage string   `json:"error_message"`
 }
 
 func handleWANHistory(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT id, server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps, test_date FROM wan_history ORDER BY id DESC")
+	rows, err := db.Query("SELECT id, server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps, test_date, engine, status, error_message FROM wan_history ORDER BY id DESC")
 	if err != nil {
 		http.Error(w, "Failed to fetch history: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -46,7 +49,7 @@ func handleWANHistory(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var record WANHistory
 		var rawDate string
-		if err := rows.Scan(&record.ID, &record.ServerName, &record.PingMs, &record.JitterMs, &record.MinPingMs, &record.MaxPingMs, &record.DownloadMbps, &record.UploadMbps, &rawDate); err != nil {
+		if err := rows.Scan(&record.ID, &record.ServerName, &record.PingMs, &record.JitterMs, &record.MinPingMs, &record.MaxPingMs, &record.DownloadMbps, &record.UploadMbps, &rawDate, &record.Engine, &record.Status, &record.ErrorMessage); err != nil {
 			log.Printf("Error scanning row: %v", err)
 			continue
 		}
@@ -225,6 +228,35 @@ func runMLabTest(ctx context.Context, sseHandler func(WANEvent)) (*WANHistory, e
 	return record, nil
 }
 
+// logWANTestResult inserts speedtest success or failure status into the database
+func logWANTestResult(engine string, status string, record *WANHistory, errMsg string) {
+	if status == "success" && record != nil {
+		_, err := db.Exec(`
+			INSERT INTO wan_history (server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps, engine, status, error_message)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '')
+		`, record.ServerName, record.PingMs, record.JitterMs, record.MinPingMs, record.MaxPingMs, record.DownloadMbps, record.UploadMbps, engine, status)
+		if err != nil {
+			log.Printf("Failed to insert success WAN history record: %v", err)
+		}
+	} else {
+		serverName := "Test Failed"
+		if engine == "ookla" {
+			serverName = "Ookla Server"
+		} else if engine == "mlab" {
+			serverName = "M-Lab Server"
+		} else if engine == "cloudflare" {
+			serverName = "Cloudflare Edge"
+		}
+		_, err := db.Exec(`
+			INSERT INTO wan_history (server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps, engine, status, error_message)
+			VALUES (?, NULL, NULL, NULL, NULL, NULL, NULL, ?, 'failed', ?)
+		`, serverName, engine, errMsg)
+		if err != nil {
+			log.Printf("Failed to insert failed WAN history record: %v", err)
+		}
+	}
+}
+
 // performWANTest executes a speedtest and returns results. Does NOT use flusher/SSE.
 func performWANTest() (*WANHistory, error) {
 	testMutex.Lock()
@@ -234,9 +266,11 @@ func performWANTest() (*WANHistory, error) {
 	if engine == "mlab" || engine == "cloudflare" {
 		var record *WANHistory
 		var err error
+		var mlabErr error
 		if engine == "mlab" {
 			record, err = runMLabTest(context.Background(), nil)
 			if err != nil {
+				mlabErr = err
 				log.Printf("Scheduled M-Lab test failed: %v. Falling back to Cloudflare...", err)
 				record, err = runCloudflareTest(context.Background(), nil)
 			}
@@ -244,15 +278,14 @@ func performWANTest() (*WANHistory, error) {
 			record, err = runCloudflareTest(context.Background(), nil)
 		}
 		if err != nil {
+			errMsg := err.Error()
+			if engine == "mlab" && mlabErr != nil {
+				errMsg = fmt.Sprintf("M-Lab error: %v. Fallback Cloudflare error: %v", mlabErr, err)
+			}
+			logWANTestResult(engine, "failed", nil, errMsg)
 			return nil, err
 		}
-		_, dbErr := db.Exec(`
-			INSERT INTO wan_history (server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps) 
-			VALUES (?, ?, ?, ?, ?, ?, ?)
-		`, record.ServerName, record.PingMs, record.JitterMs, record.MinPingMs, record.MaxPingMs, record.DownloadMbps, record.UploadMbps)
-		if dbErr != nil {
-			log.Printf("Failed to insert scheduled %s WAN history: %v", engine, dbErr)
-		}
+		logWANTestResult(engine, "success", record, "")
 		return record, nil
 	}
 
@@ -260,16 +293,23 @@ func performWANTest() (*WANHistory, error) {
 	log.Println("Cron: Starting WAN speed test (Ookla)...")
 	_, err := speedtest.FetchUserInfo()
 	if err != nil {
+		logWANTestResult("ookla", "failed", nil, err.Error())
 		return nil, fmt.Errorf("failed to fetch user info: %v", err)
 	}
 
 	serverList, err := speedtest.FetchServers()
 	if err != nil {
+		logWANTestResult("ookla", "failed", nil, err.Error())
 		return nil, fmt.Errorf("failed to fetch server list: %v", err)
 	}
 
 	targets, err := serverList.FindServer(nil)
 	if err != nil || len(targets) == 0 {
+		errMsg := "failed to find suitable test server"
+		if err != nil {
+			errMsg = err.Error()
+		}
+		logWANTestResult("ookla", "failed", nil, errMsg)
 		return nil, fmt.Errorf("failed to find suitable test server")
 	}
 
@@ -279,6 +319,7 @@ func performWANTest() (*WANHistory, error) {
 	log.Println("Cron: Starting Ping test...")
 	err = server.PingTest(nil)
 	if err != nil {
+		logWANTestResult("ookla", "failed", nil, err.Error())
 		return nil, fmt.Errorf("ping test failed: %v", err)
 	}
 	log.Printf("Cron: Ping result: %v ms (Jitter: %v ms)", server.Latency.Milliseconds(), server.Jitter.Milliseconds())
@@ -286,6 +327,7 @@ func performWANTest() (*WANHistory, error) {
 	log.Println("Cron: Starting Download test...")
 	err = server.DownloadTest()
 	if err != nil {
+		logWANTestResult("ookla", "failed", nil, err.Error())
 		return nil, fmt.Errorf("download test failed: %v", err)
 	}
 	dlMbps := server.DLSpeed.Mbps()
@@ -294,6 +336,7 @@ func performWANTest() (*WANHistory, error) {
 	log.Println("Cron: Starting Upload test...")
 	err = server.UploadTest()
 	if err != nil {
+		logWANTestResult("ookla", "failed", nil, err.Error())
 		return nil, fmt.Errorf("upload test failed: %v", err)
 	}
 	ulMbps := server.ULSpeed.Mbps()
@@ -310,14 +353,7 @@ func performWANTest() (*WANHistory, error) {
 		UploadMbps:   floatPtr(ulMbps),
 	}
 
-	_, dbErr := db.Exec(`
-		INSERT INTO wan_history (server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps) 
-		VALUES (?, ?, ?, ?, ?, ?, ?)
-	`, record.ServerName, record.PingMs, record.JitterMs, record.MinPingMs, record.MaxPingMs, record.DownloadMbps, record.UploadMbps)
-	if dbErr != nil {
-		log.Printf("Failed to insert scheduled WAN history: %v", dbErr)
-	}
-
+	logWANTestResult("ookla", "success", record, "")
 	log.Printf("Cron: WAN test completed in %v", time.Since(startTest))
 	return record, nil
 }
@@ -369,22 +405,18 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 		if err != nil {
+			logWANTestResult(engine, "failed", nil, err.Error())
 			sendEvent("error", err.Error(), "Speed test failed")
 			return
 		}
-		_, dbErr := db.Exec(`
-			INSERT INTO wan_history (server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps) 
-			VALUES (?, ?, ?, ?, ?, ?, ?)
-		`, record.ServerName, record.PingMs, record.JitterMs, record.MinPingMs, record.MaxPingMs, record.DownloadMbps, record.UploadMbps)
-		if dbErr != nil {
-			log.Printf("Failed to insert %s WAN history: %v", engine, dbErr)
-		}
+		logWANTestResult(engine, "success", record, "")
 		sendEvent("done", nil, fmt.Sprintf("Completed: %s", record.ServerName))
 		return
 	}
 
 	user, err := speedtest.FetchUserInfo()
 	if err != nil {
+		logWANTestResult("ookla", "failed", nil, err.Error())
 		sendEvent("error", err.Error(), "Failed to fetch user info")
 		return
 	}
@@ -392,13 +424,19 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 
 	serverList, err := speedtest.FetchServers()
 	if err != nil {
+		logWANTestResult("ookla", "failed", nil, err.Error())
 		sendEvent("error", err.Error(), "Failed to fetch server list")
 		return
 	}
 
 	targets, err := serverList.FindServer(nil)
 	if err != nil || len(targets) == 0 {
-		sendEvent("error", err.Error(), "Failed to find suitable test server")
+		errMsg := "Failed to find suitable test server"
+		if err != nil {
+			errMsg = err.Error()
+		}
+		logWANTestResult("ookla", "failed", nil, errMsg)
+		sendEvent("error", errMsg, "Failed to find suitable test server")
 		return
 	}
 
@@ -407,6 +445,7 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 
 	err = server.PingTest(nil)
 	if err != nil {
+		logWANTestResult("ookla", "failed", nil, err.Error())
 		sendEvent("error", err.Error(), "Ping test failed")
 		return
 	}
@@ -415,6 +454,7 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 
 	err = server.DownloadTest()
 	if err != nil {
+		logWANTestResult("ookla", "failed", nil, err.Error())
 		sendEvent("error", err.Error(), "Download test failed")
 		return
 	}
@@ -423,6 +463,7 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 
 	err = server.UploadTest()
 	if err != nil {
+		logWANTestResult("ookla", "failed", nil, err.Error())
 		sendEvent("error", err.Error(), "Upload test failed")
 		return
 	}
@@ -430,14 +471,17 @@ func handleWANTest(w http.ResponseWriter, r *http.Request) {
 	sendEvent("upload", ulMbps, "")
 
 	serverName := fmt.Sprintf("%s (%s)", server.Name, server.Country)
-	_, dbErr := db.Exec(`
-		INSERT INTO wan_history (server_name, ping_ms, jitter_ms, min_ping_ms, max_ping_ms, download_mbps, upload_mbps) 
-		VALUES (?, ?, ?, ?, ?, ?, ?)
-	`, serverName, float64(server.Latency.Milliseconds()), float64(server.Jitter.Milliseconds()), float64(server.MinLatency.Milliseconds()), float64(server.MaxLatency.Milliseconds()), dlMbps, ulMbps)
-	if dbErr != nil {
-		log.Printf("Failed to insert history record: %v", dbErr)
+	record := &WANHistory{
+		ServerName:   serverName,
+		PingMs:       floatPtr(float64(server.Latency.Milliseconds())),
+		JitterMs:     floatPtr(float64(server.Jitter.Milliseconds())),
+		MinPingMs:    floatPtr(float64(server.MinLatency.Milliseconds())),
+		MaxPingMs:    floatPtr(float64(server.MaxLatency.Milliseconds())),
+		DownloadMbps: floatPtr(dlMbps),
+		UploadMbps:   floatPtr(ulMbps),
 	}
 
+	logWANTestResult("ookla", "success", record, "")
 	sendEvent("done", nil, fmt.Sprintf("Completed: %s", serverName))
 }
 

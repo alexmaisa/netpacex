@@ -118,5 +118,15 @@
   "set_cat_engine": "Uji Kecepatan",
   "set_cat_scheduling": "Penjadwalan",
   "set_cat_security": "Keamanan & Data",
-  "set_cat_localization": "Lokalisasi"
+  "set_cat_localization": "Lokalisasi",
+  "title_internet_diagnostics": "Diagnostik Internet (24 Jam)",
+  "chart_success_rate": "Tingkat Kesuksesan 24 Jam",
+  "chart_engine_stats": "Performa Engine",
+  "chart_time_performance": "Penganalisis Throttling ISP",
+  "lbl_success": "Sukses",
+  "lbl_failed": "Gagal",
+  "lbl_night": "Malam (00-06)",
+  "lbl_morning": "Pagi (06-12)",
+  "lbl_afternoon": "Siang (12-18)",
+  "lbl_evening": "Sore (18-00)"
 }

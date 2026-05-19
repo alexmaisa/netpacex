@@ -129,6 +129,34 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- Internet Diagnostics (Dashboard Charts) -->
+			<div id="dashboard-charts-container" class="glass charts-card" style="display: none; margin-top: 1.5rem;">
+				<h3 class="charts-title" data-i18n="title_internet_diagnostics">Internet Diagnostics (24h)</h3>
+				<div class="charts-grid-3">
+					<!-- Chart 1: 24h Success Rate -->
+					<div class="chart-box">
+						<h4 data-i18n="chart_success_rate">24h Success Rate</h4>
+						<div class="chart-canvas-wrapper">
+							<canvas id="successRateChart"></canvas>
+						</div>
+					</div>
+					<!-- Chart 2: Engine Performance -->
+					<div class="chart-box">
+						<h4 data-i18n="chart_engine_stats">Engine Performance</h4>
+						<div class="chart-canvas-wrapper">
+							<canvas id="engineStatsChart"></canvas>
+						</div>
+					</div>
+					<!-- Chart 3: Time-of-Day Performance -->
+					<div class="chart-box">
+						<h4 data-i18n="chart_time_performance">ISP Throttling Analyzer</h4>
+						<div class="chart-canvas-wrapper">
+							<canvas id="timePerformanceChart"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div> <!-- End view-test -->
 
 		<!-- HISTORY VIEW -->

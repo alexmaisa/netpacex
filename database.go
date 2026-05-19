@@ -65,6 +65,9 @@ func initDB() {
 	db.Exec(`ALTER TABLE wan_history ADD COLUMN jitter_ms REAL DEFAULT 0;`)
 	db.Exec(`ALTER TABLE wan_history ADD COLUMN min_ping_ms REAL DEFAULT 0;`)
 	db.Exec(`ALTER TABLE wan_history ADD COLUMN max_ping_ms REAL DEFAULT 0;`)
+	db.Exec(`ALTER TABLE wan_history ADD COLUMN engine TEXT DEFAULT 'unknown';`)
+	db.Exec(`ALTER TABLE wan_history ADD COLUMN status TEXT DEFAULT 'success';`)
+	db.Exec(`ALTER TABLE wan_history ADD COLUMN error_message TEXT DEFAULT '';`)
 }
  
 // CleanupHistory deletes test results older than the retention period

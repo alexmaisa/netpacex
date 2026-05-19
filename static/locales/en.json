@@ -118,5 +118,15 @@
   "set_cat_engine": "Speed Test",
   "set_cat_scheduling": "Scheduling",
   "set_cat_security": "Security & Data",
-  "set_cat_localization": "Localization"
+  "set_cat_localization": "Localization",
+  "title_internet_diagnostics": "Internet Diagnostics (24h)",
+  "chart_success_rate": "24h Success Rate",
+  "chart_engine_stats": "Engine Performance",
+  "chart_time_performance": "ISP Throttling Analyzer",
+  "lbl_success": "Success",
+  "lbl_failed": "Failed",
+  "lbl_night": "Night (00-06)",
+  "lbl_morning": "Morning (06-12)",
+  "lbl_afternoon": "Afternoon (12-18)",
+  "lbl_evening": "Evening (18-00)"
 }

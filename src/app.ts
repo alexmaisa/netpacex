@@ -16,6 +16,7 @@ import {
 import { renderHistoryChart } from './modules/charts';
 import { startWANTest } from './modules/test_wan';
 import { handleAuthCheck, handleAuthVerify, renderSettings, saveSettings } from './modules/settings';
+import { updateDashboardCharts } from './modules/dashboard_charts';
 
 // Global App State
 interface AppSettings {
@@ -86,6 +87,7 @@ function renderAllHistory() {
     updateAverages(appSettings);
     renderHistoryChart(wanHistoryData, appSettings, currentTranslations);
     renderHistoryTable(appSettings, currentTranslations, openDetailsModal, deleteHistoryItem, () => {});
+    updateDashboardCharts(wanHistoryData, currentTranslations);
 }
 
 function setupEventListeners() {

@@ -45,7 +45,8 @@ export function updateAverages(appSettings: any) {
         return data.filter(d => new Date(d.raw_date).getTime() >= twentyFourHoursAgo);
     };
 
-    const wan24 = filterLast24h(wanHistoryData);
+    // Filter out failed runs so they do not skew statistics
+    const wan24 = filterLast24h(wanHistoryData).filter(d => d.status !== 'failed');
 
     const calcStats = (data: WANHistoryItem[]) => {
         if (data.length === 0) {
@@ -118,12 +119,21 @@ export function renderHistoryTable(
         const tr = document.createElement('tr');
         const dateStr = item.test_date; 
         const wanUnit = appSettings.wan_unit || 'Mbps';
+        const isFailed = item.status === 'failed';
+
+        if (isFailed) {
+            tr.classList.add('failed-run');
+        }
+
+        const serverDisplay = isFailed 
+            ? `<div style="display:flex; flex-direction:column;"><span style="color:#ef4444; font-weight:600;"><span style="margin-right:4px;">⚠️</span>${item.server_name}</span><small style="color:rgba(239,68,68,0.7); font-size:0.75rem; margin-top:2px;">${item.error_message || 'Speed test failed'}</small></div>`
+            : item.server_name;
 
         tr.innerHTML = `
-            <td>${item.server_name}</td>
-            <td class="text-center">${item.ping_ms !== null ? item.ping_ms.toFixed(1) : '--'}</td>
-            <td class="text-center">${formatSpeed(item.download_mbps, wanUnit)}</td>
-            <td class="text-center">${formatSpeed(item.upload_mbps, wanUnit)}</td>
+            <td>${serverDisplay}</td>
+            <td class="text-center">${!isFailed && item.ping_ms !== null ? item.ping_ms.toFixed(1) : '--'}</td>
+            <td class="text-center">${isFailed ? '<span class="status-badge failed" style="font-size:0.75rem; padding: 2px 6px;">Failed</span>' : formatSpeed(item.download_mbps, wanUnit)}</td>
+            <td class="text-center">${isFailed ? '--' : formatSpeed(item.upload_mbps, wanUnit)}</td>
             <td class="text-center">${dateStr}</td>
             ${allowDelete ? `<td class="text-center column-actions"><button class="btn-icon danger delete-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>` : ''}
         `;
