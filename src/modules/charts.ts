@@ -61,9 +61,10 @@ export function renderHistoryChart(
     };
 
     // --- WAN Chart ---
-    if (wanHistoryData.length > 0 && wanChartWrapper && wanCtx) {
+    const successfulWanData = wanHistoryData.filter(d => d.status !== 'failed');
+    if (successfulWanData.length > 0 && wanChartWrapper && wanCtx) {
         wanChartWrapper.style.display = 'block';
-        let sortedWan = [...wanHistoryData].sort((a, b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime());
+        let sortedWan = [...successfulWanData].sort((a, b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime());
         if (sortedWan.length > 24) sortedWan = sortedWan.slice(-24);
         const labels = sortedWan.map(d => formatDate(d.raw_date));
         

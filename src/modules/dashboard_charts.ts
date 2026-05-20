@@ -26,7 +26,7 @@ export function updateDashboardCharts(
         return;
     }
 
-    container.style.display = 'block';
+    container.style.display = 'flex';
 
     // 1. Filter data: last 24 hours (or fallback to 7 days if < 2 tests in 24 hours)
     const nowTime = new Date().getTime();
