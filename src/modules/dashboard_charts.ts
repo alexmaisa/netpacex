@@ -225,10 +225,10 @@ export function updateDashboardCharts(
         };
 
         const chartLabels = [
-            currentTranslations['lbl_night'] || 'Night',
-            currentTranslations['lbl_morning'] || 'Morning',
-            currentTranslations['lbl_afternoon'] || 'Afternoon',
-            currentTranslations['lbl_evening'] || 'Evening'
+            currentTranslations['lbl_night'] || 'Night (00-06)',
+            currentTranslations['lbl_morning'] || 'Morning (06-12)',
+            currentTranslations['lbl_afternoon'] || 'Afternoon (12-18)',
+            currentTranslations['lbl_evening'] || 'Evening (18-00)'
         ];
 
         const avgDlData = [
@@ -277,7 +277,14 @@ export function updateDashboardCharts(
                 },
                 scales: {
                     x: {
-                        ticks: { color: '#9ca3af', font: { family: 'Inter', size: 9 } },
+                        ticks: {
+                            color: '#9ca3af',
+                            font: { family: 'Inter', size: 9 },
+                            callback: function(this: any, value: any) {
+                                const label = this.getLabelForValue(value);
+                                return typeof label === 'string' ? label.replace(/\s*\(.*?\)/, '') : label;
+                            }
+                        },
                         grid: { color: 'rgba(255, 255, 255, 0.03)' }
                     },
                     y: {
