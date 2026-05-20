@@ -225,10 +225,10 @@ export function updateDashboardCharts(
         };
 
         const chartLabels = [
-            currentTranslations['lbl_night'] || 'Night (00-06)',
-            currentTranslations['lbl_morning'] || 'Morning (06-12)',
-            currentTranslations['lbl_afternoon'] || 'Afternoon (12-18)',
-            currentTranslations['lbl_evening'] || 'Evening (18-00)'
+            currentTranslations['lbl_night'] || 'Night',
+            currentTranslations['lbl_morning'] || 'Morning',
+            currentTranslations['lbl_afternoon'] || 'Afternoon',
+            currentTranslations['lbl_evening'] || 'Evening'
         ];
 
         const avgDlData = [

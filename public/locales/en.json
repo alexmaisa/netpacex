@@ -125,8 +125,8 @@
   "chart_time_performance": "ISP Throttling Analyzer",
   "lbl_success": "Success",
   "lbl_failed": "Failed",
-  "lbl_night": "Night (00-06)",
-  "lbl_morning": "Morning (06-12)",
-  "lbl_afternoon": "Afternoon (12-18)",
-  "lbl_evening": "Evening (18-00)"
+  "lbl_night": "Night",
+  "lbl_morning": "Morning",
+  "lbl_afternoon": "Afternoon",
+  "lbl_evening": "Evening"
 }
